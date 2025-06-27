@@ -265,18 +265,20 @@ npm run deploy:prod
 VITE_API_BASE_URL=https://your-worker-subdomain.your-subdomain.workers.dev
 ```
 
-### 3. 部署前端到GitHub Pages
+### 3. 部署前端到GitHub Pages（修复SPA路由）
 ```bash
+# 使用自动化部署脚本（推荐）
+./deploy-github-pages.sh
+
+# 或手动部署
 cd apps/web
-
-# 构建生产版本
 npm run build
-
-# 推送到GitHub（自动部署）
 git add .
-git commit -m "Deploy production version"
+git commit -m "修复SPA路由问题 - 添加404.html"
 git push origin main
 ```
+
+**重要**: 已添加404.html文件来解决单页应用路由问题。现在直接访问 `diliinfo.com/login` 等路径不会再显示404错误。
 
 ## 🔧 故障排除
 
@@ -331,6 +333,19 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
+```
+
+#### 7. GitHub Pages SPA路由404错误
+如果直接访问 `your-domain.com/login` 显示404：
+```bash
+# 检查是否存在404.html文件
+ls apps/web/public/404.html
+
+# 如果不存在，运行部署脚本
+./deploy-github-pages.sh
+
+# 或手动创建404.html
+cp apps/web/index.html apps/web/public/404.html
 ```
 
 ### 调试技巧
