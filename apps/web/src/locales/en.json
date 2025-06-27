@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "about": "About",
+    "loan": "Loan",
+    "userCenter": "My Applications"
+  },
+  "home": {
+    "heroTitle": "Get Your Credit Line Fast & Secure",
+    "heroSubtitle": "Apply now and enjoy zero interest for a limited time!",
+    "heroCTA": "Claim Free Credit",
+    "adv": {
+      "secure": "Secure",
+      "secureDesc": "Bank-level encryption & compliance.",
+      "fast": "Fast Approval",
+      "fastDesc": "Application completed in minutes.",
+      "flex": "Flexible Terms",
+      "flexDesc": "Choose repayment schedules that suit you."
+    },
+    "stats": {
+      "creditIssued": "Credit Issued",
+      "approvalTime": "Avg Approval Time",
+      "interestFree": "Max Interest-Free Days"
+    },
+    "steps": {
+      "title": "How it works",
+      "subtitle": "Get funded in three simple steps",
+      "step1": "Fill out basic info",
+      "desc1": "Provide personal & financial details in minutes.",
+      "step2": "Instant verification",
+      "desc2": "Our AI engine verifies your identity instantly.",
+      "step3": "Receive funds",
+      "desc3": "Money lands in your bank within hours."
+    },
+    "cta2": {
+      "title": "Ready to boost your financial freedom?",
+      "subtitle": "Grab your interest-free credit line today."
+    }
+  },
+  "about": {
+    "title": "About diliinfo",
+    "desc": "diliinfo is a regulated financial services provider offering transparent and fair loan products across LATAM."
+  },
+  "loan": {
+    "title": "Loan Application",
+    "desc": "Follow the steps to submit your information.",
+    "wip": "Loan wizard coming soon."
+  },
+  "login": {
+    "title": "Login",
+    "wip": "Login form WIP."
+  },
+  "register": {
+    "title": "Register",
+    "wip": "Register form WIP."
+  },
+  "user": {
+    "title": "My Applications",
+    "wip": "User dashboard WIP."
+  },
+  "footer": {
+    "copyright": "All rights reserved.",
+    "rights": "All rights reserved."
+  }
+} 

@@ -1,0 +1,64 @@
+{
+  "nav": {
+    "about": "Nosotros",
+    "loan": "Préstamo",
+    "userCenter": "Mis Solicitudes"
+  },
+  "home": {
+    "heroTitle": "Obtén tu línea de crédito rápido y seguro",
+    "heroSubtitle": "¡Solicita ahora y disfruta de intereses cero por tiempo limitado!",
+    "heroCTA": "Reclamar crédito gratis",
+    "adv": {
+      "secure": "Seguro",
+      "secureDesc": "Encriptación de nivel bancario y cumplimiento.",
+      "fast": "Aprobación rápida",
+      "fastDesc": "Solicitud completada en minutos.",
+      "flex": "Términos flexibles",
+      "flexDesc": "Elige plazos de pago que se adapten a ti."
+    }
+  },
+  "about": {
+    "title": "Acerca de diliinfo",
+    "desc": "diliinfo es un proveedor regulado de servicios financieros que ofrece productos de préstamo transparentes y justos en toda LATAM."
+  },
+  "loan": {
+    "title": "Solicitud de préstamo",
+    "desc": "Sigue los pasos para enviar tu información.",
+    "wip": "Asistente de préstamo en desarrollo."
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "wip": "Formulario de inicio en desarrollo."
+  },
+  "register": {
+    "title": "Registrarse",
+    "wip": "Formulario de registro en desarrollo."
+  },
+  "user": {
+    "title": "Mis Solicitudes",
+    "wip": "Panel de usuario en desarrollo."
+  },
+  "footer": {
+    "copyright": "Todos los derechos reservados.",
+    "rights": "Todos los derechos reservados."
+  },
+  "stats": {
+    "creditIssued": "Crédito otorgado",
+    "approvalTime": "Tiempo medio de aprobación",
+    "interestFree": "Días sin interés"
+  },
+  "steps": {
+    "title": "Cómo funciona",
+    "subtitle": "Obtén fondos en tres sencillos pasos",
+    "step1": "Completa tu información",
+    "desc1": "Proporciona datos personales y financieros en minutos.",
+    "step2": "Verificación instantánea",
+    "desc2": "Nuestro motor de IA verifica tu identidad al instante.",
+    "step3": "Recibe los fondos",
+    "desc3": "El dinero llega a tu banco en horas."
+  },
+  "cta2": {
+    "title": "¿Listo para impulsar tu libertad financiera?",
+    "subtitle": "Obtén tu línea de crédito sin intereses hoy."
+  }
+} 

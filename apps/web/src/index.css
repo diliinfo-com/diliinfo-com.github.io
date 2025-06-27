@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom global styles */
+body {
+  @apply font-sans bg-white text-gray-900;
+}
+
+/* Button primary */
+.btn-primary {
+  @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-4 rounded transition;
+}
+
+/* Container width override */
+@layer utilities {
+  .container {
+    @apply mx-auto px-4;
+    max-width: 1280px;
+  }
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary-500 to-primary-300 text-transparent bg-clip-text;
+}
+
+/* Glass card */
+.glass-card {
+  @apply backdrop-blur bg-white/60 border border-white/40 shadow-sm rounded-xl;
+}
+
+/* Animation delay utility */
+.animation-delay-2000 {
+  animation-delay: 2s;
+} 
