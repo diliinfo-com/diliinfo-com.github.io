@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]          # main 分支有变动即触发
 
+# 给予 workflow 中的 GITHUB_TOKEN 对仓库内容拥有写权限，以便推送 gh-pages
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
