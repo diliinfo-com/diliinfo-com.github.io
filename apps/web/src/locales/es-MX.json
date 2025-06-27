@@ -1,13 +1,19 @@
 {
   "nav": {
     "about": "Nosotros",
-    "loan": "Préstamo",
+    "login": "Iniciar Sesión",
     "userCenter": "Mis Solicitudes"
   },
   "home": {
+    "trustIndicator": "Regulado por CNBV y Seguro",
     "heroTitle": "Obtén tu línea de crédito rápido y seguro",
     "heroSubtitle": "¡Solicita ahora y disfruta de intereses cero por tiempo limitado!",
     "heroCTA": "Reclamar crédito gratis",
+    "benefits": {
+      "noHiddenFees": "Sin comisiones ocultas",
+      "instantApproval": "Aprobación en 3 min",
+      "bankGrade": "Seguridad bancaria"
+    },
     "adv": {
       "secure": "Seguro",
       "secureDesc": "Encriptación de nivel bancario y cumplimiento.",
@@ -60,5 +66,38 @@
   "cta2": {
     "title": "¿Listo para impulsar tu libertad financiera?",
     "subtitle": "Obtén tu línea de crédito sin intereses hoy."
+  },
+  "trust": {
+    "title": "Por qué los clientes confían en diliinfo",
+    "subtitle": "Estamos comprometidos con la transparencia, seguridad y poner a nuestros clientes primero.",
+    "badges": {
+      "secure": "Plataforma Segura",
+      "secureDesc": "Encriptación SSL de nivel bancario protege tus datos",
+      "encrypted": "Protección de Datos",
+      "encryptedDesc": "Cumple con GDPR con encriptación de 256 bits",
+      "insured": "Asegurado FDIC",
+      "insuredDesc": "Tus depósitos están protegidos hasta $250k",
+      "regulated": "Entidad Regulada",
+      "regulatedDesc": "Licenciado por CNBV y autoridades financieras"
+    }
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros clientes",
+    "subtitle": "Únete a miles de clientes satisfechos que confían en diliinfo",
+    "customer1": {
+      "name": "María González",
+      "text": "¡Me aprobaron en solo 2 minutos! El proceso fue increíblemente fluido y transparente. Sin comisiones ocultas, exactamente como prometieron.",
+      "role": "Propietaria de Pequeña Empresa"
+    },
+    "customer2": {
+      "name": "Carlos Rodríguez",
+      "text": "El mejor servicio financiero que he usado. El soporte al cliente es increíble y las tasas son inmejorables.",
+      "role": "Diseñador Freelance"
+    },
+    "customer3": {
+      "name": "Ana Martínez",
+      "text": "Finalmente, una plataforma de préstamos completamente transparente. Sabía exactamente en qué me metía desde el primer día.",
+      "role": "Gerente de Restaurante"
+    }
   }
 } 

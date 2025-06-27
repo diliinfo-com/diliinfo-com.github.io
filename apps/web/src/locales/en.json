@@ -1,13 +1,19 @@
 {
   "nav": {
     "about": "About",
-    "loan": "Loan",
+    "login": "Sign In",
     "userCenter": "My Applications"
   },
   "home": {
+    "trustIndicator": "CNBV Regulated & Secure",
     "heroTitle": "Get Your Credit Line Fast & Secure",
     "heroSubtitle": "Apply now and enjoy zero interest for a limited time!",
     "heroCTA": "Claim Free Credit",
+    "benefits": {
+      "noHiddenFees": "No hidden fees",
+      "instantApproval": "3-min approval",
+      "bankGrade": "Bank-grade security"
+    },
     "adv": {
       "secure": "Secure",
       "secureDesc": "Bank-level encryption & compliance.",
@@ -60,5 +66,38 @@
   "footer": {
     "copyright": "All rights reserved.",
     "rights": "All rights reserved."
+  },
+  "trust": {
+    "title": "Why customers trust diliinfo",
+    "subtitle": "We're committed to transparency, security, and putting our customers first.",
+    "badges": {
+      "secure": "Secure Platform",
+      "secureDesc": "Bank-level SSL encryption protects your data",
+      "encrypted": "Data Protection",
+      "encryptedDesc": "GDPR compliant with 256-bit encryption",
+      "insured": "FDIC Insured",
+      "insuredDesc": "Your deposits are protected up to $250k",
+      "regulated": "Regulated Entity",
+      "regulatedDesc": "Licensed by CNBV and financial authorities"
+    }
+  },
+  "testimonials": {
+    "title": "What our customers say",
+    "subtitle": "Join thousands of satisfied customers who trust diliinfo",
+    "customer1": {
+      "name": "María González",
+      "text": "I got approved in just 2 minutes! The process was incredibly smooth and transparent. No hidden fees, exactly as promised.",
+      "role": "Small Business Owner"
+    },
+    "customer2": {
+      "name": "Carlos Rodríguez",
+      "text": "Best financial service I've ever used. Customer support is amazing and the rates are unbeatable.",
+      "role": "Freelance Designer"
+    },
+    "customer3": {
+      "name": "Ana Martínez",
+      "text": "Finally, a lending platform that's completely transparent. I knew exactly what I was getting into from day one.",
+      "role": "Restaurant Manager"
+    }
   }
 } 
