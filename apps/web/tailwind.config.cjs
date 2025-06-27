@@ -31,6 +31,10 @@ module.exports = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
+          light: '#f1f5f9',
+          muted: '#64748b',
+          dark: '#334155',
+          primary: '#0369a1',
         },
         success: {
           50: '#f0fdf4',

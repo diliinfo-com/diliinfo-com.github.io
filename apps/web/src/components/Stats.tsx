@@ -8,9 +8,9 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  { label: 'home.stats.creditIssued', value: 5000000, unit: '$' },
-  { label: 'home.stats.approvalTime', value: 3, unit: 'min' },
-  { label: 'home.stats.interestFree', value: 30, unit: 'days' },
+  { label: 'stats.creditIssued', value: 5000000, unit: '$' },
+  { label: 'stats.approvalTime', value: 3, unit: 'min' },
+  { label: 'stats.interestFree', value: 30, unit: 'days' },
 ];
 
 function formatNumber(n: number) {

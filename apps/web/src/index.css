@@ -9,7 +9,7 @@ body {
 
 /* Button primary */
 .btn-primary {
-  @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-4 rounded transition;
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition;
 }
 
 /* Container width override */
@@ -22,12 +22,41 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  @apply bg-gradient-to-r from-primary-500 to-primary-300 text-transparent bg-clip-text;
+  @apply bg-gradient-to-r from-blue-600 to-blue-400 text-transparent bg-clip-text;
 }
 
 /* Glass card */
 .glass-card {
   @apply backdrop-blur bg-white/60 border border-white/40 shadow-sm rounded-xl;
+}
+
+/* Animations */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out both;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /* Animation delay utility */

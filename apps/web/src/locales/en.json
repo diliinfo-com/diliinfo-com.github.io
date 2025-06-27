@@ -1,14 +1,35 @@
 {
+  "common": {
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "loading": "Loading...",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "finish": "Finish"
+  },
   "nav": {
+    "home": "Home",
     "about": "About",
-    "login": "Sign In",
-    "userCenter": "My Applications"
+    "services": "Services",
+    "contact": "Contact",
+    "loan": "Apply for Loan",
+    "login": "Login",
+    "register": "Register",
+    "userCenter": "My Account",
+    "apply": "Apply Now"
   },
   "home": {
-    "trustIndicator": "CNBV Regulated & Secure",
-    "heroTitle": "Get Your Credit Line Fast & Secure",
+    "trustIndicator": "Regulated by CNBV and Secure",
+    "heroTitle": "Get your credit line fast and secure",
     "heroSubtitle": "Apply now and enjoy zero interest for a limited time!",
-    "heroCTA": "Claim Free Credit",
+    "heroCTA": "Claim free credit",
     "benefits": {
       "noHiddenFees": "No hidden fees",
       "instantApproval": "3-min approval",
@@ -16,88 +37,177 @@
     },
     "adv": {
       "secure": "Secure",
-      "secureDesc": "Bank-level encryption & compliance.",
-      "fast": "Fast Approval",
+      "secureDesc": "Bank-level encryption and compliance.",
+      "fast": "Fast approval",
       "fastDesc": "Application completed in minutes.",
-      "flex": "Flexible Terms",
-      "flexDesc": "Choose repayment schedules that suit you."
+      "flex": "Flexible terms",
+      "flexDesc": "Choose payment terms that suit you."
+    },
+    "hero": {
+      "title": "Fast and Reliable Loans for Mexico",
+      "subtitle": "Get the financing you need with the best market conditions. 100% digital process, immediate response.",
+      "cta": "Apply for Loan Now",
+      "cta2": "Learn More"
+    },
+    "features": {
+      "title": "Why choose DiliInfo?",
+      "subtitle": "We are your best option for personal loans in Mexico",
+      "fast": {
+        "title": "Fast Process",
+        "description": "Apply for your loan online in just 5 minutes"
+      },
+      "secure": {
+        "title": "100% Secure",
+        "description": "Your data is protected with the best technology"
+      },
+      "flexible": {
+        "title": "Flexible Terms",
+        "description": "Choose the term and amount that best suits you"
+      }
     },
     "stats": {
-      "creditIssued": "Credit Issued",
-      "approvalTime": "Avg Approval Time",
-      "interestFree": "Max Interest-Free Days"
+      "loans": "Loans Granted",
+      "clients": "Satisfied Clients",
+      "years": "Years of Experience",
+      "approval": "Approval Rate"
     },
     "steps": {
-      "title": "How it works",
-      "subtitle": "Get funded in three simple steps",
-      "step1": "Fill out basic info",
-      "desc1": "Provide personal & financial details in minutes.",
-      "step2": "Instant verification",
-      "desc2": "Our AI engine verifies your identity instantly.",
-      "step3": "Receive funds",
-      "desc3": "Money lands in your bank within hours."
+      "title": "Get your loan in 3 simple steps",
+      "subtitle": "Fast and completely digital process",
+      "step1": "Complete your application",
+      "desc1": "Fill out the form with your personal and work information",
+      "step2": "Immediate evaluation",
+      "desc2": "Our system will evaluate your application in real time",
+      "step3": "Receive your money",
+      "desc3": "Once approved, you will receive the money in your bank account"
     },
-    "cta2": {
-      "title": "Ready to boost your financial freedom?",
-      "subtitle": "Grab your interest-free credit line today."
+    "testimonials": {
+      "title": "What our clients say",
+      "subtitle": "Thousands of Mexicans already trust us"
+    },
+    "cta": {
+      "title": "Ready to apply for your loan?",
+      "subtitle": "Join thousands of Mexicans who have already trusted us",
+      "button": "Apply for Loan"
     }
   },
   "about": {
-    "title": "About diliinfo",
-    "desc": "diliinfo is a regulated financial services provider offering transparent and fair loan products across LATAM."
+    "title": "About Us",
+    "mission": "Our Mission",
+    "vision": "Our Vision",
+    "values": "Our Values"
   },
   "loan": {
-    "title": "Loan Application",
-    "desc": "Follow the steps to submit your information.",
-    "wip": "Loan wizard coming soon."
+    "title": "Apply for Loan",
+    "subtitle": "Complete the information to process your application",
+    "amount": "Loan amount",
+    "purpose": "Loan purpose",
+    "employment": "Employment type",
+    "income": "Monthly income",
+    "step": "Step",
+    "of": "of",
+    "personal": "Personal Information",
+    "financial": "Financial Information",
+    "documents": "Documents",
+    "review": "Review",
+    "submit": "Submit Application"
   },
-  "login": {
-    "title": "Login",
-    "wip": "Login form WIP."
+  "auth": {
+    "tabs": {
+      "user": "User",
+      "admin": "Administrator"
+    },
+    "login": {
+      "title": "Login",
+      "subtitle": "Access your account",
+      "adminSubtitle": "Access admin panel",
+      "email": "Email address",
+      "password": "Password",
+      "button": "Login",
+      "loading": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "register": "Register now"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Start your loan application",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "agreeTerms": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "button": "Create Account",
+      "loading": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Login now"
+    }
   },
-  "register": {
-    "title": "Register",
-    "wip": "Register form WIP."
-  },
-  "user": {
-    "title": "My Applications",
-    "wip": "User dashboard WIP."
+  "userCenter": {
+    "title": "My User Center",
+    "welcome": "Welcome",
+    "applications": "My Applications",
+    "profile": "My Profile",
+    "support": "Support"
   },
   "footer": {
-    "copyright": "All rights reserved.",
-    "rights": "All rights reserved."
+    "company": "Company",
+    "products": "Products",
+    "support": "Support",
+    "legal": "Legal",
+    "followUs": "Follow Us",
+    "rights": "All rights reserved"
+  },
+  "stats": {
+    "creditIssued": "Credit issued",
+    "approvalTime": "Average approval time",
+    "interestFree": "Interest-free days"
+  },
+  "cta2": {
+    "title": "Ready to boost your financial freedom?",
+    "subtitle": "Get your interest-free credit line today."
   },
   "trust": {
     "title": "Why customers trust diliinfo",
     "subtitle": "We're committed to transparency, security, and putting our customers first.",
-    "badges": {
-      "secure": "Secure Platform",
-      "secureDesc": "Bank-level SSL encryption protects your data",
-      "encrypted": "Data Protection",
-      "encryptedDesc": "GDPR compliant with 256-bit encryption",
-      "insured": "FDIC Insured",
-      "insuredDesc": "Your deposits are protected up to $250k",
-      "regulated": "Regulated Entity",
-      "regulatedDesc": "Licensed by CNBV and financial authorities"
+    "ssl": {
+      "title": "SSL Secure",
+      "desc": "Bank-level encryption"
+    },
+    "bank": {
+      "title": "Bank Grade",
+      "desc": "Security and compliance"
+    },
+    "verified": {
+      "title": "Verified",
+      "desc": "Regulated by CNBV"
+    },
+    "precision": {
+      "title": "Precision",
+      "desc": "Transparent rates"
     }
   },
   "testimonials": {
     "title": "What our customers say",
     "subtitle": "Join thousands of satisfied customers who trust diliinfo",
-    "customer1": {
+    "testimonial1": {
       "name": "María González",
-      "text": "I got approved in just 2 minutes! The process was incredibly smooth and transparent. No hidden fees, exactly as promised.",
+      "quote": "I got approved in just 2 minutes! The process was incredibly smooth and transparent. No hidden fees, exactly as promised.",
       "role": "Small Business Owner"
     },
-    "customer2": {
+    "testimonial2": {
       "name": "Carlos Rodríguez",
-      "text": "Best financial service I've ever used. Customer support is amazing and the rates are unbeatable.",
+      "quote": "Best financial service I've ever used. Customer support is amazing and the rates are unbeatable.",
       "role": "Freelance Designer"
     },
-    "customer3": {
+    "testimonial3": {
       "name": "Ana Martínez",
-      "text": "Finally, a lending platform that's completely transparent. I knew exactly what I was getting into from day one.",
-      "role": "Restaurant Manager"
+      "quote": "Finally, a lending platform that's completely transparent. I knew exactly what I was getting into from day one.",
+      "role": "Accountant"
     }
   }
 } 

@@ -8,10 +8,10 @@ export default function SecondCTA() {
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.4)_0%,transparent_40%)]" />
       <div className="container relative z-10">
         <h2 className="text-3xl md:text-4xl font-extrabold mb-6 animate-fade-in-up">
-          {t('home.cta2.title')}
+          {t('cta2.title')}
         </h2>
         <p className="mb-10 opacity-90 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
-          {t('home.cta2.subtitle')}
+          {t('cta2.subtitle')}
         </p>
         <Link
           to="/loan?promo=freeInterest"
