@@ -1,14 +1,25 @@
-name = "diliinfo"
+name = "diliinfo-backend"
 main = "index.ts"
 compatibility_date = "2024-01-30"
 
-d1_databases = [
-  { binding = "DB", database_name = "diliinfo-db", database_id = "<YOUR_DB_ID>" }
-]
+# 开发环境数据库
+[[d1_databases]]
+binding = "DB"
+database_name = "diliinfo-db-dev"
+database_id = "8735f99a-7009-4c91-87dc-5f76646fd3b2"
 
-#开发环境绑定
-[env.dev]
-route = ""
+# 开发环境变量
+[vars]
+JWT_SECRET = "dev-jwt-secret-change-in-production"
 
+# 生产环境配置
 [env.production]
-route = "api.diliinfo.com/*" 
+name = "diliinfo-backend-prod"
+
+[[env.production.d1_databases]]
+binding = "DB" 
+database_name = "diliinfo-db-prod"
+database_id = "<YOUR_PROD_DB_ID>"
+
+[env.production.vars]
+JWT_SECRET = "prod-jwt-secret-super-secure" 
