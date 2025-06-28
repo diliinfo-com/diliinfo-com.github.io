@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "dev:port": "wrangler dev --port",
     "deploy": "wrangler deploy",
     "deploy:prod": "wrangler deploy --env production"
   },
@@ -13,7 +14,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240115.0",
-    "wrangler": "^3.19.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "wrangler": "^4.22.0"
   }
 }

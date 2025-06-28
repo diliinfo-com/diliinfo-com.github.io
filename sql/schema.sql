@@ -14,14 +14,27 @@ CREATE TABLE IF NOT EXISTS admins (
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
-  email TEXT UNIQUE NOT NULL,
-  hashed_pass TEXT NOT NULL,
+  email TEXT UNIQUE,
+  phone TEXT UNIQUE,
+  hashed_pass TEXT,
   first_name TEXT,
   last_name TEXT,
-  phone TEXT,
+  phone_verified BOOLEAN DEFAULT FALSE,
+  email_verified BOOLEAN DEFAULT FALSE,
   status TEXT DEFAULT 'active',
   created_at INTEGER DEFAULT (strftime('%s','now')),
   updated_at INTEGER DEFAULT (strftime('%s','now'))
+);
+
+-- 短信验证码表
+CREATE TABLE IF NOT EXISTS sms_verifications (
+  id TEXT PRIMARY KEY,
+  phone TEXT NOT NULL,
+  code TEXT NOT NULL,
+  purpose TEXT NOT NULL, -- 'register', 'login', 'reset_password'
+  expires_at INTEGER NOT NULL,
+  verified BOOLEAN DEFAULT FALSE,
+  created_at INTEGER DEFAULT (strftime('%s','now'))
 );
 
 -- 用户会话表
@@ -48,17 +61,33 @@ CREATE TABLE IF NOT EXISTS admin_sessions (
 CREATE TABLE IF NOT EXISTS loan_applications (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL,
-  step INTEGER DEFAULT 0,
-  max_step INTEGER DEFAULT 6,
+  step INTEGER DEFAULT 1,
+  max_step INTEGER DEFAULT 12,
   status TEXT DEFAULT 'draft',
+  -- 基本信息
   amount REAL,
   purpose TEXT,
+  -- 第2步：身份信息
+  id_number TEXT,
+  real_name TEXT,
+  -- 第4步：联系人信息
+  contact1_name TEXT,
+  contact1_phone TEXT,
+  contact2_name TEXT,
+  contact2_phone TEXT,
+  -- 第7步：银行卡信息
+  bank_card_number TEXT,
+  -- 第11步：提现信息
+  withdrawal_amount REAL,
+  installment_period INTEGER,
+  -- 其他信息
   employment_type TEXT,
   monthly_income REAL,
   meta TEXT,
   submitted_at INTEGER,
   reviewed_at INTEGER,
   approved_at INTEGER,
+  approval_amount REAL,
   created_at INTEGER DEFAULT (strftime('%s','now')),
   updated_at INTEGER DEFAULT (strftime('%s','now')),
   FOREIGN KEY (user_id) REFERENCES users(id)

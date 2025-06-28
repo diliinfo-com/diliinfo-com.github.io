@@ -66,7 +66,39 @@ diliinfo-com.github.io/
 - npm 或 yarn
 - Cloudflare账户
 
-### 本地开发
+### ⚡ 一键启动 (推荐)
+
+使用我们的智能启动脚本，自动处理所有配置：
+
+```bash
+# 克隆仓库
+git clone https://github.com/diliinfo-com/diliinfo-com.github.io.git
+cd diliinfo-com.github.io
+
+# 添加执行权限
+chmod +x quick-start.sh
+
+# 首次初始化项目
+./quick-start.sh
+# 选择选项 4 (初始化项目)
+
+# 启动完整开发环境
+./quick-start.sh  
+# 选择选项 3 (完整启动)
+```
+
+🎉 **就这么简单！** 脚本会自动：
+- 安装所有依赖
+- 配置 Cloudflare D1 数据库
+- 启动前端服务器 (http://localhost:5173)
+- 启动后端服务器 (http://localhost:8787)
+- 实时监控服务状态
+
+📖 **详细使用说明**: 查看 [QUICK_START_GUIDE.md](./QUICK_START_GUIDE.md)
+
+### 🔧 手动配置 (高级用户)
+
+如果您想手动配置项目：
 
 1. **克隆仓库**
 ```bash
@@ -88,27 +120,23 @@ npm install
 
 4. **设置Cloudflare D1数据库**
 ```bash
+# 登录 Cloudflare
+npx wrangler auth login
+
 # 创建数据库
-npx wrangler d1 create diliinfo-db
+npx wrangler d1 create diliinfo-db-dev
 
 # 执行数据库架构
-npx wrangler d1 execute diliinfo-db --file=../sql/schema.sql
+npx wrangler d1 execute diliinfo-db-dev --file=../sql/schema.sql
 ```
 
 5. **配置环境变量**
-在 `workers-backend/wrangler.toml` 中添加：
+更新 `workers-backend/wrangler.toml` 中的数据库ID：
 ```toml
-[env.production]
-name = "diliinfo-api"
-compatibility_date = "2024-01-01"
-
-[[env.production.d1_databases]]
+[[d1_databases]]
 binding = "DB"
-database_name = "diliinfo-db"
+database_name = "diliinfo-db-dev"
 database_id = "你的数据库ID"
-
-[env.production.vars]
-JWT_SECRET = "你的JWT密钥"
 ```
 
 6. **启动开发服务器**
@@ -116,13 +144,13 @@ JWT_SECRET = "你的JWT密钥"
 启动后端：
 ```bash
 cd workers-backend
-npm run dev
+npm run dev --port 8787
 ```
 
 启动前端：
 ```bash
 cd apps/web
-npm run dev
+npm run dev --port 5173
 ```
 
 访问 http://localhost:5173

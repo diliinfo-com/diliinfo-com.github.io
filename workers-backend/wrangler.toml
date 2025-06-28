@@ -1,6 +1,6 @@
 name = "diliinfo-backend"
 main = "index.ts"
-compatibility_date = "2024-01-30"
+compatibility_date = "2024-06-28"
 
 # 开发环境数据库
 [[d1_databases]]

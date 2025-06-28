@@ -330,6 +330,123 @@ app.post('/api/user/applications', userAuth, async (c) => {
   }
 });
 
+// 更新申请步骤
+app.put('/api/user/applications/:id/step', userAuth, async (c) => {
+  try {
+    const applicationId = c.req.param('id');
+    const { step, data } = await c.req.json();
+    
+    // 根据步骤更新相应字段
+    let updateQuery = 'UPDATE loan_applications SET step = ?, updated_at = ? ';
+    let params = [step, Math.floor(Date.now() / 1000)];
+    
+    // 根据步骤添加相应的字段更新
+    if (step === 2 && data.idNumber && data.realName) {
+      updateQuery += ', id_number = ?, real_name = ? ';
+      params.push(data.idNumber, data.realName);
+    } else if (step === 4 && data.contact1Name) {
+      updateQuery += ', contact1_name = ?, contact1_phone = ?, contact2_name = ?, contact2_phone = ? ';
+      params.push(data.contact1Name, data.contact1Phone, data.contact2Name, data.contact2Phone);
+    } else if (step === 7 && data.bankCardNumber) {
+      updateQuery += ', bank_card_number = ? ';
+      params.push(data.bankCardNumber);
+    } else if (step === 8) {
+      updateQuery += ', status = ?, submitted_at = ? ';
+      params.push('submitted', Math.floor(Date.now() / 1000));
+    } else if (step === 10) {
+      updateQuery += ', status = ?, approved_at = ?, approval_amount = ? ';
+      params.push('approved', Math.floor(Date.now() / 1000), 50000);
+    } else if (step === 11 && data.withdrawalAmount) {
+      updateQuery += ', withdrawal_amount = ?, installment_period = ? ';
+      params.push(data.withdrawalAmount, data.installmentPeriod);
+    } else if (step === 12) {
+      updateQuery += ', status = ? ';
+      params.push('withdrawn');
+    }
+    
+    updateQuery += ' WHERE id = ?';
+    params.push(applicationId);
+    
+    await c.env.DB.prepare(updateQuery).bind(...params).run();
+    
+    return c.json({ success: true, message: 'Step updated successfully' });
+  } catch (error) {
+    return c.json({ error: 'Failed to update step' }, 500);
+  }
+});
+
+// 发送短信验证码
+app.post('/api/auth/send-sms', async (c) => {
+  try {
+    const { phone, purpose } = await c.req.json();
+    
+    // 生成6位验证码
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Math.floor(Date.now() / 1000) + 300; // 5分钟后过期
+    
+    // 存储验证码
+    await c.env.DB.prepare(`
+      INSERT INTO sms_verifications (id, phone, code, purpose, expires_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), phone, code, purpose, expiresAt).run();
+    
+    // 这里应该调用短信服务发送验证码
+    // 为了演示，我们直接返回成功
+    console.log(`发送验证码到 ${phone}: ${code}`);
+    
+    return c.json({ success: true, message: 'SMS sent successfully' });
+  } catch (error) {
+    return c.json({ error: 'Failed to send SMS' }, 500);
+  }
+});
+
+// 验证短信验证码
+app.post('/api/auth/verify-sms', async (c) => {
+  try {
+    const { phone, code } = await c.req.json();
+    
+    // 查询验证码
+    const verification = await c.env.DB.prepare(`
+      SELECT * FROM sms_verifications 
+      WHERE phone = ? AND code = ? AND verified = FALSE AND expires_at > ?
+      ORDER BY created_at DESC LIMIT 1
+    `).bind(phone, code, Math.floor(Date.now() / 1000)).first();
+    
+    if (!verification) {
+      return c.json({ error: 'Invalid or expired code' }, 400);
+    }
+    
+    // 标记为已验证
+    await c.env.DB.prepare(`
+      UPDATE sms_verifications SET verified = TRUE WHERE id = ?
+    `).bind(verification.id).run();
+    
+    // 创建或更新用户
+    const userId = crypto.randomUUID();
+    await c.env.DB.prepare(`
+      INSERT OR REPLACE INTO users (id, phone, phone_verified, status)
+      VALUES (?, ?, TRUE, 'active')
+    `).bind(userId, phone).run();
+    
+    // 创建会话
+    const token = crypto.randomUUID();
+    const expiresAt = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7天
+    
+    await c.env.DB.prepare(`
+      INSERT INTO user_sessions (id, user_id, token, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, token, expiresAt).run();
+    
+    return c.json({ 
+      success: true, 
+      token,
+      user: { id: userId, phone, phone_verified: true }
+    });
+  } catch (error) {
+    return c.json({ error: 'Failed to verify SMS' }, 500);
+  }
+});
+
 // 其他API占位符
 app.all('/api/*', (c) => c.json({ message: 'API endpoint under development' }));
 
