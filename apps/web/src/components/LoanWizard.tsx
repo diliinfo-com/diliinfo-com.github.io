@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getApiUrl } from '../config/api';
 
 interface LoanApplication {
   id?: string;
@@ -68,7 +69,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
     const fullPhone = countryCode + phone;
 
-    fetch('/api/auth/register', {
+    fetch(getApiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
