@@ -135,12 +135,29 @@ const Admin: React.FC = () => {
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
+      console.log('Fetching application steps for:', applicationId);
       const response = await fetch(getApiUrl(`/api/admin/applications/${applicationId}/steps`), { headers });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
+      console.log('Application steps data:', data);
+      console.log('Setting selectedApplication to:', data.application);
+      
+      // 确保状态更新
       setSelectedApplication(data.application);
       setApplicationSteps(data.steps || []);
+      
+      // 强制重新渲染
+      setTimeout(() => {
+        console.log('Modal should be visible now, selectedApplication:', data.application?.id);
+      }, 100);
+      
     } catch (error) {
       console.error('Failed to fetch application steps:', error);
+      alert('获取申请详情失败，请重试');
     }
   };
 

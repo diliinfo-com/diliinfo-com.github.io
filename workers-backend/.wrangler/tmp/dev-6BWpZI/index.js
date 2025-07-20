@@ -1892,7 +1892,7 @@ app.get("/api/admin/applications", adminAuth, async (c) => {
       SELECT la.*, 
              u.email, u.first_name, u.last_name,
              COUNT(up.id) as upload_count,
-             COUNT(aps.id) as completed_steps
+             COALESCE(MAX(aps.step_number), 0) as completed_steps
       FROM loan_applications la
       LEFT JOIN users u ON la.user_id = u.id
       LEFT JOIN uploads up ON la.id = up.application_id
@@ -1910,7 +1910,7 @@ app.get("/api/admin/applications/guests", adminAuth, async (c) => {
     const guestApplications = await c.env.DB.prepare(`
       SELECT la.id, la.phone, la.session_id, la.step, la.status, 
              la.started_at, la.created_at, la.updated_at,
-             COUNT(aps.id) as completed_steps,
+             COALESCE(MAX(aps.step_number), 0) as completed_steps,
              GROUP_CONCAT(aps.step_name) as step_names
       FROM loan_applications la
       LEFT JOIN application_steps aps ON la.id = aps.application_id
