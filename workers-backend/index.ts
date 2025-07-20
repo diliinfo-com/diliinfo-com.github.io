@@ -65,32 +65,79 @@ app.get('/api/health', (c) => c.json({ ok: true, timestamp: Date.now() }));
 // 用户注册
 app.post('/api/auth/register', async (c) => {
   try {
-    const { email, password, firstName, lastName, phone } = await c.req.json();
+    const { phone, password, applicationId } = await c.req.json();
     
-    if (!email || !password) {
-      return c.json({ error: 'Email and password required' }, 400);
+    if (!phone || !password) {
+      return c.json({ error: 'Phone and password required' }, 400);
     }
 
-    const hashedPassword = await hashPassword(password);
+    // 检查用户是否已存在
+    const existingUser = await c.env.DB.prepare(`
+      SELECT id FROM users WHERE phone = ?
+    `).bind(phone).first();
+    
+    if (existingUser) {
+      return c.json({ error: 'Phone number already registered' }, 400);
+    }
+    
+    // 哈希密码
+    const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+    const hashedPasswordHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
+    
     const userId = crypto.randomUUID();
     
+    // 创建用户
     await c.env.DB.prepare(`
-      INSERT INTO users (id, email, hashed_pass, first_name, last_name, phone)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).bind(userId, email, hashedPassword, firstName || '', lastName || '', phone || '').run();
-
-    const token = await createJWT({ userId, email }, c.env.JWT_SECRET || 'default-secret');
+      INSERT INTO users (id, phone, hashed_pass, phone_verified, status, created_at)
+      VALUES (?, ?, ?, TRUE, 'active', ?)
+    `).bind(userId, phone, hashedPasswordHex, Math.floor(Date.now() / 1000)).run();
+    
+    // 记录活动
+    await c.env.DB.prepare(`
+      INSERT INTO user_activities (id, user_id, activity_type, activity_data)
+      VALUES (?, ?, 'register', ?)
+    `).bind(crypto.randomUUID(), userId, JSON.stringify({ phone, source: 'loan_application' })).run();
+    
+    // 如果有申请ID，关联申请
+    if (applicationId) {
+      await c.env.DB.prepare(`
+        UPDATE loan_applications 
+        SET user_id = ?, phone = ?, is_guest = FALSE, updated_at = ?
+        WHERE id = ?
+      `).bind(userId, phone, Math.floor(Date.now() / 1000), applicationId).run();
+      
+      // 记录步骤
+      await c.env.DB.prepare(`
+        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
+        VALUES (?, ?, 1, 'user_registration', ?, ?)
+      `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, registered: true }), c.req.header('CF-Connecting-IP') || '').run();
+    }
+    
+    // 创建会话
+    const token = crypto.randomUUID();
+    const expiresAt = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
+    
+    await c.env.DB.prepare(`
+      INSERT INTO user_sessions (id, user_id, token, expires_at)
+      VALUES (?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, token, expiresAt).run();
     
     return c.json({ 
       success: true, 
-      user: { id: userId, email, firstName, lastName },
-      token 
+      token,
+      user: { id: userId, phone, phone_verified: true },
+      applicationId: applicationId || null
     });
-  } catch (error: any) {
-    if (error.message?.includes('UNIQUE constraint failed')) {
-      return c.json({ error: 'Email already registered' }, 409);
-    }
-    return c.json({ error: 'Registration failed' }, 500);
+  } catch (error) {
+    console.error(error);
+    console.error('Registration error details:', {
+      message: error.message,
+      stack: error.stack
+    });
+    return c.json({ 
+      error: 'Error al registrar', 
+      debug: error.message 
+    }, 500);
   }
 });
 
@@ -647,89 +694,6 @@ app.post('/api/auth/verify-sms', async (c) => {
     });
   } catch (error) {
     return c.json({ error: 'Failed to verify SMS' }, 500);
-  }
-});
-
-// 用户注册
-app.post('/api/auth/register', async (c) => {
-  try {
-    const { phone, password, code, applicationId } = await c.req.json();
-    
-    // 查询验证码
-    const verification = await c.env.DB.prepare(`
-      SELECT * FROM sms_verifications 
-      WHERE phone = ? AND code = ? AND verified = FALSE AND expires_at > ?
-      ORDER BY created_at DESC LIMIT 1
-    `).bind(phone, code, Math.floor(Date.now() / 1000)).first();
-    
-    if (!verification) {
-      return c.json({ error: 'Invalid or expired code' }, 400);
-    }
-    
-    // 标记为已验证
-    await c.env.DB.prepare(`
-      UPDATE sms_verifications SET verified = TRUE WHERE id = ?
-    `).bind(verification.id).run();
-    
-    // 检查用户是否已存在
-    let user = await c.env.DB.prepare(`
-      SELECT * FROM users WHERE phone = ?
-    `).bind(phone).first();
-    
-    let userId;
-    if (user) {
-      return c.json({ error: 'Phone number already registered' }, 400);
-    }
-    
-    // 创建新用户
-    userId = crypto.randomUUID();
-    // 简单的密码哈希（生产环境应使用更安全的方法）
-    const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
-    const hashedPasswordHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    await c.env.DB.prepare(`
-      INSERT INTO users (id, phone, hashed_pass, phone_verified, status, created_at)
-      VALUES (?, ?, ?, TRUE, 'active', ?)
-    `).bind(userId, phone, hashedPasswordHex, Math.floor(Date.now() / 1000)).run();
-    
-    // 记录用户活动
-    await c.env.DB.prepare(`
-      INSERT INTO user_activities (id, user_id, activity_type, activity_data)
-      VALUES (?, ?, 'register', ?)
-    `).bind(crypto.randomUUID(), userId, JSON.stringify({ phone, source: 'loan_application' })).run();
-    
-    // 如果有关联的申请，将访客申请转换为用户申请
-    if (applicationId) {
-      await c.env.DB.prepare(`
-        UPDATE loan_applications 
-        SET user_id = ?, phone = ?, is_guest = FALSE, updated_at = ?
-        WHERE id = ?
-      `).bind(userId, phone, Math.floor(Date.now() / 1000), applicationId).run();
-      
-      // 记录步骤完成
-      await c.env.DB.prepare(`
-        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
-        VALUES (?, ?, 1, 'user_registration', ?, ?)
-      `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, registered: true }), c.req.header('CF-Connecting-IP') || '').run();
-    }
-    
-    // 创建会话
-    const token = crypto.randomUUID();
-    const expiresAt = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7天
-    
-    await c.env.DB.prepare(`
-      INSERT INTO user_sessions (id, user_id, token, expires_at)
-      VALUES (?, ?, ?, ?)
-    `).bind(crypto.randomUUID(), userId, token, expiresAt).run();
-    
-    return c.json({ 
-      success: true, 
-      token,
-      user: { id: userId, phone, phone_verified: true },
-      applicationId: applicationId || null
-    });
-  } catch (error) {
-    return c.json({ error: 'Failed to register' }, 500);
   }
 });
 

@@ -32,13 +32,10 @@ interface StepProps {
 
 // 第1步：用户注册
 const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep }) => {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState(data.phone || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [code, setCode] = useState('');
-  const [codeSent, setCodeSent] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const [mockCode, setMockCode] = useState('');
   const [countryCode, setCountryCode] = useState('+86');
 
   const countryCodes = [
@@ -53,61 +50,23 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+886', name: '台湾', flag: '🇹🇼' }
   ];
 
-  const sendCode = () => {
+  const handleRegister = () => {
     if (!phone) {
-      alert('请输入手机号');
+      alert(t('errors.phoneRequired'));
       return;
     }
 
     if (!password || password.length < 6) {
-      alert('密码至少需要6位');
+      alert(t('errors.passwordMin'));
       return;
     }
 
     if (password !== confirmPassword) {
-      alert('两次输入的密码不一致');
+      alert(t('errors.passwordMismatch'));
       return;
     }
 
     const fullPhone = countryCode + phone;
-    const simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-    setMockCode(simulatedCode);
-    
-    fetch('/api/auth/send-sms', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: fullPhone, purpose: 'register' })
-    })
-    .then(response => {
-      if (response.ok) {
-        setCodeSent(true);
-        setCountdown(60);
-      } else {
-        alert('发送验证码失败，请重试');
-      }
-    })
-    .catch(() => {
-      alert('网络错误，请重试');
-    });
-  };
-
-  const verifyAndRegister = () => {
-    if (!code || code.length !== 6) {
-      alert('请输入6位验证码');
-      return;
-    }
-
-    const fullPhone = countryCode + phone;
-
-    // 在开发环境中，允许使用显示的模拟验证码
-    if (code === mockCode) {
-      if (updateApplicationStep) {
-        updateApplicationStep(1, { phone: fullPhone, registered: true });
-      }
-      onUpdate({ phone: fullPhone });
-      onNext();
-      return;
-    }
 
     fetch('/api/auth/register', {
       method: 'POST',
@@ -115,7 +74,6 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
       body: JSON.stringify({ 
         phone: fullPhone, 
         password,
-        code, 
         applicationId: data.id 
       })
     })
@@ -128,32 +86,25 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         onUpdate({ phone: fullPhone, isGuest: false });
         onNext();
       } else {
-        alert(result.error || '注册失败，请重试');
+        alert(result.error || t('errors.invalid'));
       }
     })
     .catch(() => {
-      alert('注册失败，请重试');
+      alert(t('errors.invalid'));
     });
   };
-
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [countdown]);
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">用户注册</h3>
-        <p className="text-gray-600">创建您的账户以开始申请</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step1.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step1.subtitle')}</p>
       </div>
       
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            手机号码
+            {t('loanWizard.step1.phoneLabel')}
           </label>
           <div className="flex">
             <select 
@@ -171,7 +122,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="请输入手机号码"
+              placeholder={t('loanWizard.step1.phonePlaceholder')}
               className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -179,13 +130,13 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            密码
+            {t('loanWizard.step1.passwordLabel')}
           </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="请输入密码（至少6位）"
+            placeholder={t('loanWizard.step1.passwordPlaceholder')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             minLength={6}
           />
@@ -193,86 +144,24 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            确认密码
+            {t('loanWizard.step1.confirmPasswordLabel')}
           </label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="请再次输入密码"
+            placeholder={t('loanWizard.step1.confirmPasswordPlaceholder')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
-        {!codeSent ? (
           <button
-            onClick={sendCode}
-            disabled={!phone || !password || password !== confirmPassword || countdown > 0}
+          onClick={handleRegister}
+          disabled={!phone || !password || password !== confirmPassword}
             className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            {countdown > 0 ? `重新发送 (${countdown}s)` : '发送验证码'}
+          {t('loanWizard.step1.registerButton')}
           </button>
-        ) : (
-          <div className="space-y-4">
-            {/* 模拟验证码显示区域 */}
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                <h4 className="text-sm font-medium text-yellow-800">测试用验证码</h4>
-              </div>
-              <p className="text-sm text-yellow-700 mb-2">
-                为了方便测试，验证码已显示在下方：
-              </p>
-              <div className="bg-white border border-yellow-300 rounded px-3 py-2 font-mono text-lg font-bold text-center text-yellow-800">
-                {mockCode}
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <p className="text-xs text-yellow-600">
-                  💡 生产环境中此提示将被移除，验证码将通过短信发送
-                </p>
-                <button
-                  onClick={() => setCode(mockCode)}
-                  className="text-xs bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-2 py-1 rounded border border-yellow-300 transition-colors"
-                >
-                  一键填入
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                验证码
-              </label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="请输入6位验证码"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                maxLength={6}
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={sendCode}
-                disabled={countdown > 0}
-                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {countdown > 0 ? `重新发送 (${countdown}s)` : '重新发送'}
-              </button>
-              <button
-                onClick={verifyAndRegister}
-                disabled={!code || code.length !== 6}
-                className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                完成注册
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -280,12 +169,13 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
 // 第2步：身份信息
 const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+  const { t } = useTranslation();
   const [idNumber, setIdNumber] = useState(data.idNumber || '');
   const [realName, setRealName] = useState(data.realName || '');
 
   const handleNext = () => {
     if (!idNumber || !realName) {
-      alert('请填写完整信息');
+      alert(t('errors.required'));
       return;
     }
     onUpdate({ idNumber, realName });
@@ -295,33 +185,33 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">身份信息</h3>
-        <p className="text-gray-600">请填写您的真实身份信息</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step2.subtitle')}</p>
       </div>
       
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            真实姓名
+            {t('loanWizard.step2.realNameLabel')}
           </label>
           <input
             type="text"
             value={realName}
             onChange={(e) => setRealName(e.target.value)}
-            placeholder="请输入真实姓名"
+            placeholder={t('loanWizard.step2.realNamePlaceholder')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            身份证号码
+            {t('loanWizard.step2.idNumberLabel')}
           </label>
           <input
             type="text"
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
-            placeholder="请输入身份证号码"
+            placeholder={t('loanWizard.step2.idNumberPlaceholder')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             maxLength={18}
           />
@@ -333,13 +223,13 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          下一步
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -348,22 +238,50 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 
 // 第3步：身份证上传
 const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
+  const { t } = useTranslation();
   const [frontUploaded, setFrontUploaded] = useState(false);
   const [backUploaded, setBackUploaded] = useState(false);
+  const [frontUploading, setFrontUploading] = useState(false);
+  const [backUploading, setBackUploading] = useState(false);
+  const [frontFileName, setFrontFileName] = useState('');
+  const [backFileName, setBackFileName] = useState('');
 
-  const handleFileUpload = (type: 'front' | 'back') => {
-    // 这里应该实现真实的文件上传逻辑
-    // 为了演示，我们直接设置为已上传
+  const handleFileUpload = (type: 'front' | 'back', file: File) => {
     if (type === 'front') {
-      setFrontUploaded(true);
+      setFrontUploading(true);
+      setFrontFileName(file.name);
+      // 模拟上传过程
+      setTimeout(() => {
+        setFrontUploading(false);
+        setFrontUploaded(true);
+      }, 2000);
     } else {
-      setBackUploaded(true);
+      setBackUploading(true);
+      setBackFileName(file.name);
+      // 模拟上传过程
+      setTimeout(() => {
+        setBackUploading(false);
+        setBackUploaded(true);
+      }, 2000);
     }
+  };
+
+  const handleFileSelect = (type: 'front' | 'back') => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileUpload(type, file);
+      }
+    };
+    input.click();
   };
 
   const handleNext = () => {
     if (!frontUploaded || !backUploaded) {
-      alert('请上传身份证正反面照片');
+      alert(t('errors.required'));
       return;
     }
     onNext();
@@ -372,8 +290,8 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">上传身份证</h3>
-        <p className="text-gray-600">请上传身份证正反面清晰照片</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step3.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step3.subtitle')}</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -381,17 +299,27 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
           <div className="space-y-4">
             <div className="text-4xl text-gray-400">📄</div>
             <div>
-              <h4 className="font-medium">身份证正面</h4>
-              <p className="text-sm text-gray-500">包含头像的一面</p>
+              <h4 className="font-medium">{t('loanWizard.step3.front')}</h4>
+              <p className="text-sm text-gray-500">{t('loanWizard.step3.frontDesc')}</p>
             </div>
             {frontUploaded ? (
-              <div className="text-green-600">✓ 已上传</div>
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {frontFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+              </div>
+            ) : frontUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                </div>
+              </div>
             ) : (
               <button
-                onClick={() => handleFileUpload('front')}
+                onClick={() => handleFileSelect('front')}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                点击上传
+                {t('loanWizard.step3.uploadButton')}
               </button>
             )}
           </div>
@@ -401,17 +329,27 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
           <div className="space-y-4">
             <div className="text-4xl text-gray-400">📄</div>
             <div>
-              <h4 className="font-medium">身份证反面</h4>
-              <p className="text-sm text-gray-500">国徽面</p>
+              <h4 className="font-medium">{t('loanWizard.step3.back')}</h4>
+              <p className="text-sm text-gray-500">{t('loanWizard.step3.backDesc')}</p>
             </div>
             {backUploaded ? (
-              <div className="text-green-600">✓ 已上传</div>
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {backFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+              </div>
+            ) : backUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                </div>
+              </div>
             ) : (
               <button
-                onClick={() => handleFileUpload('back')}
+                onClick={() => handleFileSelect('back')}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                点击上传
+                {t('loanWizard.step3.uploadButton')}
               </button>
             )}
           </div>
@@ -423,13 +361,13 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          下一步
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -438,6 +376,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
 
 // 第4步：联系人信息
 const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+  const { t } = useTranslation();
   const [contact1Name, setContact1Name] = useState(data.contact1Name || '');
   const [contact1Phone, setContact1Phone] = useState(data.contact1Phone || '');
   const [contact2Name, setContact2Name] = useState(data.contact2Name || '');
@@ -445,7 +384,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 
   const handleNext = () => {
     if (!contact1Name || !contact1Phone || !contact2Name || !contact2Phone) {
-      alert('请填写完整的联系人信息');
+      alert(t('errors.required'));
       return;
     }
     onUpdate({ contact1Name, contact1Phone, contact2Name, contact2Phone });
@@ -455,35 +394,35 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">联系人信息</h3>
-        <p className="text-gray-600">请填写两位联系人的信息</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step4.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step4.subtitle')}</p>
       </div>
       
       <div className="space-y-6">
         <div className="border rounded-lg p-4">
-          <h4 className="font-semibold mb-4">联系人1</h4>
+          <h4 className="font-semibold mb-4">{t('loanWizard.step4.contact1Title')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                姓名
+                {t('loanWizard.step4.contactNameLabel')}
               </label>
               <input
                 type="text"
                 value={contact1Name}
                 onChange={(e) => setContact1Name(e.target.value)}
-                placeholder="请输入联系人姓名"
+                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                手机号码
+                {t('loanWizard.step4.contactPhoneLabel')}
               </label>
               <input
                 type="tel"
                 value={contact1Phone}
                 onChange={(e) => setContact1Phone(e.target.value)}
-                placeholder="请输入手机号码"
+                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={11}
               />
@@ -492,29 +431,29 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
         </div>
 
         <div className="border rounded-lg p-4">
-          <h4 className="font-semibold mb-4">联系人2</h4>
+          <h4 className="font-semibold mb-4">{t('loanWizard.step4.contact2Title')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                姓名
+                {t('loanWizard.step4.contactNameLabel')}
               </label>
               <input
                 type="text"
                 value={contact2Name}
                 onChange={(e) => setContact2Name(e.target.value)}
-                placeholder="请输入联系人姓名"
+                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                手机号码
+                {t('loanWizard.step4.contactPhoneLabel')}
               </label>
               <input
                 type="tel"
                 value={contact2Phone}
                 onChange={(e) => setContact2Phone(e.target.value)}
-                placeholder="请输入手机号码"
+                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={11}
               />
@@ -528,13 +467,13 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          下一步
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -543,8 +482,12 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 
 // 第5步：活体识别
 const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
+  const { t } = useTranslation();
   const [videoUploaded, setVideoUploaded] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [videoFileName, setVideoFileName] = useState('');
+  const [showVideoOptions, setShowVideoOptions] = useState(false);
 
   const startRecording = () => {
     setIsRecording(true);
@@ -552,12 +495,36 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
     setTimeout(() => {
       setIsRecording(false);
       setVideoUploaded(true);
+      setVideoFileName('liveness_video_' + Date.now() + '.mp4');
     }, 3000);
+  };
+
+  const handleVideoUpload = (file: File) => {
+    setIsUploading(true);
+    setVideoFileName(file.name);
+    // 模拟上传过程
+    setTimeout(() => {
+      setIsUploading(false);
+      setVideoUploaded(true);
+    }, 2000);
+  };
+
+  const handleVideoSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleVideoUpload(file);
+      }
+    };
+    input.click();
   };
 
   const handleNext = () => {
     if (!videoUploaded) {
-      alert('请完成活体识别');
+      alert(t('errors.required'));
       return;
     }
     onNext();
@@ -566,8 +533,8 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">活体识别</h3>
-        <p className="text-gray-600">请录制一段3秒的自拍视频进行身份验证</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step5.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step5.subtitle')}</p>
       </div>
       
       <div className="text-center">
@@ -575,35 +542,66 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
           <div className="space-y-4">
             <div className="text-6xl">📹</div>
             <div>
-              <h4 className="font-medium mb-2">活体检测</h4>
+              <h4 className="font-medium mb-2">{t('loanWizard.step5.livenessTitle')}</h4>
               <p className="text-sm text-gray-500 mb-4">
-                请保持面部正对摄像头，录制3秒视频
+                {t('loanWizard.step5.livenessDesc')}
               </p>
             </div>
             
             {videoUploaded ? (
-              <div className="text-green-600">✓ 活体识别已完成</div>
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {videoFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step5.livenessComplete')}</div>
+              </div>
+            ) : isUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step5.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '70%'}}></div>
+                </div>
+              </div>
             ) : isRecording ? (
-              <div className="text-blue-600">录制中... 请保持面部正对摄像头</div>
-            ) : (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step5.recordingDesc')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+                </div>
+              </div>
+            ) : !showVideoOptions ? (
               <button
-                onClick={startRecording}
+                onClick={() => setShowVideoOptions(true)}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                开始录制
+                {t('loanWizard.step5.startVerificationButton')}
               </button>
+            ) : (
+              <div className="space-y-3">
+                <button
+                  onClick={startRecording}
+                  className="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  {t('loanWizard.step5.startRecordingButton')}
+                </button>
+                <div className="text-gray-500 text-sm">{t('loanWizard.step5.orText')}</div>
+                <button
+                  onClick={handleVideoSelect}
+                  className="block w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  {t('loanWizard.step5.uploadVideoButton')}
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <h4 className="font-medium text-yellow-800 mb-2">录制提示：</h4>
+        <h4 className="font-medium text-yellow-800 mb-2">{t('loanWizard.step5.recordingHintTitle')}</h4>
         <ul className="text-sm text-yellow-700 space-y-1">
-          <li>• 请确保光线充足</li>
-          <li>• 面部完整出现在画面中</li>
-          <li>• 保持3秒钟面部正对摄像头</li>
-          <li>• 不要戴帽子或遮挡面部</li>
+          <li>• {t('loanWizard.step5.recordingHint1')}</li>
+          <li>• {t('loanWizard.step5.recordingHint2')}</li>
+          <li>• {t('loanWizard.step5.recordingHint3')}</li>
+          <li>• {t('loanWizard.step5.recordingHint4')}</li>
         </ul>
       </div>
 
@@ -612,13 +610,13 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          下一步
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -627,6 +625,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
 
 // 第6步：征信授权
 const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
+  const { t } = useTranslation();
   const [hasRead, setHasRead] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
@@ -640,7 +639,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
 
   const handleNext = () => {
     if (!agreed) {
-      alert('请阅读并同意征信授权协议');
+      alert(t('errors.required'));
       return;
     }
     onNext();
@@ -649,40 +648,40 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">征信授权查询</h3>
-        <p className="text-gray-600">请仔细阅读征信授权协议并同意</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step6.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step6.subtitle')}</p>
       </div>
       
       <div className="border rounded-lg">
         <div className="bg-gray-50 px-4 py-3 border-b">
-          <h4 className="font-semibold">个人征信查询授权协议</h4>
+          <h4 className="font-semibold">{t('loanWizard.step6.creditAgreementTitle')}</h4>
         </div>
         <div 
           className="p-4 h-64 overflow-y-auto text-sm leading-relaxed"
           onScroll={handleScroll}
         >
           <p className="mb-4">
-            <strong>第一条 授权目的</strong><br/>
-            为了评估您的信用状况，我们需要查询您的个人征信报告。本协议旨在获得您的明确授权。
+            <strong>{t('loanWizard.step6.agreementPurpose')}</strong><br/>
+            {t('loanWizard.step6.agreementPurposeDesc')}
           </p>
           <p className="mb-4">
-            <strong>第二条 查询范围</strong><br/>
-            授权查询内容包括但不限于：信贷记录、公共记录、查询记录等征信信息。
+            <strong>{t('loanWizard.step6.agreementScope')}</strong><br/>
+            {t('loanWizard.step6.agreementScopeDesc')}
           </p>
           <p className="mb-4">
-            <strong>第三条 信息保护</strong><br/>
-            我们承诺严格保护您的个人信息，仅用于贷款审核目的，不会泄露给第三方。
+            <strong>{t('loanWizard.step6.agreementPrivacy')}</strong><br/>
+            {t('loanWizard.step6.agreementPrivacyDesc')}
           </p>
           <p className="mb-4">
-            <strong>第四条 授权期限</strong><br/>
-            本次授权有效期为30天，仅限本次贷款申请使用。
+            <strong>{t('loanWizard.step6.agreementPeriod')}</strong><br/>
+            {t('loanWizard.step6.agreementPeriodDesc')}
           </p>
           <p className="mb-4">
-            <strong>第五条 其他条款</strong><br/>
-            您有权了解征信查询结果，如有异议可向相关征信机构申请复议。
+            <strong>{t('loanWizard.step6.agreementOther')}</strong><br/>
+            {t('loanWizard.step6.agreementOtherDesc')}
           </p>
           <p className="mb-4">
-            本协议的解释权归本公司所有。如您同意以上条款，请点击"同意"按钮。
+            {t('loanWizard.step6.agreementExplanation')}
           </p>
           <div className="text-center py-4 text-gray-500">
             {hasRead ? '✓ 您已阅读完整协议' : '请滑动到底部阅读完整协议'}
@@ -700,7 +699,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
         <label htmlFor="credit-agreement" className="text-sm text-gray-700">
-          我已阅读并同意《个人征信查询授权协议》
+          {t('loanWizard.step6.creditAuthorizationLabel')}
         </label>
       </div>
 
@@ -709,14 +708,14 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           disabled={!agreed}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          同意并继续
+          {t('loanWizard.step6.agreeAndContinueButton')}
         </button>
       </div>
     </div>
@@ -725,6 +724,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
 
 // 第7步：银行卡信息
 const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+  const { t } = useTranslation();
   const [bankCardNumber, setBankCardNumber] = useState(data.bankCardNumber || '');
 
   const formatCardNumber = (value: string) => {
@@ -742,7 +742,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
   const handleNext = () => {
     const cleanCardNumber = bankCardNumber.replace(/\s/g, '');
     if (!cleanCardNumber || cleanCardNumber.length < 16) {
-      alert('请输入有效的银行卡号');
+      alert(t('errors.invalid'));
       return;
     }
     onUpdate({ bankCardNumber: cleanCardNumber });
@@ -752,31 +752,31 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">银行卡信息</h3>
-        <p className="text-gray-600">请输入您的银行卡号码</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step7.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step7.subtitle')}</p>
       </div>
       
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            银行卡号码
+            {t('loanWizard.step7.bankCardLabel')}
           </label>
           <input
             type="text"
             value={bankCardNumber}
             onChange={handleCardNumberChange}
-            placeholder="请输入银行卡号码"
+            placeholder={t('loanWizard.step7.bankCardPlaceholder')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg tracking-wider"
             maxLength={23} // 16位数字 + 3个空格
           />
         </div>
         
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">安全提示：</h4>
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step7.securityHintTitle')}</h4>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• 请输入您本人名下的银行卡</li>
-            <li>• 确保银行卡状态正常，可正常使用</li>
-            <li>• 我们承诺保护您的资金安全</li>
+            <li>{t('loanWizard.step7.securityHint1')}</li>
+            <li>{t('loanWizard.step7.securityHint2')}</li>
+            <li>{t('loanWizard.step7.securityHint3')}</li>
           </ul>
         </div>
       </div>
@@ -786,13 +786,13 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          下一步
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -801,6 +801,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 
 // 第8步：提交贷款申请
 const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = () => {
@@ -815,47 +816,47 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) =
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">提交贷款申请</h3>
-        <p className="text-gray-600">请确认您的申请信息并提交</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step8.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step8.subtitle')}</p>
       </div>
       
       <div className="bg-gray-50 rounded-lg p-6">
-        <h4 className="font-semibold mb-4">申请信息摘要</h4>
+        <h4 className="font-semibold mb-4">{t('loanWizard.step8.applicationSummaryTitle')}</h4>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">手机号：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.phoneLabel')}:</span>
             <span>{data.phone}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">真实姓名：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.realNameLabel')}:</span>
             <span>{data.realName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">身份证号：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.idNumberLabel')}:</span>
             <span>{data.idNumber}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">联系人1：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.contact1Label')}:</span>
             <span>{data.contact1Name} ({data.contact1Phone})</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">联系人2：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.contact2Label')}:</span>
             <span>{data.contact2Name} ({data.contact2Phone})</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">银行卡号：</span>
+            <span className="text-gray-600">{t('loanWizard.step8.bankCardLabel')}:</span>
             <span>****{data.bankCardNumber?.slice(-4)}</span>
           </div>
         </div>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-800 mb-2">重要提示：</h4>
+        <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step8.importantHintTitle')}</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• 提交后将进入审核流程</li>
-          <li>• 审核过程大约需要1-3分钟</li>
-          <li>• 请确保所填信息真实有效</li>
-          <li>• 虚假信息将影响审核结果</li>
+          <li>{t('loanWizard.step8.importantHint1')}</li>
+          <li>{t('loanWizard.step8.importantHint2')}</li>
+          <li>{t('loanWizard.step8.importantHint3')}</li>
+          <li>{t('loanWizard.step8.importantHint4')}</li>
         </ul>
       </div>
 
@@ -865,14 +866,14 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) =
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
           disabled={isSubmitting}
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
-          {isSubmitting ? '提交中...' : '提交申请'}
+          {isSubmitting ? t('loanWizard.step8.submittingText') : t('loanWizard.step8.submitApplicationButton')}
         </button>
       </div>
     </div>
@@ -881,6 +882,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) =
 
 // 第9步：审批中
 const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
+  const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(10);
 
   useEffect(() => {
@@ -901,8 +903,8 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
   return (
     <div className="space-y-6 text-center">
       <div>
-        <h3 className="text-2xl font-bold mb-2">贷款审批中</h3>
-        <p className="text-gray-600">我们正在审核您的申请，请稍候...</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step9.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step9.subtitle')}</p>
       </div>
       
       <div className="py-12">
@@ -911,39 +913,39 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
           <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
         <div className="text-lg font-medium text-blue-600 mb-2">
-          审核进行中
+          {t('loanWizard.step9.processingTitle')}
         </div>
         <div className="text-sm text-gray-500">
-          预计剩余时间：{timeLeft} 秒
+          {t('loanWizard.step9.timeLeft', { time: timeLeft })}
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6">
-        <h4 className="font-semibold mb-4">审核流程</h4>
+        <h4 className="font-semibold mb-4">{t('loanWizard.step9.auditProcessTitle')}</h4>
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm">身份信息验证</span>
+            <span className="text-sm">{t('loanWizard.step9.identityVerification')}</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm">征信查询</span>
+            <span className="text-sm">{t('loanWizard.step9.creditAuthorization')}</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
               <span className="text-white text-xs">?</span>
             </div>
-            <span className="text-sm">风控评估</span>
+            <span className="text-sm">{t('loanWizard.step9.riskControl')}</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">-</span>
             </div>
-            <span className="text-sm text-gray-400">最终审批</span>
+            <span className="text-sm text-gray-400">{t('loanWizard.step9.finalApproval')}</span>
           </div>
         </div>
       </div>
@@ -953,6 +955,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
 
 // 第10步：审批通过
 const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
+  const { t } = useTranslation();
   const approvedAmount = 50000; // 模拟审批金额
 
   return (
@@ -961,28 +964,28 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
           <span className="text-4xl">🎉</span>
         </div>
-        <h3 className="text-2xl font-bold text-green-600 mb-2">恭喜！审批通过</h3>
-        <p className="text-gray-600">您的贷款申请已获得批准</p>
+        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step10.congratulationsTitle')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step10.approvedDesc')}</p>
       </div>
       
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h4 className="font-semibold text-green-800 mb-4">审批结果</h4>
+        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step10.approvalResultTitle')}</h4>
         <div className="space-y-2">
           <div className="text-3xl font-bold text-green-600">
             ¥{approvedAmount.toLocaleString()}
           </div>
-          <div className="text-sm text-green-700">获批金额</div>
+          <div className="text-sm text-green-700">{t('loanWizard.step10.approvedAmountDesc')}</div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">借款条件：</h4>
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step10.loanConditionsTitle')}</h4>
           <div className="text-sm text-blue-700 space-y-1">
-            <div>• 利率：年化15.6%</div>
-            <div>• 可选期数：3、6、12期</div>
-            <div>• 无前置费用</div>
-            <div>• 提前还款不收违约金</div>
+            <div>{t('loanWizard.step10.interestRate')}</div>
+            <div>{t('loanWizard.step10.installmentOptions')}</div>
+            <div>{t('loanWizard.step10.noPreFee')}</div>
+            <div>{t('loanWizard.step10.earlyRepayment')}</div>
           </div>
         </div>
         
@@ -990,7 +993,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
           onClick={onNext}
           className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-lg"
         >
-          立即提现
+          {t('loanWizard.step10.withdrawNowButton')}
         </button>
       </div>
     </div>
@@ -999,6 +1002,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
 
 // 第11步：提现设置
 const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+  const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
   const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 12);
   const maxAmount = 50000;
@@ -1012,7 +1016,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
      const handleNext = () => {
      const amount = parseFloat(withdrawalAmount.toString());
      if (!amount || amount <= 0 || amount > maxAmount) {
-       alert(`请输入有效的提现金额（最高 ¥${maxAmount.toLocaleString()}）`);
+       alert(t('errors.invalid'));
        return;
      }
      onUpdate({ withdrawalAmount: amount, installmentPeriod });
@@ -1024,20 +1028,20 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">设置提现金额</h3>
-        <p className="text-gray-600">请选择提现金额和分期期数</p>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step11.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step11.subtitle')}</p>
       </div>
       
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            提现金额（¥）
+            {t('loanWizard.step11.withdrawalAmountLabel')}
           </label>
                      <input
              type="number"
              value={withdrawalAmount}
              onChange={(e) => setWithdrawalAmount(e.target.value)}
-             placeholder="请输入提现金额"
+             placeholder={t('loanWizard.step11.withdrawalAmountPlaceholder')}
              max={maxAmount.toString()}
              min="1000"
              step="100"
@@ -1050,7 +1054,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            分期期数
+            {t('loanWizard.step11.installmentPeriodLabel')}
           </label>
           <div className="grid grid-cols-3 gap-3">
             {[3, 6, 12].map((period) => (
@@ -1063,8 +1067,8 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
                     : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
-                <div className="font-medium">{period}期</div>
-                <div className="text-sm text-gray-500">{period}个月</div>
+                <div className="font-medium">{period}{t('loanWizard.step11.installmentPeriodSuffix')}</div>
+                <div className="text-sm text-gray-500">{period}{t('loanWizard.step11.installmentMonths')}</div>
               </button>
             ))}
           </div>
@@ -1072,27 +1076,27 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
 
         {withdrawalAmount && (
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-semibold mb-3">还款计划</h4>
+            <h4 className="font-semibold mb-3">{t('loanWizard.step11.repaymentPlanTitle')}</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">借款金额：</span>
+                <span className="text-gray-600">{t('loanWizard.step11.loanAmountLabel')}:</span>
                 <span>¥{parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">分期期数：</span>
-                <span>{installmentPeriod}期</span>
+                <span className="text-gray-600">{t('loanWizard.step11.installmentPeriodLabel')}:</span>
+                <span>{installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">年利率：</span>
+                <span className="text-gray-600">{t('loanWizard.step11.interestRateLabel')}:</span>
                 <span>15.6%</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
-                <span>每期还款：</span>
+                <span>{t('loanWizard.step11.monthlyPaymentLabel')}:</span>
                 <span className="text-blue-600">¥{monthlyPayment.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">总还款：</span>
+                <span className="text-gray-600">{t('loanWizard.step11.totalRepaymentLabel')}:</span>
                 <span>¥{(monthlyPayment * installmentPeriod).toFixed(2)}</span>
               </div>
             </div>
@@ -1105,13 +1109,13 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
           onClick={onBack}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          上一步
+          {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          确认提现
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
@@ -1120,33 +1124,34 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
 
 // 第12步：提现完成
 const Step12Complete: React.FC<StepProps> = ({ data }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6 text-center">
       <div>
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
           <span className="text-4xl">✅</span>
         </div>
-        <h3 className="text-2xl font-bold text-green-600 mb-2">提现成功！</h3>
-        <p className="text-gray-600">资金将在2小时内到达您的银行账户</p>
+        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step12.successTitle')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step12.successDesc')}</p>
       </div>
       
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h4 className="font-semibold text-green-800 mb-4">提现详情</h4>
+        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step12.withdrawalDetailsTitle')}</h4>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">提现金额：</span>
+            <span className="text-gray-600">{t('loanWizard.step12.withdrawalAmountLabel')}:</span>
             <span className="font-medium">¥{data.withdrawalAmount?.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">到账银行卡：</span>
+            <span className="text-gray-600">{t('loanWizard.step12.arrivalBankCardLabel')}:</span>
             <span>****{data.bankCardNumber?.slice(-4)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">分期期数：</span>
-            <span>{data.installmentPeriod}期</span>
+            <span className="text-gray-600">{t('loanWizard.step12.installmentPeriodLabel')}:</span>
+            <span>{data.installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">预计到账时间：</span>
+            <span className="text-gray-600">{t('loanWizard.step12.arrivalTimeLabel')}:</span>
             <span>2小时内</span>
           </div>
         </div>
@@ -1154,12 +1159,12 @@ const Step12Complete: React.FC<StepProps> = ({ data }) => {
 
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">温馨提示：</h4>
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step12.tipsTitle')}</h4>
           <ul className="text-sm text-blue-700 space-y-1 text-left">
-            <li>• 请保持手机畅通，我们会发送到账短信</li>
-            <li>• 首期还款日为放款后30天</li>
-            <li>• 可在用户中心查看还款计划</li>
-            <li>• 支持提前还款，无违约金</li>
+            <li>{t('loanWizard.step12.tips1')}</li>
+            <li>{t('loanWizard.step12.tips2')}</li>
+            <li>{t('loanWizard.step12.tips3')}</li>
+            <li>{t('loanWizard.step12.tips4')}</li>
           </ul>
         </div>
         
@@ -1168,13 +1173,13 @@ const Step12Complete: React.FC<StepProps> = ({ data }) => {
             onClick={() => window.location.href = '/user-center'}
             className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
           >
-            查看还款计划
+            {t('loanWizard.step12.viewRepaymentPlanButton')}
           </button>
           <button
             onClick={() => window.location.href = '/'}
             className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            返回首页
+            {t('loanWizard.step12.returnHomeButton')}
           </button>
         </div>
       </div>
@@ -1303,8 +1308,8 @@ const LoanWizard: React.FC = () => {
       {/* 进度条 */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-blue-600">步骤 {currentStep} / {totalSteps}</span>
-          <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% 完成</span>
+          <span className="text-sm font-medium text-blue-600">{t('loanWizard.stepProgress', { current: currentStep, total: totalSteps })}</span>
+          <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% {t('loanWizard.stepCompletion')}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 

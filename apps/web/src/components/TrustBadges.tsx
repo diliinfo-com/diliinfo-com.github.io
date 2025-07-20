@@ -35,12 +35,12 @@ const TrustBadges = () => {
         </div>
 
         {/* Subtitle indicators */}
-        <div className="inline-flex items-center space-x-6 text-sm text-slate-500">
-          <span>SSL 256位加密</span>
+        <div className="inline-flex items-center space-x-6 text-sm text-slate-500 mt-8 animate-slide-up" style={{ animationDelay: `${0.2 + badges.length * 0.1}s` }}>
+          <span>{t('trustIndicators.ssl')}</span>
           <span>•</span>
-          <span>银行级安全</span>
+          <span>{t('trustIndicators.bank')}</span>
           <span>•</span>
-          <span>合规认证</span>
+          <span>{t('trustIndicators.compliance')}</span>
         </div>
       </div>
     </section>

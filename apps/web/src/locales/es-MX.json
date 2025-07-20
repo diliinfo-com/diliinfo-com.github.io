@@ -93,13 +93,80 @@
   },
   "about": {
     "title": "Sobre Nosotros",
+    "subtitle": "Conoce nuestra historia y compromiso con los mexicanos",
+    "desc": "DiliInfo es una empresa mexicana dedicada a brindar soluciones financieras innovadoras y accesibles para todos los mexicanos. Desde nuestros inicios, nos hemos comprometido a democratizar el acceso al crédito con tecnología de vanguardia y un enfoque centrado en el cliente.",
     "mission": "Nuestra Misión",
+    "missionDesc": "Democratizar el acceso al crédito en México mediante tecnología innovadora, ofreciendo préstamos rápidos, transparentes y justos que impulsen el crecimiento financiero de nuestros clientes.",
     "vision": "Nuestra Visión",
-    "values": "Nuestros Valores"
+    "visionDesc": "Ser la plataforma de préstamos líder en México, reconocida por nuestra transparencia, innovación tecnológica y compromiso inquebrantable con el bienestar financiero de los mexicanos.",
+    "values": "Nuestros Valores",
+    "valuesDesc": "Los valores que nos guían en cada decisión que tomamos:",
+    "transparency": {
+      "title": "Transparencia",
+      "desc": "Creemos en la honestidad total. Sin letra pequeña, sin sorpresas, sin comisiones ocultas. Todo claro desde el principio."
+    },
+    "innovation": {
+      "title": "Innovación",
+      "desc": "Utilizamos la mejor tecnología para hacer que obtener un préstamo sea rápido, seguro y completamente digital."
+    },
+    "responsibility": {
+      "title": "Responsabilidad",
+      "desc": "Promovemos el crédito responsable, educando a nuestros clientes sobre finanzas personales y ofreciendo solo lo que pueden pagar."
+    },
+    "security": {
+      "title": "Seguridad",
+      "desc": "Protegemos los datos de nuestros clientes con tecnología de encriptación bancaria y cumplimos con todas las regulaciones financieras."
+    },
+    "story": {
+      "title": "Nuestra Historia",
+      "desc": "Fundada en 2020 por un equipo de expertos en tecnología financiera y veteranos del sector bancario mexicano, DiliInfo nació de la frustración personal con los procesos bancarios tradicionales lentos y burocráticos. Nuestros fundadores experimentaron de primera mano las dificultades que enfrentan los mexicanos para acceder a créditos justos y rápidos.",
+      "growth": "En solo unos años, hemos crecido para servir a miles de mexicanos en todo el país, manteniendo siempre nuestro compromiso con la transparencia y la innovación. Cada préstamo que otorgamos nos acerca más a nuestro objetivo de transformar el sistema financiero mexicano."
+    },
+    "team": {
+      "title": "Nuestro Equipo",
+      "desc": "Somos un equipo diverso de más de 50 profesionales apasionados por la tecnología financiera. Nuestro equipo incluye:",
+      "expertise": {
+        "fintech": "Expertos en tecnología financiera con experiencia en las mejores empresas de México y Silicon Valley",
+        "banking": "Veteranos del sector bancario mexicano que entienden las necesidades locales",
+        "tech": "Ingenieros de software especializados en seguridad y escalabilidad",
+        "support": "Equipo de atención al cliente dedicado exclusivamente a brindar la mejor experiencia"
+      }
+    },
+    "commitment": {
+      "title": "Nuestro Compromiso con México",
+      "desc": "Como empresa 100% mexicana, estamos profundamente comprometidos con el desarrollo económico de nuestro país:",
+      "points": {
+        "local": "Generamos empleos de calidad para talento mexicano",
+        "education": "Promovemos la educación financiera a través de contenido gratuito y talleres",
+        "inclusion": "Trabajamos para incluir financieramente a sectores tradicionalmente desatendidos",
+        "regulation": "Cumplimos y superamos todas las regulaciones de la CNBV y autoridades financieras"
+      }
+    },
+    "recognition": {
+      "title": "Reconocimientos y Certificaciones",
+      "items": {
+        "cnbv": "Regulados y supervisados por la Comisión Nacional Bancaria y de Valores (CNBV)",
+        "ssl": "Certificación SSL de máximo nivel para protección de datos",
+        "iso": "Certificación ISO 27001 en seguridad de la información",
+        "pci": "Cumplimiento PCI DSS para el manejo seguro de información financiera"
+      }
+    },
+    "future": {
+      "title": "El Futuro de DiliInfo",
+      "desc": "Seguimos innovando para servir mejor a los mexicanos. En los próximos años, planeamos:",
+      "plans": {
+        "products": "Expandir nuestra oferta de productos financieros",
+        "ai": "Implementar inteligencia artificial para mejores decisiones crediticias",
+        "education": "Lanzar una plataforma completa de educación financiera",
+        "partnerships": "Establecer alianzas estratégicas con instituciones financieras tradicionales"
+      }
+    }
   },
   "loan": {
     "title": "Solicitar Préstamo",
     "subtitle": "Completa la información para procesar tu solicitud",
+    "pageTitle": "Solicitud de Préstamo",
+    "pageSubtitle": "Proceso simple y rápido de 12 pasos, completado en tan solo 3 minutos",
     "amount": "Monto del préstamo",
     "purpose": "Propósito del préstamo",
     "employment": "Tipo de empleo",
@@ -191,6 +258,11 @@
       "desc": "Tasas transparentes"
     }
   },
+  "trustIndicators": {
+    "ssl": "Cifrado SSL de 256 bits",
+    "bank": "Seguridad de nivel bancario",
+    "compliance": "Cumplimiento normativo"
+  },
   "testimonials": {
     "title": "Lo que dicen nuestros clientes",
     "subtitle": "Únete a miles de clientes satisfechos que confían en diliinfo",
@@ -209,5 +281,185 @@
       "quote": "Finalmente, una plataforma de préstamos completamente transparente. Sabía exactamente en qué me metía desde el primer día.",
       "role": "Contadora"
     }
+  },
+  "loanWizard": {
+    "stepProgress": "Progreso del paso",
+    "stepCompletion": "Completado",
+    "step1": {
+      "title": "Registro de Usuario",
+      "subtitle": "Crea tu cuenta para comenzar la solicitud",
+      "phoneLabel": "Número de teléfono",
+      "passwordLabel": "Contraseña",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "phonePlaceholder": "Ingresa tu número de teléfono",
+      "passwordPlaceholder": "Ingresa una contraseña (mín 6 caracteres)",
+      "confirmPasswordPlaceholder": "Vuelve a ingresar la contraseña",
+      "registerButton": "Completar registro"
+    },
+    "step2": {
+      "title": "Información de Identidad",
+      "subtitle": "Por favor, ingresa tu información real de identidad",
+      "realNameLabel": "Nombre real",
+      "realNamePlaceholder": "Ingresa tu nombre completo",
+      "idNumberLabel": "Número de identificación",
+      "idNumberPlaceholder": "Ingresa tu número de identificación",
+      "nextButton": "Siguiente",
+      "backButton": "Anterior"
+    },
+    "step3": {
+      "title": "Subir Identificación",
+      "subtitle": "Por favor, sube fotos claras del anverso y reverso de tu identificación",
+      "front": "Anverso de la identificación",
+      "frontDesc": "Lado con la foto",
+      "back": "Reverso de la identificación",
+      "backDesc": "Lado con el emblema nacional",
+      "uploadButton": "Hacer clic para subir",
+      "uploading": "Subiendo...",
+      "uploaded": "Subido"
+    },
+    "step4": {
+      "title": "Información de Contactos",
+      "subtitle": "Por favor, ingresa información de dos contactos",
+      "contact1Title": "Contacto de Emergencia 1",
+      "contact2Title": "Contacto de Emergencia 2",
+      "contactNameLabel": "Nombre del contacto",
+      "contactNamePlaceholder": "Ingresa el nombre completo",
+      "contactPhoneLabel": "Número de teléfono",
+      "contactPhonePlaceholder": "Ingresa el número de teléfono"
+    },
+    "step5": {
+      "title": "Detección de Vivacidad",
+      "subtitle": "Por favor, graba un video selfie de 3 segundos para verificación de identidad",
+      "livenessTitle": "Verificación de Vivacidad",
+      "livenessDesc": "Graba un video de 3 segundos mirando a la cámara",
+      "livenessComplete": "Verificación completada",
+      "startRecordingButton": "Comenzar grabación",
+      "recordingDesc": "Grabando... Mantén tu rostro frente a la cámara",
+      "recordingHintTitle": "Consejos de grabación:",
+      "recordingHint1": "Asegúrate de tener buena iluminación",
+      "recordingHint2": "Mantén todo el rostro en el marco",
+      "recordingHint3": "Mantén el rostro frente a la cámara durante 3 segundos",
+      "recordingHint4": "No uses sombrero ni cubras el rostro",
+      "startVerificationButton": "Comenzar verificación",
+      "uploadVideoButton": "Subir archivo de video",
+      "uploading": "Subiendo...",
+      "orText": "o"
+    },
+    "step6": {
+      "title": "Autorización de Crédito",
+      "subtitle": "Por favor, lee y acepta el acuerdo de autorización de crédito",
+      "creditAgreementTitle": "Acuerdo de Autorización de Consulta de Crédito Personal",
+      "agreementPurpose": "Artículo 1 - Finalidad de la autorización",
+      "agreementPurposeDesc": "Para evaluar su situación crediticia, necesitamos consultar su informe de crédito personal. Este acuerdo tiene como objetivo obtener su autorización explícita.",
+      "agreementScope": "Artículo 2 - Alcance de la consulta",
+      "agreementScopeDesc": "El contenido de la consulta autorizada incluye, entre otros: registros de crédito, registros públicos, registros de consultas y otra información crediticia.",
+      "agreementPrivacy": "Artículo 3 - Protección de la información",
+      "agreementPrivacyDesc": "Nos comprometemos a proteger estrictamente su información personal, utilizada solo para fines de revisión de préstamos, y no se divulgará a terceros.",
+      "agreementPeriod": "Artículo 4 - Período de autorización",
+      "agreementPeriodDesc": "Esta autorización es válida por 30 días, limitada a esta solicitud de préstamo.",
+      "agreementOther": "Artículo 5 - Otras cláusulas",
+      "agreementOtherDesc": "Tiene derecho a conocer los resultados de la consulta de crédito. Si tiene objeciones, puede solicitar una revisión a la institución de crédito correspondiente.",
+      "agreementExplanation": "Al firmar este acuerdo, usted autoriza expresamente la consulta de su información crediticia para fines de evaluación de préstamos.",
+      "creditAuthorizationLabel": "He leído y acepto el Acuerdo de Autorización de Consulta de Crédito Personal",
+      "agreeAndContinueButton": "Aceptar y continuar"
+    },
+    "step7": {
+      "title": "Información de Tarjeta Bancaria",
+      "subtitle": "Por favor, ingresa tu información de tarjeta bancaria para recibir fondos",
+      "bankCardLabel": "Número de tarjeta bancaria",
+      "bankCardPlaceholder": "Ingresa el número de tarjeta bancaria",
+      "securityHintTitle": "Consejos de seguridad:",
+      "securityHint1": "• Solo aceptamos tarjetas de débito de bancos mexicanos reconocidos",
+      "securityHint2": "• Tu información bancaria está protegida con encriptación de nivel bancario",
+      "securityHint3": "• Nunca compartimos tu información con terceros"
+    },
+    "step8": {
+      "title": "Enviar Solicitud de Préstamo",
+      "subtitle": "Por favor, confirma la información de tu solicitud y envíala",
+      "applicationSummaryTitle": "Resumen de información de solicitud",
+      "phoneLabel": "Número de teléfono",
+      "realNameLabel": "Nombre real",
+      "idNumberLabel": "Número de identificación",
+      "contact1Label": "Contacto de Emergencia 1",
+      "contact2Label": "Contacto de Emergencia 2",
+      "bankCardLabel": "Número de tarjeta bancaria",
+      "importantHintTitle": "Información importante:",
+      "importantHint1": "• Asegúrate de que toda la información sea correcta",
+      "importantHint2": "• Una vez enviada, la solicitud no se puede modificar",
+      "importantHint3": "• Recibirás una respuesta en 2-5 minutos",
+      "importantHint4": "• Mantén tu teléfono disponible para notificaciones",
+      "submitApplicationButton": "Enviar solicitud",
+      "submittingText": "Enviando..."
+    },
+    "step9": {
+      "title": "Procesando Solicitud",
+      "subtitle": "Estamos revisando tu solicitud, esto tomará unos momentos",
+      "processingTitle": "Procesando tu solicitud...",
+      "timeLeft": "Tiempo estimado restante: {{time}} segundos",
+      "auditProcessTitle": "Proceso de revisión:",
+      "identityVerification": "Verificación de identidad",
+      "creditAuthorization": "Autorización de crédito",
+      "riskControl": "Control de riesgo",
+      "finalApproval": "Aprobación final"
+    },
+    "step10": {
+      "title": "¡Solicitud Aprobada!",
+      "subtitle": "¡Felicidades! Tu solicitud ha sido aprobada",
+      "congratulationsTitle": "¡Solicitud Aprobada!",
+      "approvedDesc": "¡Felicidades! Tu solicitud ha sido aprobada",
+      "approvalResultTitle": "Resultado de la Aprobación",
+      "approvedAmountDesc": "Monto aprobado para retiro",
+      "loanConditionsTitle": "Condiciones del Préstamo",
+      "interestRate": "Tasa de interés: 0% (promoción por tiempo limitado)",
+      "installmentOptions": "Opciones de cuotas: 3, 6, 9, 12 meses",
+      "noPreFee": "Sin comisión de procesamiento",
+      "earlyRepayment": "Pago anticipado permitido sin penalización",
+      "withdrawNowButton": "Retirar Ahora",
+      "approvedAmountTitle": "Monto aprobado:",
+      "approvedAmount": "$50,000 MXN",
+      "approvalDetailsTitle": "Detalles de aprobación:",
+      "maxTerm": "Plazo máximo: 12 meses",
+      "processingFee": "Comisión de procesamiento: $0",
+      "nextStepsTitle": "Próximos pasos:",
+      "nextStep1": "• Selecciona el monto que deseas retirar",
+      "nextStep2": "• Elige el período de pago que prefieras",
+      "nextStep3": "• Confirma el retiro y recibe el dinero en tu cuenta",
+      "proceedToWithdrawalButton": "Proceder al retiro"
+    },
+    "step11": {
+      "title": "Configurar Retiro",
+      "subtitle": "Selecciona el monto y período de retiro",
+      "withdrawalAmountLabel": "Monto de retiro",
+      "installmentPeriodLabel": "Período de cuotas",
+      "months": "meses",
+      "monthlyPaymentLabel": "Pago mensual:",
+      "totalInterestLabel": "Interés total:",
+      "totalPaymentLabel": "Pago total:",
+      "withdrawalSummaryTitle": "Resumen del retiro:",
+      "confirmWithdrawalButton": "Confirmar retiro"
+    },
+    "step12": {
+      "title": "¡Retiro Completado!",
+      "subtitle": "Los fondos se transferirán a tu cuenta bancaria en breve",
+      "successMessage": "¡Tu retiro ha sido procesado exitosamente!",
+      "transferDetailsTitle": "Detalles de la transferencia:",
+      "transferAmount": "Monto transferido:",
+      "transferAccount": "Cuenta destino:",
+      "transferTime": "Tiempo estimado de llegada: 5-10 minutos",
+      "importantNotesTitle": "Notas importantes:",
+      "importantNote1": "• Mantén tu teléfono disponible, enviaremos un SMS de confirmación",
+      "importantNote2": "• La primera fecha de pago es 30 días después del desembolso",
+      "importantNote3": "• Puedes ver tu plan de pagos en el centro de usuario",
+      "importantNote4": "• Se permite pago anticipado sin penalización",
+      "viewPaymentPlanButton": "Ver plan de pagos",
+      "backToHomeButton": "Volver al inicio"
+    }
+  },
+  "errors": {
+    "required": "Por favor, completa la información",
+    "invalid": "Información inválida",
+    "phoneRequired": "Por favor, ingresa tu número de teléfono",
+    "passwordMin": "La contraseña debe tener al menos 6 caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden"
   }
 } 

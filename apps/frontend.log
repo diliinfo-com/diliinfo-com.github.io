@@ -3,7 +3,30 @@
 > vite --port 5173
 
 
-  VITE v5.4.19  ready in 144 ms
+  VITE v5.4.19  ready in 156 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
+12:25:06 AM [vite] page reload src/locales/es-MX.json
+12:26:13 AM [vite] page reload src/locales/en.json
+12:30:19 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:30:37 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:30:54 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:31:12 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:31:36 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:35:49 AM [vite] page reload src/locales/es-MX.json
+12:36:05 AM [vite] page reload src/locales/en.json
+12:36:36 AM [vite] page reload src/locales/es-MX.json
+12:36:54 AM [vite] page reload src/locales/es-MX.json
+12:37:10 AM [vite] page reload src/locales/en.json
+12:37:32 AM [vite] page reload src/locales/en.json
+12:37:59 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:38:10 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:38:54 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:39:07 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:39:26 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:39:43 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:40:01 AM [vite] hmr update /src/components/LoanWizard.tsx, /src/index.css
+12:43:31 AM [vite] page reload src/locales/es-MX.json
+12:43:48 AM [vite] page reload src/locales/en.json
+12:46:07 AM [vite] hmr update /src/pages/Loan.tsx, /src/index.css
