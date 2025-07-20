@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../config/api';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ const Login: React.FC = () => {
         ? { username: formData.username, password: formData.password }
         : { email: formData.email, password: formData.password };
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(getApiUrl(endpoint), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

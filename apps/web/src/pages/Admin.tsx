@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getApiUrl } from '../config/api';
 
 interface Stats {
   summary: {
@@ -86,10 +87,10 @@ const Admin: React.FC = () => {
 
     try {
       // 获取基础数据
-      const statsRes = await fetch('/api/admin/stats', { headers });
-      const usersRes = await fetch('/api/admin/users', { headers });
-      const appsRes = await fetch('/api/admin/applications', { headers });
-      const guestsRes = await fetch('/api/admin/applications/guests', { headers });
+      const statsRes = await fetch(getApiUrl('/api/admin/stats'), { headers });
+      const usersRes = await fetch(getApiUrl('/api/admin/users'), { headers });
+      const appsRes = await fetch(getApiUrl('/api/admin/applications'), { headers });
+      const guestsRes = await fetch(getApiUrl('/api/admin/applications/guests'), { headers });
 
       const statsData = await statsRes.json();
       const usersData = await usersRes.json();
@@ -112,7 +113,7 @@ const Admin: React.FC = () => {
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
-      const response = await fetch(`/api/admin/applications/${applicationId}/steps`, { headers });
+      const response = await fetch(getApiUrl(`/api/admin/applications/${applicationId}/steps`), { headers });
       const data = await response.json();
       setSelectedApplication(data.application);
       setApplicationSteps(data.steps || []);
