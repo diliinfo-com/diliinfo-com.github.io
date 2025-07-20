@@ -1201,7 +1201,7 @@ const Step12Complete: React.FC<StepProps> = ({ data }) => {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">{t('loanWizard.step12.arrivalTimeLabel')}:</span>
-            <span>2小时内</span>
+            <span>{t('loanWizard.step12.arrivalTimeValue')}</span>
           </div>
         </div>
       </div>

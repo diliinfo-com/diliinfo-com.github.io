@@ -117,3 +117,5 @@ env.JWT_SECRET ("dev-jwt-secret-change-in-production")      Environment Variable
 [wrangler:info] GET /pv.gif 200 OK (11ms)
 [wrangler:info] GET /pv.gif 200 OK (12ms)
 ⎔ Reloading local server...
+[wrangler:info] GET /pv.gif 200 OK (18ms)
+[wrangler:info] GET /pv.gif 200 OK (13ms)
