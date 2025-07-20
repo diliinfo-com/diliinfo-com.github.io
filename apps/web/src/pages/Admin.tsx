@@ -87,15 +87,35 @@ const Admin: React.FC = () => {
 
     try {
       // 获取基础数据
+      console.log('Fetching admin data with token:', token?.substring(0, 20) + '...');
+      
       const statsRes = await fetch(getApiUrl('/api/admin/stats'), { headers });
       const usersRes = await fetch(getApiUrl('/api/admin/users'), { headers });
       const appsRes = await fetch(getApiUrl('/api/admin/applications'), { headers });
       const guestsRes = await fetch(getApiUrl('/api/admin/applications/guests'), { headers });
 
+      console.log('API responses status:', {
+        stats: statsRes.status,
+        users: usersRes.status,
+        apps: appsRes.status,
+        guests: guestsRes.status
+      });
+
+      if (!statsRes.ok || !usersRes.ok || !appsRes.ok || !guestsRes.ok) {
+        throw new Error('One or more API requests failed');
+      }
+
       const statsData = await statsRes.json();
       const usersData = await usersRes.json();
       const appsData = await appsRes.json();
       const guestsData = await guestsRes.json();
+
+      console.log('Fetched data:', {
+        stats: statsData,
+        users: usersData.users?.length || 0,
+        applications: appsData.applications?.length || 0,
+        guests: guestsData.guestApplications?.length || 0
+      });
 
       setStats(statsData);
       setUsers(usersData.users || []);
@@ -103,6 +123,8 @@ const Admin: React.FC = () => {
       setGuestApplications(guestsData.guestApplications || []);
     } catch (error) {
       console.error('Failed to fetch admin data:', error);
+      // 显示错误信息给用户
+      alert('获取管理数据失败，请检查网络连接或重新登录');
     } finally {
       setLoading(false);
     }
@@ -372,7 +394,7 @@ const Admin: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ¥{app.amount?.toLocaleString() || '-'}
+                        ${app.amount?.toLocaleString() || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
