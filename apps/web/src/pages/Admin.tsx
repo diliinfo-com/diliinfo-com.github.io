@@ -136,6 +136,8 @@ const Admin: React.FC = () => {
 
     try {
       console.log('Fetching application steps for:', applicationId);
+      console.log('Current selectedApplication before fetch:', selectedApplication);
+      
       const response = await fetch(getApiUrl(`/api/admin/applications/${applicationId}/steps`), { headers });
       
       if (!response.ok) {
@@ -146,14 +148,16 @@ const Admin: React.FC = () => {
       console.log('Application steps data:', data);
       console.log('Setting selectedApplication to:', data.application);
       
-      // 确保状态更新
-      setSelectedApplication(data.application);
-      setApplicationSteps(data.steps || []);
+      // 先清空再设置，确保状态变化
+      setSelectedApplication(null);
+      setApplicationSteps([]);
       
-      // 强制重新渲染
+      // 使用 setTimeout 确保状态更新
       setTimeout(() => {
-        console.log('Modal should be visible now, selectedApplication:', data.application?.id);
-      }, 100);
+        setSelectedApplication(data.application);
+        setApplicationSteps(data.steps || []);
+        console.log('selectedApplication set to:', data.application?.id);
+      }, 10);
       
     } catch (error) {
       console.error('Failed to fetch application steps:', error);
@@ -544,93 +548,102 @@ const Admin: React.FC = () => {
               </div>
             </div>
 
-            {/* 申请详情模态框 */}
-            {selectedApplication && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
-                  <div className="px-6 py-4 border-b flex justify-between items-center">
-                    <h3 className="text-lg font-bold text-trust-dark">申请详情</h3>
-                    <button 
-                      onClick={() => setSelectedApplication(null)}
-                      className="text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  
-                  <div className="p-6 space-y-6">
-                    {/* 基本信息 */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h4 className="font-semibold mb-3">基本信息</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">申请ID：</span>
-                          <span className="font-mono">{selectedApplication.id}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">手机号：</span>
-                          <span>{selectedApplication.phone || '未填写'}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">是否注册：</span>
-                          <span className={selectedApplication.is_guest ? 'text-orange-600' : 'text-green-600'}>
-                            {selectedApplication.is_guest ? '访客' : '已注册'}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">状态：</span>
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedApplication.status)}`}>
-                            {getStatusText(selectedApplication.status)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+          </div>
+        )}
+      </div>
 
-                    {/* 步骤记录 */}
-                    <div>
-                      <h4 className="font-semibold mb-3">申请步骤记录</h4>
-                      <div className="space-y-3">
-                        {applicationSteps.map((step, index) => (
-                          <div key={step.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-medium text-blue-600">{step.step_number}</span>
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center justify-between">
-                                <h5 className="font-medium text-gray-900">{step.step_name}</h5>
-                                <span className="text-sm text-gray-500">
-                                  {new Date(step.completed_at * 1000).toLocaleString()}
-                                </span>
-                              </div>
-                              {step.step_data && (
-                                <div className="mt-2 text-sm text-gray-600">
-                                  <pre className="whitespace-pre-wrap font-mono text-xs bg-gray-100 p-2 rounded">
-                                    {JSON.stringify(JSON.parse(step.step_data), null, 2)}
-                                  </pre>
-                                </div>
-                              )}
-                              {step.ip_address && (
-                                <div className="mt-1 text-xs text-gray-500">
-                                  IP: {step.ip_address}
-                                </div>
-                              )}
-                            </div>
+      {/* 申请详情模态框 - 移到最外层，所有标签页都能使用 */}
+      {selectedApplication && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full m-4 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
+              <h3 className="text-lg font-bold text-trust-dark">申请详情</h3>
+              <button 
+                onClick={() => setSelectedApplication(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* 基本信息 */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold mb-3">基本信息</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">申请ID：</span>
+                    <span className="font-mono">{selectedApplication.id}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">手机号：</span>
+                    <span>{selectedApplication.phone || selectedApplication.user_phone || '未填写'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">是否注册：</span>
+                    <span className={selectedApplication.is_guest ? 'text-orange-600' : 'text-green-600'}>
+                      {selectedApplication.is_guest ? '访客' : '已注册'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">状态：</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedApplication.status)}`}>
+                      {getStatusText(selectedApplication.status)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">申请金额：</span>
+                    <span>${selectedApplication.amount?.toLocaleString() || '未填写'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">当前步骤：</span>
+                    <span>{selectedApplication.step || 0}/{selectedApplication.max_step || 12}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 步骤记录 */}
+              <div>
+                <h4 className="font-semibold mb-3">申请步骤记录</h4>
+                <div className="space-y-3">
+                  {applicationSteps.map((step, index) => (
+                    <div key={step.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-blue-600">{step.step_number}</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-gray-900">{step.step_name}</h5>
+                          <span className="text-sm text-gray-500">
+                            {new Date(step.completed_at * 1000).toLocaleString()}
+                          </span>
+                        </div>
+                        {step.step_data && (
+                          <div className="mt-2 text-sm text-gray-600">
+                            <pre className="whitespace-pre-wrap font-mono text-xs bg-gray-100 p-2 rounded">
+                              {JSON.stringify(JSON.parse(step.step_data), null, 2)}
+                            </pre>
                           </div>
-                        ))}
-                        {applicationSteps.length === 0 && (
-                          <div className="text-center text-gray-500 py-8">
-                            暂无步骤记录
+                        )}
+                        {step.ip_address && (
+                          <div className="mt-1 text-xs text-gray-500">
+                            IP: {step.ip_address}
                           </div>
                         )}
                       </div>
                     </div>
-                  </div>
+                  ))}
+                  {applicationSteps.length === 0 && (
+                    <div className="text-center text-gray-500 py-8">
+                      暂无步骤记录
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
