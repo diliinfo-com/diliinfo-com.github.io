@@ -118,6 +118,19 @@ app.post('/api/auth/register', async (c) => {
         INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
         VALUES (?, ?, 1, 'user_registration', ?, ?)
       `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, registered: true }), c.req.header('CF-Connecting-IP') || '').run();
+    } else {
+      // 如果没有申请ID，为用户创建一个新的申请记录
+      const newApplicationId = crypto.randomUUID();
+      await c.env.DB.prepare(`
+        INSERT INTO loan_applications (id, user_id, phone, step, is_guest, started_at, created_at, updated_at)
+        VALUES (?, ?, ?, 1, FALSE, ?, ?, ?)
+      `).bind(newApplicationId, userId, phone, Math.floor(Date.now() / 1000), Math.floor(Date.now() / 1000), Math.floor(Date.now() / 1000)).run();
+      
+      // 记录步骤
+      await c.env.DB.prepare(`
+        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
+        VALUES (?, ?, 1, 'user_registration', ?, ?)
+      `).bind(crypto.randomUUID(), newApplicationId, JSON.stringify({ phone, registered: true, source: 'direct_registration' }), c.req.header('CF-Connecting-IP') || '').run();
     }
     
     // 创建会话

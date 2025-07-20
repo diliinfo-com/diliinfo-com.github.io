@@ -119,3 +119,21 @@ env.JWT_SECRET ("dev-jwt-secret-change-in-production")      Environment Variable
 ⎔ Reloading local server...
 [wrangler:info] GET /pv.gif 200 OK (18ms)
 [wrangler:info] GET /pv.gif 200 OK (13ms)
+[31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mBuild failed with 1 error:[0m
+
+  [31m✘ [41;31m[[41;97mERROR[41;31m][0m [1mCannot assign to "applicationId" because it is a constant[0m
+  
+      index.ts:135:6:
+  [37m      135 │       [32mapplicationId[37m = newApplicationId;
+            ╵       [32m~~~~~~~~~~~~~[0m
+  
+    The symbol "applicationId" was declared a constant here:
+  
+      index.ts:75:29:
+  [37m      75 │     const { phone, password, [32mapplicationId[37m } = await c.req.json();
+           ╵                              [32m~~~~~~~~~~~~~[0m
+  
+  
+
+
+⎔ Reloading local server...

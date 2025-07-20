@@ -1726,6 +1726,16 @@ app.post("/api/auth/register", async (c) => {
         INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
         VALUES (?, ?, 1, 'user_registration', ?, ?)
       `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, registered: true }), c.req.header("CF-Connecting-IP") || "").run();
+    } else {
+      const newApplicationId = crypto.randomUUID();
+      await c.env.DB.prepare(`
+        INSERT INTO loan_applications (id, user_id, phone, step, is_guest, started_at, created_at, updated_at)
+        VALUES (?, ?, ?, 1, FALSE, ?, ?, ?)
+      `).bind(newApplicationId, userId, phone, Math.floor(Date.now() / 1e3), Math.floor(Date.now() / 1e3), Math.floor(Date.now() / 1e3)).run();
+      await c.env.DB.prepare(`
+        INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
+        VALUES (?, ?, 1, 'user_registration', ?, ?)
+      `).bind(crypto.randomUUID(), newApplicationId, JSON.stringify({ phone, registered: true, source: "direct_registration" }), c.req.header("CF-Connecting-IP") || "").run();
     }
     const token = crypto.randomUUID();
     const expiresAt = Math.floor(Date.now() / 1e3) + 7 * 24 * 60 * 60;
