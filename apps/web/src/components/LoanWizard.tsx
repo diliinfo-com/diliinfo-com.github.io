@@ -1255,7 +1255,7 @@ const LoanWizard: React.FC = () => {
       const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
       sessionStorage.setItem('guestSessionId', sessionId);
       
-      const response = await fetch('/api/applications/guest', {
+      const response = await fetch(getApiUrl('/api/applications/guest'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
