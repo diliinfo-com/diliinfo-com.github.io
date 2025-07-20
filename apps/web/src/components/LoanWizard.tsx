@@ -37,18 +37,66 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   const [phone, setPhone] = useState(data.phone || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [countryCode, setCountryCode] = useState('+86');
+  const [countryCode, setCountryCode] = useState('+52');
 
   const countryCodes = [
-    { code: '+86', name: '中国', flag: '🇨🇳' },
-    { code: '+1', name: '美国', flag: '🇺🇸' },
-    { code: '+44', name: '英国', flag: '🇬🇧' },
-    { code: '+81', name: '日本', flag: '🇯🇵' },
-    { code: '+82', name: '韩国', flag: '🇰🇷' },
-    { code: '+65', name: '新加坡', flag: '🇸🇬' },
-    { code: '+852', name: '香港', flag: '🇭🇰' },
-    { code: '+853', name: '澳门', flag: '🇲🇴' },
-    { code: '+886', name: '台湾', flag: '🇹🇼' }
+    // 拉丁美洲国家（优先显示）
+    { code: '+52', name: 'México', flag: '🇲🇽' },
+    { code: '+1', name: 'Estados Unidos', flag: '🇺🇸' },
+    { code: '+1', name: 'Canadá', flag: '🇨🇦' },
+    { code: '+54', name: 'Argentina', flag: '🇦🇷' },
+    { code: '+55', name: 'Brasil', flag: '🇧🇷' },
+    { code: '+56', name: 'Chile', flag: '🇨🇱' },
+    { code: '+57', name: 'Colombia', flag: '🇨🇴' },
+    { code: '+58', name: 'Venezuela', flag: '🇻🇪' },
+    { code: '+51', name: 'Perú', flag: '🇵🇪' },
+    { code: '+593', name: 'Ecuador', flag: '🇪🇨' },
+    { code: '+591', name: 'Bolivia', flag: '🇧🇴' },
+    { code: '+595', name: 'Paraguay', flag: '🇵🇾' },
+    { code: '+598', name: 'Uruguay', flag: '🇺🇾' },
+    { code: '+506', name: 'Costa Rica', flag: '🇨🇷' },
+    { code: '+507', name: 'Panamá', flag: '🇵🇦' },
+    { code: '+503', name: 'El Salvador', flag: '🇸🇻' },
+    { code: '+502', name: 'Guatemala', flag: '🇬🇹' },
+    { code: '+504', name: 'Honduras', flag: '🇭🇳' },
+    { code: '+505', name: 'Nicaragua', flag: '🇳🇮' },
+    { code: '+53', name: 'Cuba', flag: '🇨🇺' },
+    { code: '+1', name: 'República Dominicana', flag: '🇩🇴' },
+    
+    // 欧洲国家
+    { code: '+34', name: 'España', flag: '🇪🇸' },
+    { code: '+44', name: 'Reino Unido', flag: '🇬🇧' },
+    { code: '+33', name: 'Francia', flag: '🇫🇷' },
+    { code: '+49', name: 'Alemania', flag: '🇩🇪' },
+    { code: '+39', name: 'Italia', flag: '🇮🇹' },
+    { code: '+351', name: 'Portugal', flag: '🇵🇹' },
+    { code: '+31', name: 'Países Bajos', flag: '🇳🇱' },
+    { code: '+41', name: 'Suiza', flag: '🇨🇭' },
+    { code: '+43', name: 'Austria', flag: '🇦🇹' },
+    { code: '+32', name: 'Bélgica', flag: '🇧🇪' },
+    
+    // 亚洲国家
+    { code: '+86', name: 'China', flag: '🇨🇳' },
+    { code: '+81', name: 'Japón', flag: '🇯🇵' },
+    { code: '+82', name: 'Corea del Sur', flag: '🇰🇷' },
+    { code: '+91', name: 'India', flag: '🇮🇳' },
+    { code: '+65', name: 'Singapur', flag: '🇸🇬' },
+    { code: '+60', name: 'Malasia', flag: '🇲🇾' },
+    { code: '+66', name: 'Tailandia', flag: '🇹🇭' },
+    { code: '+84', name: 'Vietnam', flag: '🇻🇳' },
+    { code: '+63', name: 'Filipinas', flag: '🇵🇭' },
+    { code: '+62', name: 'Indonesia', flag: '🇮🇩' },
+    
+    // 其他重要国家
+    { code: '+61', name: 'Australia', flag: '🇦🇺' },
+    { code: '+64', name: 'Nueva Zelanda', flag: '🇳🇿' },
+    { code: '+27', name: 'Sudáfrica', flag: '🇿🇦' },
+    { code: '+20', name: 'Egipto', flag: '🇪🇬' },
+    { code: '+971', name: 'Emiratos Árabes Unidos', flag: '🇦🇪' },
+    { code: '+966', name: 'Arabia Saudí', flag: '🇸🇦' },
+    { code: '+972', name: 'Israel', flag: '🇮🇱' },
+    { code: '+90', name: 'Turquía', flag: '🇹🇷' },
+    { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
   const handleRegister = () => {
@@ -973,7 +1021,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
         <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step10.approvalResultTitle')}</h4>
         <div className="space-y-2">
           <div className="text-3xl font-bold text-green-600">
-            ¥{approvedAmount.toLocaleString()}
+            ${approvedAmount.toLocaleString()}
           </div>
           <div className="text-sm text-green-700">{t('loanWizard.step10.approvedAmountDesc')}</div>
         </div>
@@ -1049,7 +1097,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
            />
           <div className="mt-2 text-sm text-gray-500">
-            可提现范围：¥1,000 - ¥{maxAmount.toLocaleString()}
+            {t('loanWizard.step11.withdrawalRangeLabel', { maxAmount: maxAmount.toLocaleString() })}
           </div>
         </div>
 
@@ -1081,7 +1129,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('loanWizard.step11.loanAmountLabel')}:</span>
-                <span>¥{parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
+                <span>${parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('loanWizard.step11.installmentPeriodLabel')}:</span>
@@ -1094,11 +1142,11 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
                 <span>{t('loanWizard.step11.monthlyPaymentLabel')}:</span>
-                <span className="text-blue-600">¥{monthlyPayment.toFixed(2)}</span>
+                <span className="text-blue-600">${monthlyPayment.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('loanWizard.step11.totalRepaymentLabel')}:</span>
-                <span>¥{(monthlyPayment * installmentPeriod).toFixed(2)}</span>
+                <span>${(monthlyPayment * installmentPeriod).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1141,7 +1189,7 @@ const Step12Complete: React.FC<StepProps> = ({ data }) => {
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">{t('loanWizard.step12.withdrawalAmountLabel')}:</span>
-            <span className="font-medium">¥{data.withdrawalAmount?.toLocaleString()}</span>
+            <span className="font-medium">${data.withdrawalAmount?.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">{t('loanWizard.step12.arrivalBankCardLabel')}:</span>

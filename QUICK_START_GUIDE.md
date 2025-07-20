@@ -1,177 +1,127 @@
-# DiliInfo 快速启动指南
+# 🚀 DiliInfo 快速部署指南
 
-## 概述
+## 一键部署到生产环境
 
-`quick-start.sh` 是一个全功能的项目启动脚本，支持前后端服务的启动、停止和管理。
+### 前提条件
+1. 已安装 Node.js 和 npm
+2. 已有 GitHub 账户和仓库
+3. 已有 Cloudflare 账户
 
-## 新功能特性
+### 快速部署步骤
 
-### ✨ 主要改进
-
-1. **端口配置管理** - 所有服务在正确的端口上启动
-2. **智能服务管理** - 自动检测并关闭冲突的服务
-3. **数据库自动初始化** - 完整启动时自动检查和初始化数据库
-4. **彩色输出** - 更好的视觉体验和状态反馈
-5. **日志管理** - 后台服务的日志文件记录
-6. **服务监控** - 实时监控服务状态
-
-### 🎯 端口配置
-
-- **前端服务**: `5173` (Vite 开发服务器)
-- **后端服务**: `8787` (Cloudflare Workers 本地开发)
-
-## 使用方法
-
-### 首次使用
-
+#### 1. 安装 Wrangler CLI
 ```bash
-# 添加执行权限
-chmod +x quick-start.sh
-
-# 初始化项目
-./quick-start.sh
-# 选择选项 4 进行首次设置
+npm install -g wrangler
 ```
 
-### 启动模式
-
-#### 1. 仅启动前端 (选项 1)
+#### 2. 登录 Cloudflare
 ```bash
-./quick-start.sh
-# 选择选项 1
-```
-- 启动 Vite 开发服务器在端口 5173
-- 适合纯前端开发
-
-#### 2. 仅启动后端 (选项 2)
-```bash
-./quick-start.sh
-# 选择选项 2
-```
-- 启动 Cloudflare Workers 在端口 8787
-- 适合后端 API 开发
-
-#### 3. 完整启动 (选项 3) ⭐ 推荐
-```bash
-./quick-start.sh
-# 选择选项 3
-```
-- 自动检查和初始化数据库
-- 启动后端服务 (端口 8787)
-- 启动前端服务 (端口 5173)
-- 生成日志文件: `backend.log`, `frontend.log`
-- 实时监控服务状态
-
-#### 4. 项目初始化 (选项 4)
-```bash
-./quick-start.sh
-# 选择选项 4
-```
-- 安装所有依赖
-- 创建和配置 Cloudflare D1 数据库
-- 执行数据库架构脚本
-- 准备开发环境
-
-#### 5. 关闭所有服务 (选项 5)
-```bash
-./quick-start.sh
-# 选择选项 5
-```
-- 智能关闭所有相关服务进程
-- 释放端口 5173 和 8787
-- 清理临时文件
-
-#### 6. 重启所有服务 (选项 6)
-```bash
-./quick-start.sh
-# 选择选项 6
-```
-- 先关闭所有服务
-- 再启动完整服务 (等同于选项 3)
-
-## 智能特性
-
-### 🔧 自动端口管理
-- 启动前自动检测端口占用
-- 智能释放被占用的端口
-- 确保服务在指定端口启动
-
-### 🗄️ 数据库智能管理
-- 检查 `.db_initialized` 标记文件
-- 自动执行数据库初始化脚本
-- 避免重复初始化
-
-### 📊 服务监控
-- 后台运行时实时监控服务状态
-- 服务异常时自动提醒
-- 按 `Ctrl+C` 优雅停止所有服务
-
-### 📝 日志管理
-- 后台模式生成日志文件
-- 前端日志: `frontend.log`
-- 后端日志: `backend.log`
-- 停止服务时自动清理日志文件
-
-## 故障排除
-
-### 端口被占用
-脚本会自动处理端口冲突，如果仍有问题：
-```bash
-# 手动检查端口使用
-lsof -ti:5173
-lsof -ti:8787
-
-# 手动关闭进程
-./quick-start.sh
-# 选择选项 5
+wrangler login
 ```
 
-### 数据库问题
+#### 3. 运行一键部署脚本
 ```bash
-# 重新初始化数据库
-rm .db_initialized
-./quick-start.sh
-# 选择选项 4
+./deploy-production.sh
 ```
 
-### 依赖问题
+这个脚本会自动：
+- ✅ 创建 Cloudflare D1 数据库
+- ✅ 初始化数据库架构
+- ✅ 设置环境变量
+- ✅ 部署后端到 Cloudflare Workers
+- ✅ 配置前端生产环境
+- ✅ 构建前端项目
+- ✅ 推送到 GitHub（触发自动部署）
+
+#### 4. 启用 GitHub Pages
+1. 访问你的 GitHub 仓库
+2. 进入 Settings > Pages
+3. Source 选择 "Deploy from a branch"
+4. Branch 选择 "gh-pages"
+5. 点击 Save
+
+#### 5. 等待部署完成
+GitHub Actions 会自动构建和部署，通常需要 2-5 分钟。
+
+## 🔗 访问你的网站
+
+部署完成后，你可以通过以下地址访问：
+- **网站**: `https://your-username.github.io/your-repo-name`
+- **后端API**: `https://diliinfo-backend-prod.your-subdomain.workers.dev`
+
+## 🧪 测试功能
+
+访问网站后，测试以下功能：
+1. 首页加载
+2. 贷款申请流程
+3. 用户注册
+4. 文件上传
+5. 管理后台
+
+## 🔧 故障排除
+
+### 常见问题
+
+**1. CORS 错误**
+- 检查后端 CORS 配置是否包含前端域名
+
+**2. API 调用失败**
+- 确认后端 Workers URL 是否正确
+- 检查环境变量配置
+
+**3. 页面 404 错误**
+- 确保 GitHub Pages 已启用
+- 检查 SPA 路由配置
+
+**4. 数据库连接错误**
+- 验证数据库 ID 是否正确
+- 确保数据库已初始化
+
+## 📊 监控和维护
+
+### Cloudflare Dashboard
+访问 https://dash.cloudflare.com 监控：
+- Workers 使用情况
+- D1 数据库状态
+- API 请求统计
+
+### GitHub Actions
+访问仓库的 Actions 页面查看部署状态。
+
+### 数据库备份
+定期备份数据库：
 ```bash
-# 清理并重新安装依赖
-rm -rf apps/web/node_modules workers-backend/node_modules
-./quick-start.sh
-# 选择选项 4
+cd workers-backend
+wrangler d1 export diliinfo-db-prod --output backup-$(date +%Y%m%d).sql
 ```
 
-## 开发工作流推荐
+## 🎯 自定义域名（可选）
 
-### 日常开发
-1. 使用选项 3 启动完整服务
-2. 开发时查看实时日志：`tail -f frontend.log backend.log`
-3. 停止时按 `Ctrl+C` 或使用选项 5
+如果你有自定义域名：
 
-### 部署前测试
-1. 使用选项 5 停止所有服务
-2. 使用选项 3 重新启动完整环境
-3. 验证所有功能正常
+1. 在 GitHub Pages 设置中添加自定义域名
+2. 创建 `apps/web/public/CNAME` 文件：
+   ```
+   your-domain.com
+   ```
+3. 在域名提供商处添加 CNAME 记录
+4. 更新后端 CORS 配置
 
-### 团队协作
-1. 新成员首次使用选项 4 初始化
-2. 日常开发使用选项 3
-3. 遇到问题使用选项 6 重启所有服务
+## � 获成取帮助
 
-## 技术细节
+如果遇到问题：
+1. 查看 `DEPLOYMENT_GUIDE.md` 详细指南
+2. 检查 GitHub Actions 日志
+3. 查看 Cloudflare Workers 日志
+4. 确认所有配置文件正确
 
-### 服务进程管理
-- 使用 `pkill` 智能匹配进程
-- 支持 `wrangler`, `vite`, `npm` 相关进程
-- 端口级别的进程清理
+## 🎉 完成！
 
-### 数据库集成
-- Cloudflare D1 数据库
-- 自动执行 `sql/schema.sql`
-- 开发/生产环境分离
+恭喜！你的 DiliInfo 贷款申请系统现在已经成功部署到生产环境，用户可以开始使用了！
 
-### 错误处理
-- 彩色状态输出
-- 详细错误信息
-- 优雅的异常处理 
+---
+
+**重要提醒**：
+- 保存好所有密钥和配置
+- 定期监控系统状态
+- 及时更新安全补丁
