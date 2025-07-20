@@ -422,10 +422,10 @@ const Admin: React.FC = () => {
                           <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
                             <div 
                               className={`h-2 rounded-full ${app.is_guest ? 'bg-orange-500' : 'bg-blue-500'}`}
-                              style={{ width: `${(app.step / app.max_step) * 100}%` }}
+                              style={{ width: `${((app.completed_steps || 0) / 12) * 100}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm text-gray-500">{app.step}/{app.max_step}</span>
+                          <span className="text-sm text-gray-500">{app.completed_steps || 0}/12</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -596,9 +596,74 @@ const Admin: React.FC = () => {
                     <span>${selectedApplication.amount?.toLocaleString() || '未填写'}</span>
                   </div>
                   <div>
-                    <span className="text-gray-600">当前步骤：</span>
-                    <span>{selectedApplication.step || 0}/{selectedApplication.max_step || 12}</span>
+                    <span className="text-gray-600">完成步骤：</span>
+                    <span>{selectedApplication.completed_steps || 0}/12</span>
                   </div>
+                </div>
+              </div>
+
+              {/* 详细申请信息 */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold mb-3">申请详细信息</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {selectedApplication.real_name && (
+                    <div>
+                      <span className="text-gray-600">真实姓名：</span>
+                      <span>{selectedApplication.real_name}</span>
+                    </div>
+                  )}
+                  {selectedApplication.id_number && (
+                    <div>
+                      <span className="text-gray-600">身份证号：</span>
+                      <span className="font-mono">{selectedApplication.id_number}</span>
+                    </div>
+                  )}
+                  {selectedApplication.contact1_name && (
+                    <div>
+                      <span className="text-gray-600">联系人1：</span>
+                      <span>{selectedApplication.contact1_name} - {selectedApplication.contact1_phone}</span>
+                    </div>
+                  )}
+                  {selectedApplication.contact2_name && (
+                    <div>
+                      <span className="text-gray-600">联系人2：</span>
+                      <span>{selectedApplication.contact2_name} - {selectedApplication.contact2_phone}</span>
+                    </div>
+                  )}
+                  {selectedApplication.bank_card_number && (
+                    <div>
+                      <span className="text-gray-600">银行卡号：</span>
+                      <span className="font-mono">{selectedApplication.bank_card_number}</span>
+                    </div>
+                  )}
+                  {selectedApplication.withdrawal_amount && (
+                    <div>
+                      <span className="text-gray-600">提现金额：</span>
+                      <span>${selectedApplication.withdrawal_amount?.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {selectedApplication.installment_period && (
+                    <div>
+                      <span className="text-gray-600">分期期数：</span>
+                      <span>{selectedApplication.installment_period}期</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-gray-600">申请时间：</span>
+                    <span>{new Date((selectedApplication.started_at || selectedApplication.created_at) * 1000).toLocaleString()}</span>
+                  </div>
+                  {selectedApplication.submitted_at && (
+                    <div>
+                      <span className="text-gray-600">提交时间：</span>
+                      <span>{new Date(selectedApplication.submitted_at * 1000).toLocaleString()}</span>
+                    </div>
+                  )}
+                  {selectedApplication.approved_at && (
+                    <div>
+                      <span className="text-gray-600">审批时间：</span>
+                      <span>{new Date(selectedApplication.approved_at * 1000).toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 

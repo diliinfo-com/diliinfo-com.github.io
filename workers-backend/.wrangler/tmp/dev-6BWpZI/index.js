@@ -1932,10 +1932,13 @@ app.get("/api/admin/applications/:id/steps", adminAuth, async (c) => {
       ORDER BY step_number ASC, completed_at ASC
     `).bind(applicationId).all();
     const application = await c.env.DB.prepare(`
-      SELECT la.*, u.email, u.phone as user_phone
+      SELECT la.*, u.email, u.first_name, u.last_name, u.phone as user_phone,
+             COALESCE(MAX(aps.step_number), 0) as completed_steps
       FROM loan_applications la
       LEFT JOIN users u ON la.user_id = u.id
+      LEFT JOIN application_steps aps ON la.id = aps.application_id
       WHERE la.id = ?
+      GROUP BY la.id
     `).bind(applicationId).first();
     return c.json({
       application: application || null,
