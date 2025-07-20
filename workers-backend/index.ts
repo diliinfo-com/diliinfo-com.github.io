@@ -10,7 +10,13 @@ const app = new Hono<{ Bindings: Env; Variables: { user: any; admin: any } }>();
 
 // CORS设置
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://diliinfo-com.github.io'],
+  origin: [
+    'http://localhost:5173', 
+    'https://diliinfo-com.github.io',
+    'https://diliinfo-com.github.io/',
+    'https://*.github.io',
+    'https://*.pages.dev'
+  ],
   allowHeaders: ['Content-Type', 'Authorization'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));

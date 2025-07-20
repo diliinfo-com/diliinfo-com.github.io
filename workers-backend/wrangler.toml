@@ -19,7 +19,7 @@ name = "diliinfo-backend-prod"
 [[env.production.d1_databases]]
 binding = "DB" 
 database_name = "diliinfo-db-prod"
-database_id = "<YOUR_PROD_DB_ID>"
+database_id = "9e8e2f15-7c63-4f23-884d-3c26f00386be"
 
 [env.production.vars]
 JWT_SECRET = "prod-jwt-secret-super-secure" 

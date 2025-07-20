@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-vU2wrX/checked-fetch.js
+// .wrangler/tmp/bundle-GXkKlx/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -1647,7 +1647,13 @@ var cors = /* @__PURE__ */ __name((options) => {
 // index.ts
 var app = new Hono2();
 app.use("*", cors({
-  origin: ["http://localhost:5173", "https://diliinfo-com.github.io"],
+  origin: [
+    "http://localhost:5173",
+    "https://diliinfo-com.github.io",
+    "https://diliinfo-com.github.io/",
+    "https://*.github.io",
+    "https://*.pages.dev"
+  ],
   allowHeaders: ["Content-Type", "Authorization"],
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
@@ -2215,7 +2221,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-vU2wrX/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-GXkKlx/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -2247,7 +2253,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-vU2wrX/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-GXkKlx/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
