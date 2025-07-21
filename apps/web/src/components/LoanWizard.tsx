@@ -129,10 +129,17 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
       .then(response => response.json())
       .then(result => {
         if (result.success) {
+          // 更新申请数据，包括申请ID
+          const updatedData = {
+            phone: fullPhone,
+            isGuest: false,
+            id: result.applicationId || data.id // 使用返回的申请ID，如果没有则保持原有ID
+          };
+          onUpdate(updatedData);
+
           if (updateApplicationStep) {
             updateApplicationStep(1, { phone: fullPhone, registered: true });
           }
-          onUpdate({ phone: fullPhone, isGuest: false });
           onNext();
         } else {
           alert(result.error || t('errors.invalid'));
@@ -1170,8 +1177,8 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
                 key={period}
                 onClick={() => setInstallmentPeriod(period)}
                 className={`p-3 border rounded-lg text-center transition-colors ${installmentPeriod === period
-                    ? 'border-blue-500 bg-blue-50 text-blue-600'
-                    : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-blue-500 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 hover:border-gray-400'
                   }`}
               >
                 <div className="font-medium">{period}{t('loanWizard.step11.installmentPeriodSuffix')}</div>
