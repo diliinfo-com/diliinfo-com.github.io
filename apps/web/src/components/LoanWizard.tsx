@@ -217,7 +217,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 };
 
 // 第2步：身份信息
-const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [idNumber, setIdNumber] = useState(data.idNumber || '');
   const [realName, setRealName] = useState(data.realName || '');
@@ -227,7 +227,11 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
       alert(t('errors.required'));
       return;
     }
-    onUpdate({ idNumber, realName });
+    const stepData = { idNumber, realName };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(2, stepData);
+    }
     onNext();
   };
 
@@ -286,7 +290,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 };
 
 // 第3步：身份证上传
-const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
+const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [frontUploaded, setFrontUploaded] = useState(false);
   const [backUploaded, setBackUploaded] = useState(false);
@@ -332,6 +336,10 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
     if (!frontUploaded || !backUploaded) {
       alert(t('errors.required'));
       return;
+    }
+    const stepData = { frontUploaded, backUploaded };
+    if (updateApplicationStep) {
+      updateApplicationStep(3, stepData);
     }
     onNext();
   };
@@ -424,7 +432,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack }) => {
 };
 
 // 第4步：联系人信息
-const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [contact1Name, setContact1Name] = useState(data.contact1Name || '');
   const [contact1Phone, setContact1Phone] = useState(data.contact1Phone || '');
@@ -436,7 +444,11 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
       alert(t('errors.required'));
       return;
     }
-    onUpdate({ contact1Name, contact1Phone, contact2Name, contact2Phone });
+    const stepData = { contact1Name, contact1Phone, contact2Name, contact2Phone };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(4, stepData);
+    }
     onNext();
   };
 
@@ -530,7 +542,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 };
 
 // 第5步：活体识别
-const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
+const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [videoUploaded, setVideoUploaded] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -575,6 +587,10 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
     if (!videoUploaded) {
       alert(t('errors.required'));
       return;
+    }
+    const stepData = { videoUploaded, videoFileName };
+    if (updateApplicationStep) {
+      updateApplicationStep(5, stepData);
     }
     onNext();
   };
@@ -673,7 +689,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack }) => {
 };
 
 // 第6步：征信授权
-const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
+const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [hasRead, setHasRead] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -690,6 +706,10 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
     if (!agreed) {
       alert(t('errors.required'));
       return;
+    }
+    const stepData = { agreed, hasRead };
+    if (updateApplicationStep) {
+      updateApplicationStep(6, stepData);
     }
     onNext();
   };
@@ -772,7 +792,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack }) => {
 };
 
 // 第7步：银行卡信息
-const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [bankCardNumber, setBankCardNumber] = useState(data.bankCardNumber || '');
 
@@ -794,7 +814,11 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
       alert(t('errors.invalid'));
       return;
     }
-    onUpdate({ bankCardNumber: cleanCardNumber });
+    const stepData = { bankCardNumber: cleanCardNumber };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(7, stepData);
+    }
     onNext();
   };
 
@@ -849,17 +873,25 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) 
 };
 
 // 第8步：提交贷款申请
-const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) => {
+const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    // 模拟提交过程
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // 模拟提交过程
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const stepData = { submitted: true, submittedAt: Date.now() };
+      if (updateApplicationStep) {
+        await updateApplicationStep(8, stepData);
+      }
       onNext();
-    }, 2000);
+    } catch (error) {
+      console.error('Submit failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -930,7 +962,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack }) =
 };
 
 // 第9步：审批中
-const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
+const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(10);
 
@@ -939,6 +971,10 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          const stepData = { processed: true, processedAt: Date.now() };
+          if (updateApplicationStep) {
+            updateApplicationStep(9, stepData);
+          }
           onNext();
           return 0;
         }
@@ -947,7 +983,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [onNext]);
+  }, [onNext, updateApplicationStep]);
 
   return (
     <div className="space-y-6 text-center">
@@ -1003,7 +1039,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext }) => {
 };
 
 // 第10步：审批通过
-const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
+const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const approvedAmount = 50000; // 模拟审批金额
 
@@ -1039,7 +1075,13 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
         </div>
         
         <button
-          onClick={onNext}
+          onClick={() => {
+            const stepData = { approved: true, approvedAmount, approvedAt: Date.now() };
+            if (updateApplicationStep) {
+              updateApplicationStep(10, stepData);
+            }
+            onNext();
+          }}
           className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-lg"
         >
           {t('loanWizard.step10.withdrawNowButton')}
@@ -1050,7 +1092,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack }) => {
 };
 
 // 第11步：提现设置
-const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
+const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
   const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 12);
@@ -1062,17 +1104,21 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
     return monthlyPayment;
   };
 
-     const handleNext = () => {
-     const amount = parseFloat(withdrawalAmount.toString());
-     if (!amount || amount <= 0 || amount > maxAmount) {
-       alert(t('errors.invalid'));
-       return;
-     }
-     onUpdate({ withdrawalAmount: amount, installmentPeriod });
-     onNext();
-   };
+  const handleNext = () => {
+    const amount = parseFloat(withdrawalAmount.toString());
+    if (!amount || amount <= 0 || amount > maxAmount) {
+      alert(t('errors.invalid'));
+      return;
+    }
+    const stepData = { withdrawalAmount: amount, installmentPeriod };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(11, stepData);
+    }
+    onNext();
+  };
 
-     const monthlyPayment = withdrawalAmount ? calculateMonthlyPayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
+  const monthlyPayment = withdrawalAmount ? calculateMonthlyPayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
 
   return (
     <div className="space-y-6">
@@ -1086,16 +1132,16 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {t('loanWizard.step11.withdrawalAmountLabel')}
           </label>
-                     <input
-             type="number"
-             value={withdrawalAmount}
-             onChange={(e) => setWithdrawalAmount(e.target.value)}
-             placeholder={t('loanWizard.step11.withdrawalAmountPlaceholder')}
-             max={maxAmount.toString()}
-             min="1000"
-             step="100"
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-           />
+          <input
+            type="number"
+            value={withdrawalAmount}
+            onChange={(e) => setWithdrawalAmount(e.target.value)}
+            placeholder={t('loanWizard.step11.withdrawalAmountPlaceholder')}
+            max={maxAmount.toString()}
+            min="1000"
+            step="100"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+          />
           <div className="mt-2 text-sm text-gray-500">
             {t('loanWizard.step11.withdrawalRangeLabel', { maxAmount: maxAmount.toLocaleString() })}
           </div>
@@ -1172,8 +1218,22 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack 
 };
 
 // 第12步：提现完成
-const Step12Complete: React.FC<StepProps> = ({ data }) => {
+const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) => {
   const { t } = useTranslation();
+  
+  // 在组件加载时记录完成状态
+  useEffect(() => {
+    const stepData = { 
+      completed: true, 
+      completedAt: Date.now(),
+      withdrawalAmount: data.withdrawalAmount,
+      installmentPeriod: data.installmentPeriod
+    };
+    if (updateApplicationStep) {
+      updateApplicationStep(12, stepData);
+    }
+  }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod]);
+
   return (
     <div className="space-y-6 text-center">
       <div>
@@ -1281,7 +1341,8 @@ const LoanWizard: React.FC = () => {
     if (!applicationData.id) return;
     
     try {
-      await fetch(`/api/applications/${applicationData.id}/step`, {
+      console.log('Updating application step:', step, 'for application:', applicationData.id);
+      const response = await fetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -1290,6 +1351,13 @@ const LoanWizard: React.FC = () => {
           phone: applicationData.phone 
         })
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result = await response.json();
+      console.log('Step update result:', result);
     } catch (error) {
       console.error('Failed to update application step:', error);
     }
