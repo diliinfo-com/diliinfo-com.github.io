@@ -62,7 +62,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+505', name: 'Nicaragua', flag: '🇳🇮' },
     { code: '+53', name: 'Cuba', flag: '🇨🇺' },
     { code: '+1', name: 'República Dominicana', flag: '🇩🇴' },
-    
+
     // 欧洲国家
     { code: '+34', name: 'España', flag: '🇪🇸' },
     { code: '+44', name: 'Reino Unido', flag: '🇬🇧' },
@@ -74,7 +74,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+41', name: 'Suiza', flag: '🇨🇭' },
     { code: '+43', name: 'Austria', flag: '🇦🇹' },
     { code: '+32', name: 'Bélgica', flag: '🇧🇪' },
-    
+
     // 亚洲国家
     { code: '+86', name: 'China', flag: '🇨🇳' },
     { code: '+81', name: 'Japón', flag: '🇯🇵' },
@@ -86,7 +86,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+84', name: 'Vietnam', flag: '🇻🇳' },
     { code: '+63', name: 'Filipinas', flag: '🇵🇭' },
     { code: '+62', name: 'Indonesia', flag: '🇮🇩' },
-    
+
     // 其他重要国家
     { code: '+61', name: 'Australia', flag: '🇦🇺' },
     { code: '+64', name: 'Nueva Zelanda', flag: '🇳🇿' },
@@ -120,27 +120,27 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     fetch(getApiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        phone: fullPhone, 
+      body: JSON.stringify({
+        phone: fullPhone,
         password,
-        applicationId: data.id 
+        applicationId: data.id
       })
     })
-    .then(response => response.json())
-    .then(result => {
-      if (result.success) {
-        if (updateApplicationStep) {
-          updateApplicationStep(1, { phone: fullPhone, registered: true });
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          if (updateApplicationStep) {
+            updateApplicationStep(1, { phone: fullPhone, registered: true });
+          }
+          onUpdate({ phone: fullPhone, isGuest: false });
+          onNext();
+        } else {
+          alert(result.error || t('errors.invalid'));
         }
-        onUpdate({ phone: fullPhone, isGuest: false });
-        onNext();
-      } else {
-        alert(result.error || t('errors.invalid'));
-      }
-    })
-    .catch(() => {
-      alert(t('errors.invalid'));
-    });
+      })
+      .catch(() => {
+        alert(t('errors.invalid'));
+      });
   };
 
   return (
@@ -149,14 +149,14 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step1.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step1.subtitle')}</p>
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {t('loanWizard.step1.phoneLabel')}
           </label>
           <div className="flex">
-            <select 
+            <select
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
               className="px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -204,13 +204,13 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           />
         </div>
 
-          <button
+        <button
           onClick={handleRegister}
           disabled={!phone || !password || password !== confirmPassword}
-            className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-          >
+          className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+        >
           {t('loanWizard.step1.registerButton')}
-          </button>
+        </button>
       </div>
     </div>
   );
@@ -241,7 +241,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step2.subtitle')}</p>
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -255,7 +255,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {t('loanWizard.step2.idNumberLabel')}
@@ -350,7 +350,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step3.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step3.subtitle')}</p>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
@@ -368,7 +368,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
               <div className="space-y-2">
                 <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
                 </div>
               </div>
             ) : (
@@ -381,7 +381,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
             )}
           </div>
         </div>
-        
+
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
             <div className="text-4xl text-gray-400">📄</div>
@@ -398,7 +398,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
               <div className="space-y-2">
                 <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
                 </div>
               </div>
             ) : (
@@ -458,7 +458,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step4.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step4.subtitle')}</p>
       </div>
-      
+
       <div className="space-y-6">
         <div className="border rounded-lg p-4">
           <h4 className="font-semibold mb-4">{t('loanWizard.step4.contact1Title')}</h4>
@@ -601,7 +601,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step5.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step5.subtitle')}</p>
       </div>
-      
+
       <div className="text-center">
         <div className="inline-block p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           <div className="space-y-4">
@@ -612,7 +612,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
                 {t('loanWizard.step5.livenessDesc')}
               </p>
             </div>
-            
+
             {videoUploaded ? (
               <div className="space-y-2">
                 <div className="text-green-600">✓ {videoFileName}</div>
@@ -622,14 +622,14 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
               <div className="space-y-2">
                 <div className="text-blue-600">{t('loanWizard.step5.uploading')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{width: '70%'}}></div>
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
                 </div>
               </div>
             ) : isRecording ? (
               <div className="space-y-2">
                 <div className="text-blue-600">{t('loanWizard.step5.recordingDesc')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
+                  <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
                 </div>
               </div>
             ) : !showVideoOptions ? (
@@ -696,7 +696,8 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
-    const bottom = element.scrollHeight - element.scrollTop === element.clientHeight;
+    // 使用更宽松的判断条件，允许1像素的误差
+    const bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 1;
     if (bottom) {
       setHasRead(true);
     }
@@ -720,40 +721,52 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step6.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step6.subtitle')}</p>
       </div>
-      
+
       <div className="border rounded-lg">
         <div className="bg-gray-50 px-4 py-3 border-b">
           <h4 className="font-semibold">{t('loanWizard.step6.creditAgreementTitle')}</h4>
         </div>
-        <div 
+        <div
           className="p-4 h-64 overflow-y-auto text-sm leading-relaxed"
           onScroll={handleScroll}
         >
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPurpose')}</strong><br/>
+            <strong>{t('loanWizard.step6.agreementPurpose')}</strong><br />
             {t('loanWizard.step6.agreementPurposeDesc')}
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementScope')}</strong><br/>
+            <strong>{t('loanWizard.step6.agreementScope')}</strong><br />
             {t('loanWizard.step6.agreementScopeDesc')}
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPrivacy')}</strong><br/>
+            <strong>{t('loanWizard.step6.agreementPrivacy')}</strong><br />
             {t('loanWizard.step6.agreementPrivacyDesc')}
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPeriod')}</strong><br/>
+            <strong>{t('loanWizard.step6.agreementPeriod')}</strong><br />
             {t('loanWizard.step6.agreementPeriodDesc')}
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementOther')}</strong><br/>
+            <strong>{t('loanWizard.step6.agreementOther')}</strong><br />
             {t('loanWizard.step6.agreementOtherDesc')}
           </p>
           <p className="mb-4">
             {t('loanWizard.step6.agreementExplanation')}
           </p>
-          <div className="text-center py-4 text-gray-500">
-            {hasRead ? '✓ 您已阅读完整协议' : '请滑动到底部阅读完整协议'}
+          <div className="text-center py-4">
+            {hasRead ? (
+              <div className="text-green-600 font-medium">✓ 您已阅读完整协议</div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-gray-500">请滑动到底部阅读完整协议</div>
+                <button
+                  onClick={() => setHasRead(true)}
+                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  我已阅读完整协议
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -828,7 +841,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step7.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step7.subtitle')}</p>
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -843,7 +856,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             maxLength={23} // 16位数字 + 3个空格
           />
         </div>
-        
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step7.securityHintTitle')}</h4>
           <ul className="text-sm text-blue-700 space-y-1">
@@ -900,7 +913,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step8.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step8.subtitle')}</p>
       </div>
-      
+
       <div className="bg-gray-50 rounded-lg p-6">
         <h4 className="font-semibold mb-4">{t('loanWizard.step8.applicationSummaryTitle')}</h4>
         <div className="space-y-3 text-sm">
@@ -991,7 +1004,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step9.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step9.subtitle')}</p>
       </div>
-      
+
       <div className="py-12">
         <div className="w-16 h-16 mx-auto mb-6 relative">
           <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
@@ -1052,7 +1065,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
         <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step10.congratulationsTitle')}</h3>
         <p className="text-gray-600">{t('loanWizard.step10.approvedDesc')}</p>
       </div>
-      
+
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step10.approvalResultTitle')}</h4>
         <div className="space-y-2">
@@ -1073,7 +1086,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
             <div>{t('loanWizard.step10.earlyRepayment')}</div>
           </div>
         </div>
-        
+
         <button
           onClick={() => {
             const stepData = { approved: true, approvedAmount, approvedAt: Date.now() };
@@ -1126,7 +1139,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
         <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step11.title')}</h3>
         <p className="text-gray-600">{t('loanWizard.step11.subtitle')}</p>
       </div>
-      
+
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1156,11 +1169,10 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
               <button
                 key={period}
                 onClick={() => setInstallmentPeriod(period)}
-                className={`p-3 border rounded-lg text-center transition-colors ${
-                  installmentPeriod === period
+                className={`p-3 border rounded-lg text-center transition-colors ${installmentPeriod === period
                     ? 'border-blue-500 bg-blue-50 text-blue-600'
                     : 'border-gray-300 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 <div className="font-medium">{period}{t('loanWizard.step11.installmentPeriodSuffix')}</div>
                 <div className="text-sm text-gray-500">{period}{t('loanWizard.step11.installmentMonths')}</div>
@@ -1220,11 +1232,11 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
 // 第12步：提现完成
 const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) => {
   const { t } = useTranslation();
-  
+
   // 在组件加载时记录完成状态
   useEffect(() => {
-    const stepData = { 
-      completed: true, 
+    const stepData = {
+      completed: true,
       completedAt: Date.now(),
       withdrawalAmount: data.withdrawalAmount,
       installmentPeriod: data.installmentPeriod
@@ -1243,7 +1255,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
         <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step12.successTitle')}</h3>
         <p className="text-gray-600">{t('loanWizard.step12.successDesc')}</p>
       </div>
-      
+
       <div className="bg-green-50 border border-green-200 rounded-lg p-6">
         <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step12.withdrawalDetailsTitle')}</h4>
         <div className="space-y-3 text-sm">
@@ -1276,7 +1288,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
             <li>{t('loanWizard.step12.tips4')}</li>
           </ul>
         </div>
-        
+
         <div className="flex gap-3">
           <button
             onClick={() => window.location.href = '/user-center'}
@@ -1314,22 +1326,22 @@ const LoanWizard: React.FC = () => {
     try {
       const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
       sessionStorage.setItem('guestSessionId', sessionId);
-      
+
       const response = await fetch(getApiUrl('/api/applications/guest'), {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'X-Session-ID': sessionId
         }
       });
-      
+
       if (response.ok) {
         const result = await response.json();
-        setApplicationData(prev => ({ 
-          ...prev, 
-          id: result.applicationId, 
+        setApplicationData(prev => ({
+          ...prev,
+          id: result.applicationId,
           sessionId: result.sessionId,
-          isGuest: true 
+          isGuest: true
         }));
       }
     } catch (error) {
@@ -1339,23 +1351,23 @@ const LoanWizard: React.FC = () => {
 
   const updateApplicationStep = async (step: number, stepData: any) => {
     if (!applicationData.id) return;
-    
+
     try {
       console.log('Updating application step:', step, 'for application:', applicationData.id);
       const response = await fetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          step, 
+        body: JSON.stringify({
+          step,
           data: stepData,
-          phone: applicationData.phone 
+          phone: applicationData.phone
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       console.log('Step update result:', result);
     } catch (error) {
@@ -1429,7 +1441,7 @@ const LoanWizard: React.FC = () => {
           <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% {t('loanWizard.stepCompletion')}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           ></div>
