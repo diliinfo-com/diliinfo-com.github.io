@@ -1330,10 +1330,13 @@ const LoanWizard: React.FC = () => {
   }, []);
 
   const createGuestApplication = async () => {
+    console.log('=== createGuestApplication called ===');
     try {
       const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
       sessionStorage.setItem('guestSessionId', sessionId);
+      console.log('🔑 Session ID:', sessionId);
 
+      console.log('🚀 Creating guest application...');
       const response = await fetch(getApiUrl('/api/applications/guest'), {
         method: 'POST',
         headers: {
@@ -1342,17 +1345,29 @@ const LoanWizard: React.FC = () => {
         }
       });
 
+      console.log('📥 Guest application response status:', response.status);
+
       if (response.ok) {
         const result = await response.json();
-        setApplicationData(prev => ({
-          ...prev,
+        console.log('✅ Guest application result:', result);
+
+        const newData = {
           id: result.applicationId,
           sessionId: result.sessionId,
           isGuest: true
+        };
+        console.log('📝 Setting application data:', newData);
+
+        setApplicationData(prev => ({
+          ...prev,
+          ...newData
         }));
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Guest application failed:', response.status, errorText);
       }
     } catch (error) {
-      console.error('Failed to create guest application:', error);
+      console.error('❌ Failed to create guest application:', error);
     }
   };
 
