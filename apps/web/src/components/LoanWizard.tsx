@@ -1357,33 +1357,58 @@ const LoanWizard: React.FC = () => {
   };
 
   const updateApplicationStep = async (step: number, stepData: any) => {
-    if (!applicationData.id) return;
+    console.log('=== updateApplicationStep called ===');
+    console.log('Step:', step);
+    console.log('StepData:', stepData);
+    console.log('ApplicationData.id:', applicationData.id);
+    console.log('ApplicationData.phone:', applicationData.phone);
+    console.log('ApplicationData.isGuest:', applicationData.isGuest);
+
+    if (!applicationData.id) {
+      console.error('❌ No application ID found!');
+      return;
+    }
 
     try {
-      console.log('Updating application step:', step, 'for application:', applicationData.id);
+      console.log('🚀 Sending request to:', getApiUrl(`/api/applications/${applicationData.id}/step`));
+      const requestBody = {
+        step,
+        data: stepData,
+        phone: applicationData.phone
+      };
+      console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
+
       const response = await fetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          step,
-          data: stepData,
-          phone: applicationData.phone
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('📥 Response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Response error:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
-      console.log('Step update result:', result);
+      console.log('✅ Step update result:', result);
     } catch (error) {
-      console.error('Failed to update application step:', error);
+      console.error('❌ Failed to update application step:', error);
     }
   };
 
   const updateData = (newData: Partial<LoanApplication>) => {
-    setApplicationData(prev => ({ ...prev, ...newData }));
+    console.log('=== updateData called ===');
+    console.log('Previous applicationData:', applicationData);
+    console.log('New data to merge:', newData);
+
+    setApplicationData(prev => {
+      const updated = { ...prev, ...newData };
+      console.log('Updated applicationData:', updated);
+      return updated;
+    });
   };
 
   const nextStep = () => {
