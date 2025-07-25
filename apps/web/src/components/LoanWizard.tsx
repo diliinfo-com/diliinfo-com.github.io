@@ -1115,13 +1115,24 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
 const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
-  const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 12);
+  const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 30);
   const maxAmount = 50000;
 
-  const calculateMonthlyPayment = (amount: number, periods: number) => {
-    const rate = 0.156 / 12; // 月利率
-    const monthlyPayment = (amount * rate * Math.pow(1 + rate, periods)) / (Math.pow(1 + rate, periods) - 1);
-    return monthlyPayment;
+  const calculateTotalRepayment = (principal: number, days: number) => {
+    const dailyRate = 0.03; // 3% 日利率
+    const totalRepayment = principal * Math.pow(1 + dailyRate, days);
+    return totalRepayment;
+  };
+
+  const calculateRepaymentDate = (days: number) => {
+    const today = new Date();
+    const repaymentDate = new Date(today.getTime());
+    repaymentDate.setDate(today.getDate() + days);
+    return repaymentDate.toLocaleDateString('es-MX', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
   };
 
   const handleNext = () => {
@@ -1138,7 +1149,8 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
     onNext();
   };
 
-  const monthlyPayment = withdrawalAmount ? calculateMonthlyPayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
+  const totalRepayment = withdrawalAmount ? calculateTotalRepayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
+  const repaymentDate = withdrawalAmount ? calculateRepaymentDate(installmentPeriod) : '';
 
   return (
     <div className="space-y-6">
@@ -1172,7 +1184,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
             {t('loanWizard.step11.installmentPeriodLabel')}
           </label>
           <div className="grid grid-cols-3 gap-3">
-            {[3, 6, 12].map((period) => (
+            {[8, 15, 30].map((period) => (
               <button
                 key={period}
                 onClick={() => setInstallmentPeriod(period)}
@@ -1202,16 +1214,16 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('loanWizard.step11.interestRateLabel')}:</span>
-                <span>15.6%</span>
+                <span>3%</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
                 <span>{t('loanWizard.step11.monthlyPaymentLabel')}:</span>
-                <span className="text-blue-600">${monthlyPayment.toFixed(2)}</span>
+                <span className="text-blue-600">{repaymentDate}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">{t('loanWizard.step11.totalRepaymentLabel')}:</span>
-                <span>${(monthlyPayment * installmentPeriod).toFixed(2)}</span>
+                <span>${totalRepayment.toFixed(2)}</span>
               </div>
             </div>
           </div>
