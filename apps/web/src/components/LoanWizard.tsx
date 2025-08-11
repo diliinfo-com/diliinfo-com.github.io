@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
+import { 
+  trackLoanApplicationStart, 
+  trackLoanApplicationComplete,
+  trackFileUpload 
+} from '../utils/analytics';
 
 interface LoanApplication {
   id?: string;
@@ -314,6 +319,8 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
       setTimeout(() => {
         setFrontUploading(false);
         setFrontUploaded(true);
+        // 追踪文件上传事件
+        trackFileUpload('id_front', 1);
       }, 2000);
     } else {
       setBackUploading(true);
@@ -322,6 +329,8 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
       setTimeout(() => {
         setBackUploading(false);
         setBackUploaded(true);
+        // 追踪文件上传事件
+        trackFileUpload('id_back', 1);
       }, 2000);
     }
   };
@@ -1263,6 +1272,11 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
     if (updateApplicationStep) {
       updateApplicationStep(12, stepData);
     }
+    
+    // 追踪贷款申请完成事件
+    if (data.withdrawalAmount) {
+      trackLoanApplicationComplete(data.withdrawalAmount, 'personal');
+    }
   }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod]);
 
   return (
@@ -1338,6 +1352,8 @@ const LoanWizard: React.FC = () => {
   useEffect(() => {
     if (!applicationData.id) {
       createGuestApplication();
+      // 追踪贷款申请开始事件
+      trackLoanApplicationStart('personal');
     }
   }, []);
 

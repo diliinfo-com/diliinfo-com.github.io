@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../config/api';
+import { trackLogin } from '../utils/analytics';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -40,6 +41,8 @@ const Login: React.FC = () => {
           localStorage.setItem('admin', JSON.stringify(data.admin));
           navigate('/admin');
         } else {
+          // 追踪用户登录事件
+          await trackLogin('web');
           localStorage.setItem('user', JSON.stringify(data.user));
           navigate('/user-center');
         }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import { trackSignUp } from '../utils/analytics';
 
 const Register: React.FC = () => {
   const { t } = useTranslation();
@@ -57,6 +58,8 @@ const Register: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
+        // 追踪用户注册事件
+        await trackSignUp('web');
         navigate('/login');
       } else {
         setError(data.error || '注册失败');
