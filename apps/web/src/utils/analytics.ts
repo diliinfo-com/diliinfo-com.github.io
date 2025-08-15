@@ -1,18 +1,41 @@
-// 页面访问统计工具 + TikTok Pixel 集成
+// 页面访问统计工具 + TikTok Pixel 和 Events API 集成
 
 import { 
   trackPageView as trackTikTokPageView, 
   initSPATracking,
-  trackSignUp,
-  trackLogin,
-  trackLoanApplicationStart,
-  trackLoanApplicationComplete,
-  trackFileUpload,
-  trackContactFormSubmit,
-  trackButtonClick
+  trackSignUp as trackTikTokPixelSignUp,
+  trackLogin as trackTikTokPixelLogin,
+  trackLoanApplicationStart as trackTikTokPixelLoanApplicationStart,
+  trackLoanApplicationComplete as trackTikTokPixelLoanApplicationComplete,
+  trackFileUpload as trackTikTokPixelFileUpload,
+  trackContactFormSubmit as trackTikTokPixelContactFormSubmit,
+  trackButtonClick as trackTikTokPixelButtonClick
 } from './tiktokPixel';
 
+// 导入 TikTok Events API
+import * as TikTokEventsApi from './tiktokEventsApi';
+
 let currentPath = '';
+let tikTokEventsApiInitialized = false;
+
+// 初始化TikTok Events API
+export const initTikTokEventsApi = async () => {
+  try {
+    // 从服务器获取访问令牌
+    const response = await fetch('/api/tiktok/token');
+    const data = await response.json();
+    
+    if (data.success && data.token) {
+      TikTokEventsApi.setAccessToken(data.token);
+      tikTokEventsApiInitialized = true;
+      console.log('TikTok Events API initialized successfully');
+    } else {
+      console.error('Failed to initialize TikTok Events API: Invalid token');
+    }
+  } catch (error) {
+    console.error('Failed to initialize TikTok Events API', error);
+  }
+};
 
 export const trackPageView = (path: string) => {
   // 避免重复统计同一页面
@@ -31,10 +54,20 @@ export const trackPageView = (path: string) => {
   
   // TikTok Pixel 页面追踪
   trackTikTokPageView(path);
+  
+  // TikTok Events API 页面追踪
+  if (tikTokEventsApiInitialized) {
+    TikTokEventsApi.trackPageView(path).catch(err => {
+      console.error('TikTok Events API page view tracking failed:', err);
+    });
+  }
 };
 
 // 初始化统计
 export const initAnalytics = () => {
+  // 初始化 TikTok Events API
+  initTikTokEventsApi();
+  
   // 统计当前页面
   trackPageView(window.location.pathname);
   
@@ -60,13 +93,101 @@ export const initAnalytics = () => {
   });
 };
 
-// 导出 TikTok Pixel 事件追踪函数，供其他组件使用
-export {
-  trackSignUp,
-  trackLogin,
-  trackLoanApplicationStart,
-  trackLoanApplicationComplete,
-  trackFileUpload,
-  trackContactFormSubmit,
-  trackButtonClick
-}; 
+// 创建同时使用Pixel和Events API的事件追踪函数
+export const trackSignUp = async (method: string = 'web') => {
+  // 使用TikTok Pixel
+  trackTikTokPixelSignUp(method);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackSignUp(method);
+    } catch (error) {
+      console.error('TikTok Events API sign up tracking failed:', error);
+    }
+  }
+};
+
+export const trackLogin = async (method: string = 'web') => {
+  // 使用TikTok Pixel
+  trackTikTokPixelLogin(method);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackLogin(method);
+    } catch (error) {
+      console.error('TikTok Events API login tracking failed:', error);
+    }
+  }
+};
+
+export const trackLoanApplicationStart = async (loanType: string = 'personal') => {
+  // 使用TikTok Pixel
+  trackTikTokPixelLoanApplicationStart(loanType);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackLoanApplicationStart(loanType);
+    } catch (error) {
+      console.error('TikTok Events API loan application start tracking failed:', error);
+    }
+  }
+};
+
+export const trackLoanApplicationComplete = async (loanAmount: number, loanType: string = 'personal') => {
+  // 使用TikTok Pixel
+  trackTikTokPixelLoanApplicationComplete(loanAmount, loanType);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackLoanApplicationComplete(loanAmount, loanType);
+    } catch (error) {
+      console.error('TikTok Events API loan application complete tracking failed:', error);
+    }
+  }
+};
+
+export const trackFileUpload = async (fileType: string, fileCount: number = 1) => {
+  // 使用TikTok Pixel
+  trackTikTokPixelFileUpload(fileType, fileCount);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackFileUpload(fileType, fileCount);
+    } catch (error) {
+      console.error('TikTok Events API file upload tracking failed:', error);
+    }
+  }
+};
+
+export const trackContactFormSubmit = async (formType: string = 'contact') => {
+  // 使用TikTok Pixel
+  trackTikTokPixelContactFormSubmit(formType);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackContactFormSubmit(formType);
+    } catch (error) {
+      console.error('TikTok Events API contact form submit tracking failed:', error);
+    }
+  }
+};
+
+export const trackButtonClick = async (buttonName: string, buttonLocation: string) => {
+  // 使用TikTok Pixel
+  trackTikTokPixelButtonClick(buttonName, buttonLocation);
+  
+  // 使用TikTok Events API
+  if (tikTokEventsApiInitialized) {
+    try {
+      await TikTokEventsApi.trackButtonClick(buttonName, buttonLocation);
+    } catch (error) {
+      console.error('TikTok Events API button click tracking failed:', error);
+    }
+  }
+};

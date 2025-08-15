@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 export interface Env {
   DB: D1Database;
   JWT_SECRET: string;
+  TIKTOK_ACCESS_TOKEN: string; // 添加TikTok访问令牌环境变量
 }
 
 const app = new Hono<{ Bindings: Env; Variables: { user: any; admin: any } }>();
@@ -718,6 +719,15 @@ app.post('/api/auth/verify-sms', async (c) => {
   } catch (error) {
     return c.json({ error: 'Failed to verify SMS' }, 500);
   }
+});
+
+// TikTok API路由
+app.get('/api/tiktok/token', async (c) => {
+  // 这里应该添加适当的身份验证
+  return c.json({
+    success: true,
+    token: c.env.TIKTOK_ACCESS_TOKEN || ''
+  });
 });
 
 // 其他API占位符
