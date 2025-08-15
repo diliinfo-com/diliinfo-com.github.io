@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // TikTok Events API 配置
 const TIKTOK_API_URL = 'https://business-api.tiktok.com/open_api/v1.3/event/track/';
-const PIXEL_ID = 'D2FE2A3C77U9PLHEKD6G';
+const PIXEL_ID = 'D2FE9EJC77U9B02LU8E0';
 let ACCESS_TOKEN = ''; // 需要从安全存储中获取
 
 // 设置访问令牌
