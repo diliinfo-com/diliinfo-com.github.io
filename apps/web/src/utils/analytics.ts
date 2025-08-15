@@ -57,9 +57,10 @@ export const trackPageView = (path: string) => {
   
   // TikTok Events API 页面追踪
   if (tikTokEventsApiInitialized) {
-    TikTokEventsApi.trackPageView(path).catch(err => {
-      console.error('TikTok Events API page view tracking failed:', err);
-    });
+    TikTokEventsApi.trackPageView(path)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -100,11 +101,10 @@ export const trackSignUp = async (method: string = 'web') => {
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackSignUp(method);
-    } catch (error) {
-      console.error('TikTok Events API sign up tracking failed:', error);
-    }
+    TikTokEventsApi.trackSignUp(method)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -114,11 +114,10 @@ export const trackLogin = async (method: string = 'web') => {
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackLogin(method);
-    } catch (error) {
-      console.error('TikTok Events API login tracking failed:', error);
-    }
+    TikTokEventsApi.trackLogin(method)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -128,11 +127,10 @@ export const trackLoanApplicationStart = async (loanType: string = 'personal') =
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackLoanApplicationStart(loanType);
-    } catch (error) {
-      console.error('TikTok Events API loan application start tracking failed:', error);
-    }
+    TikTokEventsApi.trackLoanApplicationStart(loanType)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -142,11 +140,10 @@ export const trackLoanApplicationComplete = async (loanAmount: number, loanType:
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackLoanApplicationComplete(loanAmount, loanType);
-    } catch (error) {
-      console.error('TikTok Events API loan application complete tracking failed:', error);
-    }
+    TikTokEventsApi.trackLoanApplicationComplete(loanAmount, loanType)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -156,11 +153,10 @@ export const trackFileUpload = async (fileType: string, fileCount: number = 1) =
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackFileUpload(fileType, fileCount);
-    } catch (error) {
-      console.error('TikTok Events API file upload tracking failed:', error);
-    }
+    TikTokEventsApi.trackFileUpload(fileType, fileCount)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -170,11 +166,10 @@ export const trackContactFormSubmit = async (formType: string = 'contact') => {
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackContactFormSubmit(formType);
-    } catch (error) {
-      console.error('TikTok Events API contact form submit tracking failed:', error);
-    }
+    TikTokEventsApi.trackContactFormSubmit(formType)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };
 
@@ -184,10 +179,9 @@ export const trackButtonClick = async (buttonName: string, buttonLocation: strin
   
   // 使用TikTok Events API
   if (tikTokEventsApiInitialized) {
-    try {
-      await TikTokEventsApi.trackButtonClick(buttonName, buttonLocation);
-    } catch (error) {
-      console.error('TikTok Events API button click tracking failed:', error);
-    }
+    TikTokEventsApi.trackButtonClick(buttonName, buttonLocation)
+      .catch(error => {
+        // 错误已经在TikTokEventsApi内部处理，这里不需要额外处理
+      });
   }
 };

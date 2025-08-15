@@ -42,8 +42,8 @@ export const sendEvent = async (
   userData: any = {}
 ) => {
   if (!ACCESS_TOKEN) {
-    console.error('TikTok Events API: Access token not set');
-    return;
+    console.warn('TikTok Events API: Access token not set');
+    return { success: false, reason: 'token_not_set' };
   }
 
   try {
@@ -58,18 +58,25 @@ export const sendEvent = async (
       ]
     };
 
+    // 设置超时，避免长时间等待
     const response = await axios.post(TIKTOK_API_URL, payload, {
       headers: {
         'Content-Type': 'application/json',
         'Access-Token': ACCESS_TOKEN
-      }
+      },
+      timeout: 3000 // 3秒超时
     });
 
     console.log(`TikTok Events API: ${eventName} event sent successfully`, response.data);
-    return response.data;
+    return { success: true, data: response.data };
   } catch (error) {
+    // 不要抛出错误，而是返回错误信息
     console.error(`TikTok Events API: Failed to send ${eventName} event`, error);
-    throw error;
+    return { 
+      success: false, 
+      reason: 'api_error',
+      error: error.message || 'Unknown error'
+    };
   }
 };
 
