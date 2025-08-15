@@ -40,6 +40,7 @@ export const trackSignUp = async (method: string = 'web') => {
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('SignUp', {
+        content_id: `signup_${method}`, // 添加content_id参数
         content_name: 'User Registration',
         content_category: 'User Engagement',
         value: 1,
@@ -59,6 +60,7 @@ export const trackLogin = async (method: string = 'web') => {
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('Login', {
+        content_id: `login_${method}`, // 添加content_id参数
         content_name: 'User Login',
         content_category: 'User Engagement',
         value: 1,
@@ -78,6 +80,7 @@ export const trackLoanApplicationStart = async (loanType: string = 'personal') =
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('InitiateCheckout', {
+        content_id: `loan_start_${loanType}`, // 添加content_id参数
         content_name: 'Loan Application Start',
         content_category: 'Loan Application',
         value: 1,
@@ -97,6 +100,7 @@ export const trackLoanApplicationComplete = async (loanAmount: number, loanType:
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('CompleteRegistration', {
+        content_id: `loan_complete_${loanType}`, // 添加content_id参数
         content_name: 'Loan Application Complete',
         content_category: 'Loan Application',
         value: loanAmount,
@@ -116,6 +120,7 @@ export const trackFileUpload = async (fileType: string, fileCount: number = 1) =
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('AddToCart', {
+        content_id: `file_${fileType}`, // 添加content_id参数
         content_name: 'Document Upload',
         content_category: 'Documentation',
         value: fileCount,
@@ -135,6 +140,7 @@ export const trackContactFormSubmit = async (formType: string = 'contact') => {
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('Lead', {
+        content_id: `form_${formType}`, // 添加content_id参数
         content_name: 'Contact Form Submit',
         content_category: 'User Engagement',
         value: 1,
@@ -154,6 +160,7 @@ export const trackButtonClick = async (buttonName: string, buttonLocation: strin
     await waitForTikTokPixel();
     if (window.ttq) {
       window.ttq.track('ClickButton', {
+        content_id: `button_${buttonName.replace(/\s+/g, '_').toLowerCase()}`, // 添加content_id参数
         content_name: buttonName,
         content_category: 'Button Click',
         value: 1,
@@ -220,3 +227,4 @@ export const setUserProperties = async (properties: Record<string, any>) => {
     console.error('TikTok Pixel: Failed to set user properties', error);
   }
 };
+
