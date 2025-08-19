@@ -27,7 +27,9 @@ export const trackPageViewEvent = (path?: string) => {
 
 // 搜索事件跟踪
 export const trackSearchEvent = (searchString: string) => {
+  const contentId = `search_${searchString.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
   trackSearch({
+    content_id: contentId,
     search_string: searchString,
     content_type: 'search',
     content_name: '搜索查询',
@@ -40,8 +42,9 @@ export const trackSearchEvent = (searchString: string) => {
 
 // 联系事件跟踪
 export const trackContactEvent = (contactType: string) => {
+  const contentId = `contact_${contactType}_${Date.now()}`;
   trackContact({
-    content_id: `contact_${contactType}`,
+    content_id: contentId,
     content_type: 'contact',
     content_name: `联系方式: ${contactType}`,
     value: 1,
@@ -53,8 +56,9 @@ export const trackContactEvent = (contactType: string) => {
 
 // 按钮点击事件跟踪
 export const trackButtonClickEvent = (buttonName: string, buttonLocation: string) => {
+  const contentId = `button_${buttonName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
   trackClickButton({
-    content_id: `button_${buttonName.replace(/\s+/g, '_').toLowerCase()}`,
+    content_id: contentId,
     content_type: 'button',
     content_name: buttonName,
     value: 1,
@@ -67,8 +71,9 @@ export const trackButtonClickEvent = (buttonName: string, buttonLocation: string
 
 // 添加到愿望清单事件跟踪
 export const trackAddToWishlistEvent = (itemId: string, itemName: string, value: number = 1) => {
+  const contentId = itemId || `wishlist_item_${Date.now()}`;
   trackAddToWishlist({
-    content_id: itemId,
+    content_id: contentId,
     content_type: 'wishlist_item',
     content_name: itemName,
     value: value,
@@ -80,8 +85,9 @@ export const trackAddToWishlistEvent = (itemId: string, itemName: string, value:
 
 // 完成注册事件跟踪
 export const trackCompleteRegistrationEvent = (method: string = 'web') => {
+  const contentId = `registration_${method}_${Date.now()}`;
   trackCompleteRegistration({
-    content_id: `registration_${method}`,
+    content_id: contentId,
     content_type: 'registration',
     content_name: '用户注册',
     value: 1,
@@ -94,8 +100,9 @@ export const trackCompleteRegistrationEvent = (method: string = 'web') => {
 
 // 潜在客户事件跟踪
 export const trackLeadEvent = (formType: string, formName: string) => {
+  const contentId = `lead_${formType}_${Date.now()}`;
   trackLead({
-    content_id: `lead_${formType}`,
+    content_id: contentId,
     content_type: 'lead',
     content_name: formName,
     value: 1,

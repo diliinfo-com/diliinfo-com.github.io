@@ -13,12 +13,18 @@ export const setAccessToken = (token: string) => {
 
 // 构建基本事件数据
 const buildBaseEventData = (eventName: string, eventParams: any) => {
+  // 确保content_id始终存在且不为空
+  const contentId = eventParams.content_id || `${eventName.toLowerCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
   return {
     pixel_code: PIXEL_ID,
     event: eventName,
     timestamp: Math.floor(Date.now() / 1000),
-    event_id: `${eventName}_${Date.now()}`,
+    event_id: `${eventName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     url: window.location.href,
+    content_id: contentId,
+    content_type: eventParams.content_type || 'product',
+    content_name: eventParams.content_name || `${eventName} Event`,
     ...eventParams
   };
 };
@@ -111,8 +117,10 @@ export const trackLead = async (params: any, userData?: any) => {
 
 // 文件上传事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackFileUpload = async (fileType: string, fileCount: number = 1) => {
+  const contentId = `file_${fileType}_${Date.now()}`;
   return sendEvent('AddToCart', {
-    content_id: `file_${fileType}`,
+    content_id: contentId,
+    content_type: 'document',
     content_name: 'Document Upload',
     content_category: 'Documentation',
     value: fileCount,
@@ -123,8 +131,10 @@ export const trackFileUpload = async (fileType: string, fileCount: number = 1) =
 
 // 贷款申请开始事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackLoanApplicationStart = async (loanType: string = 'personal') => {
+  const contentId = `loan_start_${loanType}_${Date.now()}`;
   return sendEvent('InitiateCheckout', {
-    content_id: `loan_start_${loanType}`,
+    content_id: contentId,
+    content_type: 'loan_application',
     content_name: 'Loan Application Start',
     content_category: 'Loan Application',
     value: 1,
@@ -135,8 +145,10 @@ export const trackLoanApplicationStart = async (loanType: string = 'personal') =
 
 // 贷款申请完成事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackLoanApplicationComplete = async (loanAmount: number, loanType: string = 'personal') => {
+  const contentId = `loan_complete_${loanType}_${Date.now()}`;
   return sendEvent('CompleteRegistration', {
-    content_id: `loan_complete_${loanType}`,
+    content_id: contentId,
+    content_type: 'loan_application',
     content_name: 'Loan Application Complete',
     content_category: 'Loan Application',
     value: loanAmount,
@@ -147,8 +159,10 @@ export const trackLoanApplicationComplete = async (loanAmount: number, loanType:
 
 // 用户注册事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackSignUp = async (method: string = 'web') => {
+  const contentId = `signup_${method}_${Date.now()}`;
   return sendEvent('SignUp', {
-    content_id: `signup_${method}`,
+    content_id: contentId,
+    content_type: 'user_action',
     content_name: 'User Registration',
     content_category: 'User Engagement',
     value: 1,
@@ -159,8 +173,10 @@ export const trackSignUp = async (method: string = 'web') => {
 
 // 用户登录事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackLogin = async (method: string = 'web') => {
+  const contentId = `login_${method}_${Date.now()}`;
   return sendEvent('Login', {
-    content_id: `login_${method}`,
+    content_id: contentId,
+    content_type: 'user_action',
     content_name: 'User Login',
     content_category: 'User Engagement',
     value: 1,
@@ -171,8 +187,10 @@ export const trackLogin = async (method: string = 'web') => {
 
 // 联系表单提交事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackContactFormSubmit = async (formType: string = 'contact') => {
+  const contentId = `form_${formType}_${Date.now()}`;
   return sendEvent('Lead', {
-    content_id: `form_${formType}`,
+    content_id: contentId,
+    content_type: 'form_submission',
     content_name: 'Contact Form Submit',
     content_category: 'User Engagement',
     value: 1,
@@ -183,8 +201,10 @@ export const trackContactFormSubmit = async (formType: string = 'contact') => {
 
 // 按钮点击事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackButtonClick = async (buttonName: string, buttonLocation: string) => {
+  const contentId = `button_${buttonName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
   return sendEvent('ClickButton', {
-    content_id: `button_${buttonName.replace(/\s+/g, '_').toLowerCase()}`,
+    content_id: contentId,
+    content_type: 'button',
     content_name: buttonName,
     content_category: 'Button Click',
     value: 1,
@@ -195,9 +215,12 @@ export const trackButtonClick = async (buttonName: string, buttonLocation: strin
 
 // 页面浏览事件 - 与现有的tiktokPixel.ts保持一致的API
 export const trackPageView = async (path?: string) => {
+  const currentPath = path || window.location.pathname;
+  const contentId = `page_${currentPath.replace(/\//g, '_')}_${Date.now()}`;
   return sendEvent('ViewContent', {
-    content_id: `page_${path || window.location.pathname}`,
-    content_name: `Page View: ${path || window.location.pathname}`,
+    content_id: contentId,
+    content_type: 'page',
+    content_name: `Page View: ${currentPath}`,
     content_category: 'Page View',
     value: 1,
     currency: 'MXN'

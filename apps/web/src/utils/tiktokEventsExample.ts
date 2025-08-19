@@ -32,8 +32,9 @@ export const initTikTokEventsAPI = async () => {
 
 // ViewContent 事件示例 - 查看内容
 export const exampleViewContent = async () => {
+  const contentId = `product_loan_${Date.now()}`;
   await trackViewContent({
-    content_id: 'product_123',
+    content_id: contentId,
     content_type: 'product',
     content_name: '个人贷款产品',
     value: 5000,
@@ -43,9 +44,12 @@ export const exampleViewContent = async () => {
 
 // Search 事件示例 - 搜索
 export const exampleSearch = async () => {
+  const contentId = `search_loan_${Date.now()}`;
   await trackSearch({
+    content_id: contentId,
     search_string: '小额贷款',
-    content_type: 'loan_product',
+    content_type: 'search_result',
+    content_name: '贷款产品搜索',
     value: 1,
     currency: 'MXN'
   });
@@ -53,9 +57,10 @@ export const exampleSearch = async () => {
 
 // Contact 事件示例 - 联系
 export const exampleContact = async () => {
+  const contentId = `contact_form_${Date.now()}`;
   await trackContact({
-    content_id: 'contact_form',
-    content_type: 'form',
+    content_id: contentId,
+    content_type: 'contact_form',
     content_name: '客户服务联系表单',
     value: 1,
     currency: 'MXN'
@@ -64,9 +69,10 @@ export const exampleContact = async () => {
 
 // ClickButton 事件示例 - 点击按钮
 export const exampleClickButton = async () => {
+  const contentId = `apply_button_${Date.now()}`;
   await trackClickButton({
-    content_id: 'apply_now_button',
-    content_type: 'button',
+    content_id: contentId,
+    content_type: 'cta_button',
     content_name: '立即申请按钮',
     value: 1,
     currency: 'MXN'
@@ -75,8 +81,9 @@ export const exampleClickButton = async () => {
 
 // AddToWishlist 事件示例 - 添加到愿望清单
 export const exampleAddToWishlist = async () => {
+  const contentId = `loan_plan_premium_${Date.now()}`;
   await trackAddToWishlist({
-    content_id: 'loan_plan_premium',
+    content_id: contentId,
     content_type: 'loan_plan',
     content_name: '高级贷款计划',
     value: 10000,
@@ -86,9 +93,10 @@ export const exampleAddToWishlist = async () => {
 
 // CompleteRegistration 事件示例 - 完成注册
 export const exampleCompleteRegistration = async () => {
+  const contentId = `user_registration_${Date.now()}`;
   await trackCompleteRegistration({
-    content_id: 'user_registration',
-    content_type: 'registration',
+    content_id: contentId,
+    content_type: 'user_registration',
     content_name: '用户注册',
     value: 1,
     currency: 'MXN'
@@ -97,9 +105,10 @@ export const exampleCompleteRegistration = async () => {
 
 // Lead 事件示例 - 潜在客户
 export const exampleLead = async () => {
+  const contentId = `loan_inquiry_${Date.now()}`;
   await trackLead({
-    content_id: 'loan_inquiry',
-    content_type: 'form_submission',
+    content_id: contentId,
+    content_type: 'lead_form',
     content_name: '贷款咨询表单',
     value: 1,
     currency: 'MXN'
