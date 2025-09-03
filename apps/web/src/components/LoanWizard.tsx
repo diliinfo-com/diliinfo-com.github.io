@@ -132,10 +132,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">¡Préstamos con Interés Bajo!</h3>
-        <p className="text-gray-600">Ingresa tu número de teléfono para ver tu límite de crédito aprobado</p>
+        <h3 className="text-xl sm:text-2xl font-bold mb-2">¡Préstamos con Interés Bajo!</h3>
+        <p className="text-gray-600 text-sm sm:text-base">Ingresa tu número de teléfono para ver tu límite de crédito aprobado</p>
       </div>
 
       <div className="space-y-4">
@@ -143,12 +143,13 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {t('loanWizard.step1.phoneLabel')}
           </label>
-          <div className="flex">
+          <div className="flex max-w-full">
             <select
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-2 sm:px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={showApprovedAmount}
+              style={{ minWidth: "80px", maxWidth: "100px" }}
             >
               {countryCodes.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -161,8 +162,9 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder={t('loanWizard.step1.phonePlaceholder')}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-2 sm:px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={showApprovedAmount}
+              style={{ minWidth: "0" }}
             />
           </div>
         </div>
@@ -177,15 +179,15 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           </button>
         ) : (
           <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-              <h4 className="font-semibold text-green-800 mb-2">¡Felicidades! Tu límite de crédito es:</h4>
-              <div className="text-3xl font-bold text-green-600 mb-2">$50,000 MXN</div>
-              <p className="text-sm text-green-700">Préstamo con interés bajo disponible ahora</p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 text-center">
+              <h4 className="font-semibold text-green-800 mb-1 sm:mb-2">¡Felicidades! Tu límite de crédito es:</h4>
+              <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">$50,000 MXN</div>
+              <p className="text-xs sm:text-sm text-green-700">Préstamo con interés bajo disponible ahora</p>
             </div>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-800 mb-2">Beneficios de tu préstamo:</h4>
-              <ul className="text-sm text-blue-700 space-y-1">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+              <h4 className="font-medium text-blue-800 mb-1 sm:mb-2">Beneficios de tu préstamo:</h4>
+              <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
                 <li>• Tasa de interés baja: 15% OFF (promoción por tiempo limitado)</li>
                 <li>• Hasta 100,000 pesos de crédito</li>
                 <li>• Sin comisión de procesamiento</li>
@@ -226,10 +228,10 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step2.subtitle')}</p>
+        <h3 className="text-xl sm:text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
+        <p className="text-gray-600 text-sm sm:text-base">{t('loanWizard.step2.subtitle')}</p>
       </div>
 
       <div className="space-y-4">
@@ -242,7 +244,8 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={realName}
             onChange={(e) => setRealName(e.target.value)}
             placeholder={t('loanWizard.step2.realNamePlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{ maxWidth: "100%" }}
           />
         </div>
 
@@ -255,22 +258,23 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
             placeholder={t('loanWizard.step2.idNumberPlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             maxLength={18}
+            style={{ maxWidth: "100%" }}
           />
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2 sm:gap-3">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
         >
           {t('loanWizard.step2.backButton')}
         </button>
         <button
           onClick={handleNext}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
         >
           {t('loanWizard.step2.nextButton')}
         </button>
@@ -454,9 +458,9 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
       </div>
 
       <div className="space-y-6">
-        <div className="border rounded-lg p-4">
-          <h4 className="font-semibold mb-4">{t('loanWizard.step4.contact1Title')}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border rounded-lg p-3 sm:p-4">
+          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact1Title')}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('loanWizard.step4.contactNameLabel')}
@@ -466,7 +470,8 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
                 value={contact1Name}
                 onChange={(e) => setContact1Name(e.target.value)}
                 placeholder={t('loanWizard.step4.contactNamePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ maxWidth: "100%" }}
               />
             </div>
             <div>
@@ -478,16 +483,17 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
                 value={contact1Phone}
                 onChange={(e) => setContact1Phone(e.target.value)}
                 placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={11}
+                style={{ maxWidth: "100%" }}
               />
             </div>
           </div>
         </div>
 
-        <div className="border rounded-lg p-4">
-          <h4 className="font-semibold mb-4">{t('loanWizard.step4.contact2Title')}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border rounded-lg p-3 sm:p-4">
+          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact2Title')}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t('loanWizard.step4.contactNameLabel')}
@@ -497,7 +503,8 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
                 value={contact2Name}
                 onChange={(e) => setContact2Name(e.target.value)}
                 placeholder={t('loanWizard.step4.contactNamePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ maxWidth: "100%" }}
               />
             </div>
             <div>
@@ -509,8 +516,9 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
                 value={contact2Phone}
                 onChange={(e) => setContact2Phone(e.target.value)}
                 placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={11}
+                style={{ maxWidth: "100%" }}
               />
             </div>
           </div>
@@ -846,8 +854,9 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={bankCardNumber}
             onChange={handleCardNumberChange}
             placeholder={t('loanWizard.step7.bankCardPlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg tracking-wider"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg tracking-wider"
             maxLength={23} // 16位数字 + 3个空格
+            style={{ maxWidth: "100%" }}
           />
         </div>
 
@@ -1159,7 +1168,8 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
             max={maxAmount.toString()}
             min="1000"
             step="100"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
+            style={{ maxWidth: "100%" }}
           />
           <div className="mt-2 text-sm text-gray-500">
             {t('loanWizard.step11.withdrawalRangeLabel', { maxAmount: maxAmount.toLocaleString() })}
@@ -1486,7 +1496,7 @@ const LoanWizard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto w-full px-2">
       {/* 进度条 */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
@@ -1502,7 +1512,7 @@ const LoanWizard: React.FC = () => {
       </div>
 
       {/* 当前步骤内容 */}
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
         {renderStep()}
       </div>
     </div>
