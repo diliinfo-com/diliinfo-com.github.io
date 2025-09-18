@@ -19,7 +19,7 @@ app.use('*', cors({
     'https://*.github.io',
     'https://*.pages.dev'
   ],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-Session-ID'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 
