@@ -110,7 +110,7 @@ const MobileCompatTest: React.FC = () => {
 
     // 5. 网络请求测试
     try {
-      const testUrl = `${getApiUrl()}/api/health`;
+      const testUrl = getApiUrl('/api/health');
       console.log('🧪 Testing network request to:', testUrl);
       
       const startTime = Date.now();
@@ -148,7 +148,7 @@ const MobileCompatTest: React.FC = () => {
     // 6. 应用创建测试
     try {
       const sessionId = generateUUID();
-      const createUrl = `${getApiUrl()}/api/applications/guest`;
+      const createUrl = getApiUrl('/api/applications/guest');
       
       console.log('🧪 Testing application creation:', createUrl);
       
