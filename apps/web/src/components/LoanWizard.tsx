@@ -104,7 +104,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
-  const handleCheckEligibility = () => {
+  const handleCheckEligibility = async () => {
     if (!phone) {
       alert(t('errors.phoneRequired'));
       return;
@@ -123,8 +123,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     };
     onUpdate(updatedData);
 
+    // 确保先更新步骤数据到数据库
     if (updateApplicationStep) {
-      updateApplicationStep(1, { phone: fullPhone, registered: true });
+      console.log('🔄 Updating step 1 with phone:', fullPhone);
+      await updateApplicationStep(1, { phone: fullPhone, registered: true });
     }
   };
 
