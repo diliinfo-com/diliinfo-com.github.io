@@ -44,12 +44,6 @@ jobs:
       run:
         working-directory: apps/web
     steps:
-=======
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web   # 前端所在目录
-    steps:
       - name: Checkout
         uses: actions/checkout@v4
 
