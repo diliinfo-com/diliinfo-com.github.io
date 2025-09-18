@@ -43,9 +43,9 @@ export const trackPageView = (path: string) => {
   
   currentPath = path;
   
-  // 发送统计像素请求
+  // 发送统计像素请求到后端
   const img = new Image();
-  img.src = `/pv.gif?path=${encodeURIComponent(path)}&t=${Date.now()}`;
+  img.src = `https://diliinfo-backend-prod.0768keyiran.workers.dev/pv.gif?path=${encodeURIComponent(path)}&t=${Date.now()}`;
   
   // 可选：添加其他统计信息
   img.onerror = () => {

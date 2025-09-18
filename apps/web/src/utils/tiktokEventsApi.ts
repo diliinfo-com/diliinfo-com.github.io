@@ -1,8 +1,8 @@
 // TikTok Events API 工具类
 import axios from 'axios';
 
-// TikTok Events API 配置
-const TIKTOK_API_URL = 'https://business-api.tiktok.com/open_api/v1.3/event/track/';
+// TikTok Events API 配置 - 通过后端代理避免CORS
+const TIKTOK_API_URL = 'https://diliinfo-backend-prod.0768keyiran.workers.dev/api/tiktok/events';
 const PIXEL_ID = 'D2FE9EJC77U9B02LU8E0';
 let ACCESS_TOKEN = '3bd8ebd2b9867ffa28d9c1732b8f83120c68dadb'; // 使用提供的访问令牌
 

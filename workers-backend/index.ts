@@ -739,6 +739,35 @@ app.get('/api/tiktok/token', async (c) => {
   });
 });
 
+// TikTok Events API 代理端点
+app.post('/api/tiktok/events', async (c) => {
+  try {
+    const eventData = await c.req.json();
+    
+    // 转发到TikTok Events API
+    const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Token': c.env.TIKTOK_ACCESS_TOKEN || '3bd8ebd2b9867ffa28d9c1732b8f83120c68dadb'
+      },
+      body: JSON.stringify(eventData)
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      return c.json(result);
+    } else {
+      console.error('TikTok API Error:', result);
+      return c.json({ error: 'TikTok API request failed', details: result }, response.status);
+    }
+  } catch (error) {
+    console.error('TikTok Events Proxy Error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
 // 其他API占位符
 app.all('/api/*', (c) => c.json({ message: 'API endpoint under development' }));
 
