@@ -1,4 +1,4 @@
-// 跨浏览器兼容性工具
+// 跨浏览器兼容性工具 - 专为移动端和内置浏览器优化
 
 // 内存存储作为fallback
 const memoryStorage: { [key: string]: string } = {};
@@ -162,131 +162,6 @@ export const safeLocalStorage = {
 };
 
 /**
- * XMLHttpRequest实现 - 内置浏览器的可靠选择
- */
-const makeXHRRequest = (url: string, options: RequestInit = {}): Promise<Response> => {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const method = (options.method || 'GET').toUpperCase();
-    
-    // 配置请求
-    xhr.open(method, url, true);
-    
-    // 设置超时
-    xhr.timeout = 30000; // 30秒超时
-    
-    // 设置headers
-    const headers = options.headers as Record<string, string> || {};
-    Object.entries(headers).forEach(([key, value]) => {
-      if (value && key.toLowerCase() !== 'content-length') {
-        try {
-          xhr.setRequestHeader(key, value);
-        } catch (e) {
-          console.warn(`Failed to set header ${key}:`, e);
-        }
-      }
-    });
-    
-    // 处理响应
-    xhr.onload = () => {
-      const responseHeaders = new Headers();
-      
-      // 解析响应头 - 使用简单的换行符分割
-      const headerString = xhr.getAllResponseHeaders();
-      if (headerString) {
-        const lines = headerString.split('\n');
-        lines.forEach(line => {
-          const trimmedLine = line.trim();
-          const parts = trimmedLine.split(': ');
-          if (parts.length === 2) {
-            responseHeaders.append(parts[0], parts[1]);
-          }
-        });
-      }
-      
-      // 创建Response对象
-      const response = new Response(xhr.responseText, {
-        status: xhr.status,
-        statusText: xhr.statusText,
-        headers: responseHeaders
-      });
-      
-      console.log('✅ XMLHttpRequest successful:', xhr.status);
-      resolve(response);
-    };
-    
-    xhr.onerror = () => {
-      console.error('❌ XMLHttpRequest network error');
-      reject(new Error('Network request failed'));
-    };
-    
-    xhr.ontimeout = () => {
-      console.error('❌ XMLHttpRequest timeout');
-      reject(new Error('Request timeout'));
-    };
-    
-    // 发送请求
-    try {
-      const body = options.body;
-      xhr.send(body as string || null);
-      console.log('📤 XMLHttpRequest sent');
-    } catch (error) {
-      console.error('❌ XMLHttpRequest send failed:', error);
-      reject(error);
-    }
-  });
-};
-
-/**
- * 兼容的fetch函数 - 支持所有浏览器，包括内置浏览器
- */
-export const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
-  const browserInfo = getBrowserInfo();
-  const userAgent = navigator.userAgent;
-  const isWechat = userAgent.includes('MicroMessenger');
-  const isTiktok = userAgent.includes('TikTok') || userAgent.includes('musical_ly');
-  const isInApp = isWechat || isTiktok || userAgent.includes('QQ/') || userAgent.includes('Weibo');
-  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  
-  console.log('🌐 Making request with browser:', browserInfo, { isInApp, isMobile });
-  
-  // 对于内置浏览器，优先使用XMLHttpRequest
-  if (isInApp || (isMobile && browserInfo.name === 'Safari')) {
-    console.log('📱 Using XMLHttpRequest for in-app/mobile browser');
-    return makeXHRRequest(url, options);
-  }
-  
-  // 尝试原生fetch，如果失败则降级到XHR
-  try {
-    const enhancedOptions: RequestInit = {
-      ...options,
-      mode: 'cors',
-      cache: 'no-cache',
-      credentials: 'omit', // 避免内置浏览器的credentials问题
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        ...options.headers,
-      }
-    };
-    
-    console.log('🚀 Trying native fetch...');
-    const response = await fetch(url, enhancedOptions);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    console.log('✅ Native fetch successful');
-    return response;
-    
-  } catch (error) {
-    console.warn('⚠️ Native fetch failed, trying XMLHttpRequest fallback:', error);
-    return makeXHRRequest(url, options);
-  }
-};
-
-/**
  * 检测浏览器类型和环境
  */
 export const getBrowserInfo = () => {
@@ -324,6 +199,231 @@ export const getBrowserInfo = () => {
     isInApp,
     userAgent: userAgent.substring(0, 100) // 截取前100字符避免过长
   };
+};
+
+/**
+ * 移动端优化的XMLHttpRequest实现
+ */
+const makeMobileXHRRequest = (url: string, options: RequestInit = {}): Promise<Response> => {
+  return new Promise((resolve, reject) => {
+    console.log(`🔄 Mobile XHR: ${options.method || 'GET'} ${url}`);
+    
+    const xhr = new XMLHttpRequest();
+    const method = (options.method || 'GET').toUpperCase();
+    
+    // 超时设置 - 移动端网络较慢
+    const timeoutMs = 90000; // 90秒
+    let timeoutId: NodeJS.Timeout;
+    
+    // 手动超时控制
+    timeoutId = setTimeout(() => {
+      xhr.abort();
+      console.error('❌ Manual timeout after 90s');
+      reject(new Error('Request timeout'));
+    }, timeoutMs);
+    
+    try {
+      // 配置请求
+      xhr.open(method, url, true);
+      
+      // 移动端兼容性设置
+      xhr.timeout = timeoutMs;
+      
+      // 设置必要的请求头
+      try {
+        // 基础headers
+        xhr.setRequestHeader('Accept', 'application/json, text/plain, */*');
+        
+        // 如果是POST请求，设置Content-Type
+        if (method === 'POST' && options.body) {
+          xhr.setRequestHeader('Content-Type', 'application/json');
+        }
+        
+        // 禁用缓存
+        xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        xhr.setRequestHeader('Pragma', 'no-cache');
+        xhr.setRequestHeader('Expires', '0');
+        
+        // 添加自定义headers
+        const customHeaders = options.headers as Record<string, string> || {};
+        Object.entries(customHeaders).forEach(([key, value]) => {
+          if (value && key.toLowerCase() !== 'content-length') {
+            try {
+              xhr.setRequestHeader(key, value);
+              console.log(`📋 Header: ${key}: ${value}`);
+            } catch (e) {
+              console.warn(`⚠️ Header failed: ${key}`, e);
+            }
+          }
+        });
+      } catch (headerError) {
+        console.warn('⚠️ Header setup error:', headerError);
+      }
+      
+      // 状态变化处理
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          clearTimeout(timeoutId);
+          
+          console.log(`📥 XHR Complete: ${xhr.status} ${xhr.statusText}`);
+          
+          // 检查状态
+          if (xhr.status === 0) {
+            console.error('❌ Network error or blocked request');
+            reject(new Error('Network error - request was blocked or failed'));
+            return;
+          }
+          
+          try {
+            const responseText = xhr.responseText || '';
+            console.log(`📄 Response length: ${responseText.length}`);
+            
+            // 创建兼容的Response对象
+            const mockResponse = {
+              ok: xhr.status >= 200 && xhr.status < 300,
+              status: xhr.status,
+              statusText: xhr.statusText,
+              headers: new Headers(),
+              url: url,
+              
+              text: () => Promise.resolve(responseText),
+              
+              json: () => {
+                try {
+                  if (!responseText.trim()) {
+                    return Promise.resolve({});
+                  }
+                  const parsed = JSON.parse(responseText);
+                  return Promise.resolve(parsed);
+                } catch (e) {
+                  console.error('❌ JSON parse error:', e);
+                  return Promise.reject(new Error(`Invalid JSON: ${e.message}`));
+                }
+              },
+              
+              blob: () => Promise.resolve(new Blob([responseText])),
+              arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+            } as Response;
+            
+            if (mockResponse.ok) {
+              console.log('✅ XHR Success');
+              resolve(mockResponse);
+            } else {
+              console.error(`❌ XHR HTTP Error: ${xhr.status}`);
+              reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
+            }
+          } catch (error) {
+            console.error('❌ Response processing error:', error);
+            reject(error);
+          }
+        }
+      };
+      
+      // 错误处理
+      xhr.onerror = (event) => {
+        clearTimeout(timeoutId);
+        console.error('❌ XHR Network error:', event);
+        reject(new Error('Network request failed'));
+      };
+      
+      xhr.ontimeout = () => {
+        clearTimeout(timeoutId);
+        console.error('❌ XHR Timeout');
+        reject(new Error('Request timeout'));
+      };
+      
+      xhr.onabort = () => {
+        clearTimeout(timeoutId);
+        console.error('❌ XHR Aborted');
+        reject(new Error('Request aborted'));
+      };
+      
+      // 发送请求
+      const body = options.body;
+      if (body) {
+        console.log('📤 Sending with body:', typeof body);
+        xhr.send(body as string);
+      } else {
+        console.log('📤 Sending without body');
+        xhr.send();
+      }
+      
+    } catch (error) {
+      clearTimeout(timeoutId);
+      console.error('❌ XHR Setup error:', error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * 兼容的fetch函数 - 专为移动端优化
+ */
+export const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const browserInfo = getBrowserInfo();
+  const userAgent = navigator.userAgent.toLowerCase();
+  
+  // 检测各种移动端和内置浏览器
+  const isWeChat = userAgent.includes('micromessenger');
+  const isTikTok = userAgent.includes('tiktok') || userAgent.includes('musical_ly');
+  const isQQ = userAgent.includes('qq/');
+  const isWeibo = userAgent.includes('weibo');
+  const isSafariMobile = userAgent.includes('safari') && userAgent.includes('mobile');
+  const isInApp = isWeChat || isTikTok || isQQ || isWeibo;
+  const isMobile = /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+  
+  console.log('🌐 Request Info:', {
+    browser: browserInfo.name,
+    isInApp,
+    isMobile,
+    isSafariMobile,
+    url: url.substring(0, 100)
+  });
+  
+  // 对于移动端和内置浏览器，直接使用XHR
+  if (isMobile || isInApp || isSafariMobile) {
+    console.log('📱 Using mobile-optimized XHR');
+    return makeMobileXHRRequest(url, options);
+  }
+  
+  // 桌面端尝试原生fetch，失败则降级
+  try {
+    console.log('🖥️ Trying native fetch for desktop');
+    
+    const enhancedOptions: RequestInit = {
+      ...options,
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'omit',
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        ...options.headers,
+      }
+    };
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60秒超时
+    
+    const response = await fetch(url, {
+      ...enhancedOptions,
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    console.log('✅ Native fetch success');
+    return response;
+    
+  } catch (error) {
+    console.warn('⚠️ Native fetch failed, using XHR fallback:', error);
+    return makeMobileXHRRequest(url, options);
+  }
 };
 
 /**
