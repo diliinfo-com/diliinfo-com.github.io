@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
+import CompatibilityChecker from './components/CompatibilityChecker';
 import Home from './pages/Home';
 import About from './pages/About';
 import Loan from './pages/Loan';
@@ -47,11 +48,13 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <AppLayout />
-      </BrowserRouter>
-    </ErrorBoundary>
+    <CompatibilityChecker>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <AppLayout />
+        </BrowserRouter>
+      </ErrorBoundary>
+    </CompatibilityChecker>
   );
 }
 

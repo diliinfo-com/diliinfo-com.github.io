@@ -1,3 +1,6 @@
+// 首先加载polyfills确保跨浏览器兼容性
+import './polyfills';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

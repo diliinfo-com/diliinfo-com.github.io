@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../config/api';
-import { safeFetch, safeLocalStorage } from '../utils/browserCompat';
+import { enhancedFetch, safeLocalStorage } from '../utils/enhancedBrowserCompat';
 
 interface Stats {
   summary: {
@@ -70,8 +70,8 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const adminData = safeLocalStorage.getItem('admin');
-    const token = safeLocalStorage.getItem('token');
+    const adminData = safeLocalStorage.get('admin');
+    const token = safeLocalStorage.get('token');
     
     if (!adminData || !token) {
       navigate('/login');
@@ -83,17 +83,17 @@ const Admin: React.FC = () => {
   }, [navigate]);
 
   const fetchData = async () => {
-    const token = safeLocalStorage.getItem('token');
+    const token = safeLocalStorage.get('token');
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
       // 获取基础数据
       console.log('Fetching admin data with token:', token?.substring(0, 20) + '...');
       
-      const statsRes = await safeFetch(getApiUrl('/api/admin/stats'), { headers });
-      const usersRes = await safeFetch(getApiUrl('/api/admin/users'), { headers });
-      const appsRes = await safeFetch(getApiUrl('/api/admin/applications'), { headers });
-      const guestsRes = await safeFetch(getApiUrl('/api/admin/applications/guests'), { headers });
+      const statsRes = await enhancedFetch(getApiUrl('/api/admin/stats'), { headers });
+      const usersRes = await enhancedFetch(getApiUrl('/api/admin/users'), { headers });
+      const appsRes = await enhancedFetch(getApiUrl('/api/admin/applications'), { headers });
+      const guestsRes = await enhancedFetch(getApiUrl('/api/admin/applications/guests'), { headers });
 
       console.log('API responses status:', {
         stats: statsRes.status,
@@ -132,14 +132,14 @@ const Admin: React.FC = () => {
   };
 
   const fetchApplicationSteps = async (applicationId: string) => {
-    const token = safeLocalStorage.getItem('token');
+    const token = safeLocalStorage.get('token');
     const headers = { 'Authorization': `Bearer ${token}` };
 
     try {
       console.log('Fetching application steps for:', applicationId);
       console.log('Current selectedApplication before fetch:', selectedApplication);
       
-      const response = await safeFetch(getApiUrl(`/api/admin/applications/${applicationId}/steps`), { headers });
+      const response = await enhancedFetch(getApiUrl(`/api/admin/applications/${applicationId}/steps`), { headers });
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -167,8 +167,8 @@ const Admin: React.FC = () => {
   };
 
   const logout = () => {
-    safeLocalStorage.removeItem('admin');
-    safeLocalStorage.removeItem('token');
+    safeLocalStorage.remove('admin');
+    safeLocalStorage.remove('token');
     navigate('/login');
   };
 
