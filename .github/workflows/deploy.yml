@@ -12,9 +12,6 @@ jobs:
   # 部署后端到 Cloudflare Workers
   deploy-backend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: workers-backend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,14 +24,16 @@ jobs:
           cache-dependency-path: workers-backend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd workers-backend
+          npm ci
 
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: workers-backend
-          command: deploy --env production
+        run: |
+          cd workers-backend
+          npx wrangler deploy --env production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   # 部署前端到 GitHub Pages
   build-frontend:
