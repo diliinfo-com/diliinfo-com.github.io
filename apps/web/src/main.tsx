@@ -4,6 +4,11 @@ import App from './App';
 import './i18n';
 import './index.css';
 import { setupTikTokEvents } from './utils/tiktokInit';
+import { initBrowserCompatibility } from './utils/polyfills';
+import './utils/compatibilityTest'; // 自动运行兼容性测试
+
+// 在应用启动前初始化浏览器兼容性修复
+initBrowserCompatibility();
 
 // 初始化TikTok Events API
 setupTikTokEvents().catch(error => {

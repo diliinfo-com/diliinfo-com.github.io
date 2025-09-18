@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
+import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 import { 
   trackLoanApplicationStart, 
   trackLoanApplicationComplete,
@@ -1338,6 +1339,9 @@ const LoanWizard: React.FC = () => {
 
   // 初始化访客申请
   useEffect(() => {
+    // 检查浏览器兼容性
+    checkBrowserCompatibility();
+    
     if (!applicationData.id) {
       createGuestApplication();
       // 追踪贷款申请开始事件
@@ -1353,37 +1357,38 @@ const LoanWizard: React.FC = () => {
       console.log('🔑 Session ID:', sessionId);
 
       console.log('🚀 Creating guest application...');
-      const response = await fetch(getApiUrl('/api/applications/guest'), {
-        method: 'POST',
+      
+      const result = await httpClient.postJson('/api/applications/guest', {}, {
         headers: {
-          'Content-Type': 'application/json',
           'X-Session-ID': sessionId
         }
       });
 
-      console.log('📥 Guest application response status:', response.status);
+      console.log('✅ Guest application result:', result);
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Guest application result:', result);
+      const newData = {
+        id: result.applicationId,
+        sessionId: result.sessionId,
+        isGuest: true
+      };
+      console.log('📝 Setting application data:', newData);
 
-        const newData = {
-          id: result.applicationId,
-          sessionId: result.sessionId,
-          isGuest: true
-        };
-        console.log('📝 Setting application data:', newData);
-
-        setApplicationData(prev => ({
-          ...prev,
-          ...newData
-        }));
-      } else {
-        const errorText = await response.text();
-        console.error('❌ Guest application failed:', response.status, errorText);
-      }
+      setApplicationData(prev => ({
+        ...prev,
+        ...newData
+      }));
     } catch (error) {
       console.error('❌ Failed to create guest application:', error);
+      // 如果创建失败，生成一个临时ID以便继续流程
+      const fallbackData = {
+        id: crypto.randomUUID(),
+        sessionId: sessionStorage.getItem('guestSessionId') || crypto.randomUUID(),
+        isGuest: true
+      };
+      setApplicationData(prev => ({
+        ...prev,
+        ...fallbackData
+      }));
     }
   };
 
@@ -1401,7 +1406,6 @@ const LoanWizard: React.FC = () => {
     }
 
     try {
-      console.log('🚀 Sending request to:', getApiUrl(`/api/applications/${applicationData.id}/step`));
       const requestBody = {
         step,
         data: stepData,
@@ -1409,24 +1413,11 @@ const LoanWizard: React.FC = () => {
       };
       console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
 
-      const response = await fetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      console.log('📥 Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Response error:', errorText);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await httpClient.putJson(`/api/applications/${applicationData.id}/step`, requestBody);
       console.log('✅ Step update result:', result);
     } catch (error) {
       console.error('❌ Failed to update application step:', error);
+      // 不阻断用户流程，允许继续下一步
     }
   };
 
