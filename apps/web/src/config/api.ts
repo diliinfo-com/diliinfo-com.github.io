@@ -1,6 +1,6 @@
 // API 配置
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://diliinfo-backend-prod.0768keyiran.workers.dev',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

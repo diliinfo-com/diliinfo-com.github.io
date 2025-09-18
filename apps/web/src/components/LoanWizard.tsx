@@ -6,6 +6,7 @@ import {
   trackLoanApplicationComplete,
   trackFileUpload 
 } from '../utils/analytics';
+import { generateUUID, safeSessionStorage, checkStorageAvailability } from '../utils/browserCompat';
 
 interface LoanApplication {
   id?: string;
@@ -1347,10 +1348,23 @@ const LoanWizard: React.FC = () => {
 
   const createGuestApplication = async () => {
     console.log('=== createGuestApplication called ===');
+    
+    // 检查浏览器兼容性
+    const storageInfo = checkStorageAvailability();
+    console.log('🔍 Browser compatibility check:', storageInfo);
+    
     try {
-      const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
-      sessionStorage.setItem('guestSessionId', sessionId);
+      // 使用兼容的UUID生成和存储
+      const existingSessionId = safeSessionStorage.getItem('guestSessionId');
+      const sessionId = existingSessionId || generateUUID();
+      
+      const storageSuccess = safeSessionStorage.setItem('guestSessionId', sessionId);
       console.log('🔑 Session ID:', sessionId);
+      console.log('💾 Storage success:', storageSuccess);
+      
+      if (!storageSuccess) {
+        console.warn('⚠️ SessionStorage failed, using memory-only session');
+      }
 
       console.log('🚀 Creating guest application...');
       const response = await fetch(getApiUrl('/api/applications/guest'), {
