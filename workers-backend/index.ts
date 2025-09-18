@@ -19,7 +19,16 @@ app.use('*', cors({
     'https://*.github.io',
     'https://*.pages.dev'
   ],
-  allowHeaders: ['Content-Type', 'Authorization', 'X-Session-ID'],
+  allowHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Session-ID',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'User-Agent',
+    'Cache-Control'
+  ],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 }));
 
@@ -725,6 +734,9 @@ app.post('/api/auth/verify-sms', async (c) => {
 app.get('/api/tiktok/token', async (c) => {
   // 这里应该添加适当的身份验证
   return c.json({
+    success: true,
+    token: c.env.TIKTOK_ACCESS_TOKEN || 'demo-token'
+  });
     success: true,
     token: c.env.TIKTOK_ACCESS_TOKEN || ''
   });

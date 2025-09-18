@@ -22,7 +22,7 @@ let tikTokEventsApiInitialized = false;
 export const initTikTokEventsApi = async () => {
   try {
     // 从服务器获取访问令牌
-    const response = await fetch('/api/tiktok/token');
+    const response = await fetch('https://diliinfo-backend-prod.0768keyiran.workers.dev/api/tiktok/token');
     const data = await response.json();
     
     if (data.success && data.token) {

@@ -6,7 +6,7 @@ import { trackPageView } from './tiktokEventsApi';
 // 从后端获取TikTok访问令牌
 const fetchTikTokToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/api/tiktok/token');
+    const response = await fetch('https://diliinfo-backend-prod.0768keyiran.workers.dev/api/tiktok/token');
     if (!response.ok) {
       throw new Error(`获取TikTok令牌失败: ${response.status}`);
     }
