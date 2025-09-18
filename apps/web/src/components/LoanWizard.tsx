@@ -6,7 +6,7 @@ import {
   trackLoanApplicationComplete,
   trackFileUpload 
 } from '../utils/analytics';
-import { generateUUID, safeSessionStorage, enhancedFetch, checkCompatibility } from '../utils/enhancedBrowserCompat';
+import { generateUUID, safeSessionStorage, safeFetch, checkStorageAvailability } from '../utils/browserCompat';
 
 interface LoanApplication {
   id?: string;
@@ -1369,7 +1369,7 @@ const LoanWizard: React.FC = () => {
       }
 
       console.log('🚀 Creating guest application...');
-      const response = await enhancedFetch(getApiUrl('/api/applications/guest'), {
+      const response = await safeFetch(getApiUrl('/api/applications/guest'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1425,7 +1425,7 @@ const LoanWizard: React.FC = () => {
       };
       console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
 
-      const response = await enhancedFetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
+      const response = await safeFetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)
