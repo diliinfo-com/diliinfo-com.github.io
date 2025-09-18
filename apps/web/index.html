@@ -27,16 +27,13 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     <!-- GitHub Pages SPA路由处理脚本 -->
     <script type="text/javascript">
       // 处理从404.html重定向过来的路径
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = sessionStorage.redirect;
-          delete sessionStorage.redirect;
-          if (decoded) {
-            l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
-              decoded);
-          }
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
         }
-      }(window.location))
+      })();
     </script>
   </head>
   <body class="antialiased bg-white text-gray-800">
