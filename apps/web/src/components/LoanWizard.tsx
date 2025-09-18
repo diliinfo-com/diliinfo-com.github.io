@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
+import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 import { 
   trackLoanApplicationStart, 
   trackLoanApplicationComplete,
   trackFileUpload 
 } from '../utils/analytics';
-import { generateUUID, safeSessionStorage, safeFetch, checkStorageAvailability } from '../utils/browserCompat';
 
 interface LoanApplication {
   id?: string;
@@ -104,7 +104,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
-  const handleCheckEligibility = async () => {
+  const handleCheckEligibility = () => {
     if (!phone) {
       alert(t('errors.phoneRequired'));
       return;
@@ -123,10 +123,8 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     };
     onUpdate(updatedData);
 
-    // 确保先更新步骤数据到数据库
     if (updateApplicationStep) {
-      console.log('🔄 Updating step 1 with phone:', fullPhone);
-      await updateApplicationStep(1, { phone: fullPhone, registered: true });
+      updateApplicationStep(1, { phone: fullPhone, registered: true });
     }
   };
 
@@ -1337,83 +1335,60 @@ const LoanWizard: React.FC = () => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
-  const [isInitialized, setIsInitialized] = useState(false);
   const totalSteps = 12;
 
   // 初始化访客申请
   useEffect(() => {
-    console.log('🚀 LoanWizard useEffect triggered');
-    console.log('📊 Current state:', { 
-      applicationId: applicationData.id, 
-      isInitialized,
-      step: applicationData.step 
-    });
+    // 检查浏览器兼容性
+    checkBrowserCompatibility();
     
-    if (!isInitialized && !applicationData.id) {
-      console.log('📞 Calling createGuestApplication...');
-      setIsInitialized(true);
+    if (!applicationData.id) {
       createGuestApplication();
       // 追踪贷款申请开始事件
       trackLoanApplicationStart('personal');
-    } else if (applicationData.id) {
-      console.log('✅ Application already has ID:', applicationData.id);
-    } else if (isInitialized) {
-      console.log('⏳ Already initializing...');
     }
-  }, [applicationData.id, isInitialized]);
+  }, []);
 
   const createGuestApplication = async () => {
     console.log('=== createGuestApplication called ===');
-    
-    // 检查浏览器兼容性
-    const storageInfo = checkStorageAvailability();
-    console.log('🔍 Browser compatibility check:', storageInfo);
-    
     try {
-      // 使用兼容的UUID生成和存储
-      const existingSessionId = safeSessionStorage.getItem('guestSessionId');
-      const sessionId = existingSessionId || generateUUID();
-      
-      const storageSuccess = safeSessionStorage.setItem('guestSessionId', sessionId);
+      const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
+      sessionStorage.setItem('guestSessionId', sessionId);
       console.log('🔑 Session ID:', sessionId);
-      console.log('💾 Storage success:', storageSuccess);
-      
-      if (!storageSuccess) {
-        console.warn('⚠️ SessionStorage failed, using memory-only session');
-      }
 
       console.log('🚀 Creating guest application...');
-      const response = await safeFetch(getApiUrl('/api/applications/guest'), {
-        method: 'POST',
+      
+      const result = await httpClient.postJson('/api/applications/guest', {}, {
         headers: {
-          'Content-Type': 'application/json',
           'X-Session-ID': sessionId
         }
       });
 
-      console.log('📥 Guest application response status:', response.status);
+      console.log('✅ Guest application result:', result);
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log('✅ Guest application result:', result);
+      const newData = {
+        id: result.applicationId,
+        sessionId: result.sessionId,
+        isGuest: true
+      };
+      console.log('📝 Setting application data:', newData);
 
-        const newData = {
-          id: result.applicationId,
-          sessionId: result.sessionId,
-          isGuest: true
-        };
-        console.log('📝 Setting application data:', newData);
-
-        setApplicationData(prev => ({
-          ...prev,
-          ...newData
-        }));
-      } else {
-        const errorText = await response.text();
-        console.error('❌ Guest application failed:', response.status, errorText);
-      }
+      setApplicationData(prev => ({
+        ...prev,
+        ...newData
+      }));
     } catch (error) {
       console.error('❌ Failed to create guest application:', error);
+      // 如果创建失败，生成一个临时ID以便继续流程
+      const fallbackData = {
+        id: crypto.randomUUID(),
+        sessionId: sessionStorage.getItem('guestSessionId') || crypto.randomUUID(),
+        isGuest: true
+      };
+      setApplicationData(prev => ({
+        ...prev,
+        ...fallbackData
+      }));
     }
   };
 
@@ -1431,7 +1406,6 @@ const LoanWizard: React.FC = () => {
     }
 
     try {
-      console.log('🚀 Sending request to:', getApiUrl(`/api/applications/${applicationData.id}/step`));
       const requestBody = {
         step,
         data: stepData,
@@ -1439,24 +1413,11 @@ const LoanWizard: React.FC = () => {
       };
       console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
 
-      const response = await safeFetch(getApiUrl(`/api/applications/${applicationData.id}/step`), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      console.log('📥 Response status:', response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Response error:', errorText);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await httpClient.putJson(`/api/applications/${applicationData.id}/step`, requestBody);
       console.log('✅ Step update result:', result);
     } catch (error) {
       console.error('❌ Failed to update application step:', error);
+      // 不阻断用户流程，允许继续下一步
     }
   };
 

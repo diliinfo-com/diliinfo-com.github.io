@@ -2,14 +2,14 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 
 export interface Env {
-  DB: D1Database;
+  DB: any; // D1Database类型在某些环境下可能不可用，使用any作为兼容
   JWT_SECRET: string;
   TIKTOK_ACCESS_TOKEN: string; // 添加TikTok访问令牌环境变量
 }
 
 const app = new Hono<{ Bindings: Env; Variables: { user: any; admin: any } }>();
 
-// CORS设置
+// CORS设置 - 针对Safari和移动端浏览器优化
 app.use('*', cors({
   origin: [
     'http://localhost:5173', 
@@ -17,20 +17,49 @@ app.use('*', cors({
     'https://diliinfo.com',
     'https://www.diliinfo.com',
     'https://*.github.io',
-    'https://*.pages.dev'
+    'https://*.pages.dev',
+    // 添加更多可能的域名
+    'https://diliinfo-com.github.io',
+    'https://backend.diliinfo.com'
   ],
   allowHeaders: [
     'Content-Type', 
     'Authorization', 
-    'X-Session-ID',
     'X-Requested-With',
     'Accept',
+    'Accept-Language',
+    'Accept-Encoding',
     'Origin',
+    'X-Session-ID',
+    'Cache-Control',
     'User-Agent',
-    'Cache-Control'
+    'Referer'
   ],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+  credentials: false, // 避免Safari的Cookie问题
+  maxAge: 86400, // 24小时预检缓存
 }));
+
+// 添加额外的响应头以提高兼容性
+app.use('*', async (c, next) => {
+  // 设置安全和兼容性响应头
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('X-XSS-Protection', '1; mode=block');
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Safari兼容性头
+  c.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+  c.header('Pragma', 'no-cache');
+  c.header('Expires', '0');
+  
+  await next();
+});
+
+// 处理预检请求
+app.options('*', (c) => {
+  return c.text('', 204);
+});
 
 // 工具函数
 async function hashPassword(password: string): Promise<string> {
@@ -735,37 +764,8 @@ app.get('/api/tiktok/token', async (c) => {
   // 这里应该添加适当的身份验证
   return c.json({
     success: true,
-    token: c.env.TIKTOK_ACCESS_TOKEN || 'demo-token'
+    token: c.env.TIKTOK_ACCESS_TOKEN || ''
   });
-});
-
-// TikTok Events API 代理端点
-app.post('/api/tiktok/events', async (c) => {
-  try {
-    const eventData = await c.req.json();
-    
-    // 转发到TikTok Events API
-    const response = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Token': c.env.TIKTOK_ACCESS_TOKEN || '3bd8ebd2b9867ffa28d9c1732b8f83120c68dadb'
-      },
-      body: JSON.stringify(eventData)
-    });
-
-    const result = await response.json();
-    
-    if (response.ok) {
-      return c.json(result);
-    } else {
-      console.error('TikTok API Error:', result);
-      return c.json({ error: 'TikTok API request failed', details: result }, response.status);
-    }
-  } catch (error) {
-    console.error('TikTok Events Proxy Error:', error);
-    return c.json({ error: 'Internal server error' }, 500);
-  }
 });
 
 // 其他API占位符

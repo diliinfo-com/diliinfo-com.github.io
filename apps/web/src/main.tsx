@@ -1,17 +1,14 @@
-// 首先加载polyfills确保跨浏览器兼容性
-import './polyfills';
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './i18n';
 import './index.css';
 import { setupTikTokEvents } from './utils/tiktokInit';
-import { initBrowserCompat } from './utils/browserCompat';
+import { initBrowserCompatibility } from './utils/polyfills';
+import './utils/compatibilityTest'; // 自动运行兼容性测试
 
-// 初始化浏览器兼容性
-const compatInfo = initBrowserCompat();
-console.log('🚀 App starting with compatibility info:', compatInfo);
+// 在应用启动前初始化浏览器兼容性修复
+initBrowserCompatibility();
 
 // 初始化TikTok Events API
 setupTikTokEvents().catch(error => {
