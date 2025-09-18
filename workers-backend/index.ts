@@ -737,9 +737,6 @@ app.get('/api/tiktok/token', async (c) => {
     success: true,
     token: c.env.TIKTOK_ACCESS_TOKEN || 'demo-token'
   });
-    success: true,
-    token: c.env.TIKTOK_ACCESS_TOKEN || ''
-  });
 });
 
 // 其他API占位符
