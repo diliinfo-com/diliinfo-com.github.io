@@ -3,6 +3,96 @@ import { useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../config/api';
 import { enhancedFetch, safeLocalStorage } from '../utils/enhancedBrowserCompat';
 
+// 管理员登录表单组件
+interface AdminLoginFormProps {
+  onLogin: (username: string, password: string) => Promise<void>;
+  loading: boolean;
+}
+
+const AdminLoginForm: React.FC<AdminLoginFormProps> = ({ onLogin, loading }) => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.username && formData.password) {
+      await onLogin(formData.username, formData.password);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-slate-800 mb-2">
+            管理员登录
+          </h2>
+          <p className="text-slate-600">
+            请输入管理员账号和密码
+          </p>
+        </div>
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-slate-800 mb-2">
+                用户名
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                className="relative block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="请输入管理员用户名"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-800 mb-2">
+                密码
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                className="relative block w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="请输入密码"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                登录中...
+              </div>
+            ) : (
+              '登录'
+            )}
+          </button>
+        </form>
+
+        <div className="text-center text-sm text-slate-500">
+          <p>仅限管理员访问</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface Stats {
   summary: {
     totalUsers: number;
@@ -74,13 +164,13 @@ const Admin: React.FC = () => {
     const token = safeLocalStorage.get('token');
     
     if (!adminData || !token) {
-      navigate('/login');
+      setLoading(false);
       return;
     }
 
     setAdmin(JSON.parse(adminData));
     fetchData();
-  }, [navigate]);
+  }, []);
 
   const fetchData = async () => {
     const token = safeLocalStorage.get('token');
@@ -193,6 +283,39 @@ const Admin: React.FC = () => {
     };
     return colorMap[status] || 'bg-gray-100 text-gray-800';
   };
+
+  // 登录处理函数
+  const handleAdminLogin = async (username: string, password: string) => {
+    setLoading(true);
+    try {
+      const response = await enhancedFetch(getApiUrl('/api/admin/auth/login'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        safeLocalStorage.set('token', data.token);
+        safeLocalStorage.set('admin', JSON.stringify(data.admin));
+        setAdmin(data.admin);
+        await fetchData();
+      } else {
+        alert(data.error || '登录失败');
+      }
+    } catch (error) {
+      console.error('Admin login failed:', error);
+      alert('网络错误，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 如果没有登录，显示登录界面
+  if (!admin) {
+    return <AdminLoginForm onLogin={handleAdminLogin} loading={loading} />;
+  }
 
   if (loading) {
     return (
