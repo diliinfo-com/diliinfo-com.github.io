@@ -162,55 +162,6 @@ export const safeLocalStorage = {
 };
 
 /**
- * 兼容的fetch函数 - 支持所有浏览器，包括内置浏览器
- */
-export const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
-  const browserInfo = getBrowserInfo();
-  const userAgent = navigator.userAgent;
-  const isWechat = userAgent.includes('MicroMessenger');
-  const isTiktok = userAgent.includes('TikTok') || userAgent.includes('musical_ly');
-  const isInApp = isWechat || isTiktok || userAgent.includes('QQ/') || userAgent.includes('Weibo');
-  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  
-  console.log('🌐 Making request with browser:', browserInfo, { isInApp, isMobile });
-  
-  // 对于内置浏览器，优先使用XMLHttpRequest
-  if (isInApp || (isMobile && browserInfo === 'Safari')) {
-    console.log('📱 Using XMLHttpRequest for in-app/mobile browser');
-    return makeXHRRequest(url, options);
-  }
-  
-  // 尝试原生fetch，如果失败则降级到XHR
-  try {
-    const enhancedOptions: RequestInit = {
-      ...options,
-      mode: 'cors',
-      cache: 'no-cache',
-      credentials: 'omit', // 避免内置浏览器的credentials问题
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        ...options.headers,
-      }
-    };
-    
-    console.log('🚀 Trying native fetch...');
-    const response = await fetch(url, enhancedOptions);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    console.log('✅ Native fetch successful');
-    return response;
-    
-  } catch (error) {
-    console.warn('⚠️ Native fetch failed, trying XMLHttpRequest fallback:', error);
-    return makeXHRRequest(url, options);
-  }
-};
-
-/**
  * XMLHttpRequest实现 - 内置浏览器的可靠选择
  */
 const makeXHRRequest = (url: string, options: RequestInit = {}): Promise<Response> => {
@@ -240,13 +191,13 @@ const makeXHRRequest = (url: string, options: RequestInit = {}): Promise<Respons
     xhr.onload = () => {
       const responseHeaders = new Headers();
       
-      // 解析响应头
+      // 解析响应头 - 使用简单的换行符分割
       const headerString = xhr.getAllResponseHeaders();
       if (headerString) {
-        headerString.split('
-
-').forEach(line => {
-          const parts = line.split(': ');
+        const lines = headerString.split('\n');
+        lines.forEach(line => {
+          const trimmedLine = line.trim();
+          const parts = trimmedLine.split(': ');
           if (parts.length === 2) {
             responseHeaders.append(parts[0], parts[1]);
           }
@@ -284,6 +235,55 @@ const makeXHRRequest = (url: string, options: RequestInit = {}): Promise<Respons
       reject(error);
     }
   });
+};
+
+/**
+ * 兼容的fetch函数 - 支持所有浏览器，包括内置浏览器
+ */
+export const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const browserInfo = getBrowserInfo();
+  const userAgent = navigator.userAgent;
+  const isWechat = userAgent.includes('MicroMessenger');
+  const isTiktok = userAgent.includes('TikTok') || userAgent.includes('musical_ly');
+  const isInApp = isWechat || isTiktok || userAgent.includes('QQ/') || userAgent.includes('Weibo');
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  
+  console.log('🌐 Making request with browser:', browserInfo, { isInApp, isMobile });
+  
+  // 对于内置浏览器，优先使用XMLHttpRequest
+  if (isInApp || (isMobile && browserInfo.name === 'Safari')) {
+    console.log('📱 Using XMLHttpRequest for in-app/mobile browser');
+    return makeXHRRequest(url, options);
+  }
+  
+  // 尝试原生fetch，如果失败则降级到XHR
+  try {
+    const enhancedOptions: RequestInit = {
+      ...options,
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'omit', // 避免内置浏览器的credentials问题
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        ...options.headers,
+      }
+    };
+    
+    console.log('🚀 Trying native fetch...');
+    const response = await fetch(url, enhancedOptions);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    console.log('✅ Native fetch successful');
+    return response;
+    
+  } catch (error) {
+    console.warn('⚠️ Native fetch failed, trying XMLHttpRequest fallback:', error);
+    return makeXHRRequest(url, options);
+  }
 };
 
 /**

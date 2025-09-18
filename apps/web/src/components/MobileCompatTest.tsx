@@ -6,7 +6,7 @@ import {
   safeSessionStorage,
   generateUUID 
 } from '../utils/browserCompat';
-import { getApiUrl } from '../utils/api';
+import { getApiUrl } from '../config/api';
 
 interface TestResult {
   name: string;
