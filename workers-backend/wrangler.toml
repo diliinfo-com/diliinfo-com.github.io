@@ -16,6 +16,11 @@ JWT_SECRET = "dev-jwt-secret-change-in-production"
 [env.production]
 name = "diliinfo-backend-prod"
 
+# 自定义域名路由
+[[env.production.routes]]
+pattern = "backend.diliinfo.com/*"
+zone_name = "diliinfo.com"
+
 [[env.production.d1_databases]]
 binding = "DB" 
 database_name = "diliinfo-db-prod"
