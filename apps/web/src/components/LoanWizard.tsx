@@ -1337,16 +1337,30 @@ const LoanWizard: React.FC = () => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
+  const [isInitialized, setIsInitialized] = useState(false);
   const totalSteps = 12;
 
   // 初始化访客申请
   useEffect(() => {
-    if (!applicationData.id) {
+    console.log('🚀 LoanWizard useEffect triggered');
+    console.log('📊 Current state:', { 
+      applicationId: applicationData.id, 
+      isInitialized,
+      step: applicationData.step 
+    });
+    
+    if (!isInitialized && !applicationData.id) {
+      console.log('📞 Calling createGuestApplication...');
+      setIsInitialized(true);
       createGuestApplication();
       // 追踪贷款申请开始事件
       trackLoanApplicationStart('personal');
+    } else if (applicationData.id) {
+      console.log('✅ Application already has ID:', applicationData.id);
+    } else if (isInitialized) {
+      console.log('⏳ Already initializing...');
     }
-  }, []);
+  }, [applicationData.id, isInitialized]);
 
   const createGuestApplication = async () => {
     console.log('=== createGuestApplication called ===');
