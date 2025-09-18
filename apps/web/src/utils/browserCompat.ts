@@ -162,88 +162,168 @@ export const safeLocalStorage = {
 };
 
 /**
- * 兼容的fetch函数 - 支持所有浏览器
+ * 兼容的fetch函数 - 支持所有浏览器，包括内置浏览器
  */
 export const safeFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
-  // 检测是否在微信、抖音等内置浏览器中
+  const browserInfo = getBrowserInfo();
   const userAgent = navigator.userAgent;
   const isWechat = userAgent.includes('MicroMessenger');
   const isTiktok = userAgent.includes('TikTok') || userAgent.includes('musical_ly');
   const isInApp = isWechat || isTiktok || userAgent.includes('QQ/') || userAgent.includes('Weibo');
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
   
-  // 为内置浏览器添加特殊处理
-  const enhancedOptions: RequestInit = {
-    ...options,
-    // 确保请求模式兼容
-    mode: isInApp ? 'cors' : (options.mode || 'cors'),
-    // 添加缓存控制
-    cache: options.cache || 'no-cache',
-    // 确保credentials设置
-    credentials: options.credentials || 'same-origin',
-    // 增强headers
-    headers: {
-      'Accept': 'application/json, text/plain, */*',
-      'Content-Type': 'application/json',
-      ...options.headers,
-    }
-  };
+  console.log('🌐 Making request with browser:', browserInfo, { isInApp, isMobile });
   
-  // 添加重试机制
-  let lastError: Error | null = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      console.log(`🌐 Fetch attempt ${attempt + 1} to:`, url);
-      
-      const response = await fetch(url, enhancedOptions);
-      
-      // 检查响应状态
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      console.log(`✅ Fetch successful on attempt ${attempt + 1}`);
-      return response;
-      
-    } catch (error) {
-      lastError = error as Error;
-      console.warn(`❌ Fetch attempt ${attempt + 1} failed:`, error);
-      
-      // 如果是最后一次尝试，抛出错误
-      if (attempt === 2) {
-        throw lastError;
-      }
-      
-      // 等待一段时间后重试
-      await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-    }
+  // 对于内置浏览器，优先使用XMLHttpRequest
+  if (isInApp || (isMobile && browserInfo === 'Safari')) {
+    console.log('📱 Using XMLHttpRequest for in-app/mobile browser');
+    return makeXHRRequest(url, options);
   }
   
-  throw lastError || new Error('Fetch failed after 3 attempts');
+  // 尝试原生fetch，如果失败则降级到XHR
+  try {
+    const enhancedOptions: RequestInit = {
+      ...options,
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'omit', // 避免内置浏览器的credentials问题
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        ...options.headers,
+      }
+    };
+    
+    console.log('🚀 Trying native fetch...');
+    const response = await fetch(url, enhancedOptions);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    console.log('✅ Native fetch successful');
+    return response;
+    
+  } catch (error) {
+    console.warn('⚠️ Native fetch failed, trying XMLHttpRequest fallback:', error);
+    return makeXHRRequest(url, options);
+  }
 };
 
 /**
- * 检测浏览器类型
+ * XMLHttpRequest实现 - 内置浏览器的可靠选择
+ */
+const makeXHRRequest = (url: string, options: RequestInit = {}): Promise<Response> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const method = (options.method || 'GET').toUpperCase();
+    
+    // 配置请求
+    xhr.open(method, url, true);
+    
+    // 设置超时
+    xhr.timeout = 30000; // 30秒超时
+    
+    // 设置headers
+    const headers = options.headers as Record<string, string> || {};
+    Object.entries(headers).forEach(([key, value]) => {
+      if (value && key.toLowerCase() !== 'content-length') {
+        try {
+          xhr.setRequestHeader(key, value);
+        } catch (e) {
+          console.warn(`Failed to set header ${key}:`, e);
+        }
+      }
+    });
+    
+    // 处理响应
+    xhr.onload = () => {
+      const responseHeaders = new Headers();
+      
+      // 解析响应头
+      const headerString = xhr.getAllResponseHeaders();
+      if (headerString) {
+        headerString.split('
+
+').forEach(line => {
+          const parts = line.split(': ');
+          if (parts.length === 2) {
+            responseHeaders.append(parts[0], parts[1]);
+          }
+        });
+      }
+      
+      // 创建Response对象
+      const response = new Response(xhr.responseText, {
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: responseHeaders
+      });
+      
+      console.log('✅ XMLHttpRequest successful:', xhr.status);
+      resolve(response);
+    };
+    
+    xhr.onerror = () => {
+      console.error('❌ XMLHttpRequest network error');
+      reject(new Error('Network request failed'));
+    };
+    
+    xhr.ontimeout = () => {
+      console.error('❌ XMLHttpRequest timeout');
+      reject(new Error('Request timeout'));
+    };
+    
+    // 发送请求
+    try {
+      const body = options.body;
+      xhr.send(body as string || null);
+      console.log('📤 XMLHttpRequest sent');
+    } catch (error) {
+      console.error('❌ XMLHttpRequest send failed:', error);
+      reject(error);
+    }
+  });
+};
+
+/**
+ * 检测浏览器类型和环境
  */
 export const getBrowserInfo = () => {
   const userAgent = navigator.userAgent;
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  
+  let browser = 'Unknown';
+  let isInApp = false;
   
   if (userAgent.includes('MicroMessenger')) {
-    return 'WeChat';
+    browser = 'WeChat';
+    isInApp = true;
   } else if (userAgent.includes('TikTok') || userAgent.includes('musical_ly')) {
-    return 'TikTok';
+    browser = 'TikTok';
+    isInApp = true;
   } else if (userAgent.includes('QQ/')) {
-    return 'QQ';
+    browser = 'QQ';
+    isInApp = true;
+  } else if (userAgent.includes('Weibo')) {
+    browser = 'Weibo';
+    isInApp = true;
   } else if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
-    return 'Chrome';
+    browser = 'Chrome';
   } else if (userAgent.includes('Firefox')) {
-    return 'Firefox';
+    browser = 'Firefox';
   } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-    return 'Safari';
+    browser = 'Safari';
   } else if (userAgent.includes('Edg')) {
-    return 'Edge';
+    browser = 'Edge';
   }
   
-  return 'Unknown';
+  return {
+    name: browser,
+    isMobile,
+    isInApp,
+    userAgent: userAgent.substring(0, 100) // 截取前100字符避免过长
+  };
 };
 
 /**
@@ -255,6 +335,7 @@ export const checkStorageAvailability = () => {
   
   const sessionAvailable = (() => {
     try {
+      if (typeof window === 'undefined' || !window.sessionStorage) return false;
       sessionStorage.setItem(testKey, testValue);
       const retrieved = sessionStorage.getItem(testKey);
       sessionStorage.removeItem(testKey);
@@ -266,6 +347,7 @@ export const checkStorageAvailability = () => {
   
   const localAvailable = (() => {
     try {
+      if (typeof window === 'undefined' || !window.localStorage) return false;
       localStorage.setItem(testKey, testValue);
       const retrieved = localStorage.getItem(testKey);
       localStorage.removeItem(testKey);
@@ -275,9 +357,41 @@ export const checkStorageAvailability = () => {
     }
   })();
   
+  const browserInfo = getBrowserInfo();
+  
   return {
     sessionStorage: sessionAvailable,
     localStorage: localAvailable,
-    browser: getBrowserInfo()
+    browser: browserInfo.name,
+    isMobile: browserInfo.isMobile,
+    isInApp: browserInfo.isInApp,
+    memoryFallback: !sessionAvailable && !localAvailable
+  };
+};
+
+/**
+ * 初始化浏览器兼容性 - 在应用启动时调用
+ */
+export const initBrowserCompat = () => {
+  const storageInfo = checkStorageAvailability();
+  const browserInfo = getBrowserInfo();
+  
+  console.log('🔧 Browser Compatibility Initialized');
+  console.log('📱 Browser Info:', browserInfo);
+  console.log('💾 Storage Info:', storageInfo);
+  
+  // 如果是内置浏览器，给出特殊提示
+  if (browserInfo.isInApp) {
+    console.log('⚠️ Detected in-app browser, using enhanced compatibility mode');
+  }
+  
+  // 如果存储不可用，警告用户
+  if (storageInfo.memoryFallback) {
+    console.warn('⚠️ Browser storage not available, using memory fallback');
+  }
+  
+  return {
+    browserInfo,
+    storageInfo
   };
 };

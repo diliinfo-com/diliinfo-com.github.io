@@ -88,42 +88,47 @@ try {
 
 // Fetch polyfill增强 - 处理内置浏览器的特殊情况
 const originalFetch = globalThis.fetch;
-globalThis.fetch = function(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  // 检测浏览器环境
-  const userAgent = navigator.userAgent;
-  const isInApp = userAgent.includes('MicroMessenger') || 
-                  userAgent.includes('TikTok') || 
-                  userAgent.includes('musical_ly') ||
-                  userAgent.includes('QQ/') ||
-                  userAgent.includes('Weibo');
-  
-  // 为内置浏览器优化请求配置
-  const enhancedInit: RequestInit = {
-    ...init,
-    // 确保CORS模式
-    mode: isInApp ? 'cors' : (init?.mode || 'cors'),
-    // 禁用缓存避免内置浏览器缓存问题
-    cache: init?.cache || 'no-cache',
-    // 设置合适的credentials
-    credentials: init?.credentials || 'omit',
-    // 增强headers
-    headers: {
-      'Accept': 'application/json, text/plain, */*',
-      'Content-Type': 'application/json',
-      // 避免预检请求的问题
-      'X-Requested-With': undefined,
-      ...init?.headers,
+if (originalFetch) {
+  globalThis.fetch = function(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    // 检测浏览器环境
+    const userAgent = navigator.userAgent;
+    const isInApp = userAgent.includes('MicroMessenger') || 
+                    userAgent.includes('TikTok') || 
+                    userAgent.includes('musical_ly') ||
+                    userAgent.includes('QQ/') ||
+                    userAgent.includes('Weibo');
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+    
+    // 为内置浏览器和移动端优化请求配置
+    const enhancedInit: RequestInit = {
+      ...init,
+      // 确保CORS模式
+      mode: 'cors',
+      // 禁用缓存避免内置浏览器缓存问题
+      cache: 'no-cache',
+      // 设置合适的credentials - 内置浏览器通常需要omit
+      credentials: isInApp || isMobile ? 'omit' : (init?.credentials || 'same-origin'),
+      // 增强headers
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        ...init?.headers,
+      }
+    };
+    
+    // 移除可能导致预检请求失败的headers
+    if (isInApp && enhancedInit.headers) {
+      const headers = enhancedInit.headers as Record<string, any>;
+      // 移除可能有问题的headers
+      delete headers['X-Requested-With'];
+      delete headers['Origin'];
     }
+    
+    return originalFetch(input, enhancedInit);
   };
-  
-  // 移除可能导致预检请求失败的headers
-  if (isInApp && enhancedInit.headers) {
-    const headers = enhancedInit.headers as Record<string, any>;
-    delete headers['X-Requested-With'];
-  }
-  
-  return originalFetch(input, enhancedInit);
-};
+} else {
+  console.warn('Native fetch not available, relying on whatwg-fetch polyfill');
+}
 
 // Promise polyfill确保 (虽然core-js已经包含，但确保加载)
 if (!globalThis.Promise) {

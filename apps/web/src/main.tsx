@@ -7,6 +7,11 @@ import App from './App';
 import './i18n';
 import './index.css';
 import { setupTikTokEvents } from './utils/tiktokInit';
+import { initBrowserCompat } from './utils/browserCompat';
+
+// 初始化浏览器兼容性
+const compatInfo = initBrowserCompat();
+console.log('🚀 App starting with compatibility info:', compatInfo);
 
 // 初始化TikTok Events API
 setupTikTokEvents().catch(error => {
