@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // TikTok Events API 配置 - 通过后端代理避免CORS
-const TIKTOK_API_URL = 'https://diliinfo-backend-prod.0768keyiran.workers.dev/api/tiktok/events';
+const TIKTOK_API_URL = 'https://backend.diliinfo.com/api/tiktok/events';
 const PIXEL_ID = 'D2FE9EJC77U9B02LU8E0';
 let ACCESS_TOKEN = '3bd8ebd2b9867ffa28d9c1732b8f83120c68dadb'; // 使用提供的访问令牌
 

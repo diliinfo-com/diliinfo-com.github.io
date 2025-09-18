@@ -22,7 +22,7 @@ let tikTokEventsApiInitialized = false;
 export const initTikTokEventsApi = async () => {
   try {
     // 从服务器获取访问令牌
-    const response = await fetch('https://diliinfo-backend-prod.0768keyiran.workers.dev/api/tiktok/token');
+    const response = await fetch('https://backend.diliinfo.com/api/tiktok/token');
     const data = await response.json();
     
     if (data.success && data.token) {
@@ -45,7 +45,7 @@ export const trackPageView = (path: string) => {
   
   // 发送统计像素请求到后端
   const img = new Image();
-  img.src = `https://diliinfo-backend-prod.0768keyiran.workers.dev/pv.gif?path=${encodeURIComponent(path)}&t=${Date.now()}`;
+  img.src = `https://backend.diliinfo.com/pv.gif?path=${encodeURIComponent(path)}&t=${Date.now()}`;
   
   // 可选：添加其他统计信息
   img.onerror = () => {
