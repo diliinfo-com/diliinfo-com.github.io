@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
+import { sessionManager } from '../utils/sessionManager';
 import { 
   trackLoanApplicationStart, 
   trackLoanApplicationComplete,
@@ -1351,11 +1352,10 @@ const LoanWizard: React.FC = () => {
 
   const createGuestApplication = async () => {
     console.log('=== createGuestApplication called ===');
-    try {
-      const sessionId = sessionStorage.getItem('guestSessionId') || crypto.randomUUID();
-      sessionStorage.setItem('guestSessionId', sessionId);
-      console.log('🔑 Session ID:', sessionId);
+    const sessionId = await sessionManager.getSessionId();
+    console.log('🔑 Session ID:', sessionId);
 
+    try {
       console.log('🚀 Creating guest application...');
       
       const result = await httpClient.postJson('/api/applications/guest', {}, {
@@ -1382,7 +1382,7 @@ const LoanWizard: React.FC = () => {
       // 如果创建失败，生成一个临时ID以便继续流程
       const fallbackData = {
         id: crypto.randomUUID(),
-        sessionId: sessionStorage.getItem('guestSessionId') || crypto.randomUUID(),
+        sessionId: sessionId,
         isGuest: true
       };
       setApplicationData(prev => ({
