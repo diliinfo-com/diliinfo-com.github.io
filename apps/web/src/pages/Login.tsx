@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../config/api';
 import { trackLogin } from '../utils/analytics';
+import { safeFetch, safeLocalStorage } from '../utils/browserCompat';
+import { safeFetch, safeLocalStorage } from '../utils/browserCompat';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -27,7 +29,7 @@ const Login: React.FC = () => {
         ? { username: formData.username, password: formData.password }
         : { email: formData.email, password: formData.password };
 
-      const response = await fetch(getApiUrl(endpoint), {
+      const response = await safeFetch(getApiUrl(endpoint), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -36,14 +38,14 @@ const Login: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem('token', data.token);
+        safeLocalStorage.setItem('token', data.token);
         if (isAdminLogin) {
-          localStorage.setItem('admin', JSON.stringify(data.admin));
+          safeLocalStorage.setItem('admin', JSON.stringify(data.admin));
           navigate('/admin');
         } else {
           // 追踪用户登录事件
           await trackLogin('web');
-          localStorage.setItem('user', JSON.stringify(data.user));
+          safeLocalStorage.setItem('user', JSON.stringify(data.user));
           navigate('/user-center');
         }
       } else {
