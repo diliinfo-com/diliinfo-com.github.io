@@ -1,4 +1,4 @@
-import { getApiUrl, isSafari, isWechat, isMobile } from '../config/api';
+import { getApiUrl, isSafari, isWechat, isMobile, isIOS, isAndroid, isQQBrowser, isUCBrowser, isTikTok, isEmbeddedBrowser } from '../config/api';
 import { errorHandler, handleApiError } from './errorHandler';
 
 // 兼容性HTTP客户端，专门处理Safari和移动端浏览器问题
@@ -25,15 +25,110 @@ export class HttpClient {
       'Accept': 'application/json',
     };
 
-    // 避免在Safari和微信中使用可能有问题的headers
-    if (!isSafari() && !isWechat()) {
-      defaultHeaders['Cache-Control'] = 'no-cache';
+    // iOS Safari特殊处理（包括iPhone、iPad、iPod）
+    if (isIOS() || isSafari()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default', // iOS Safari对no-cache支持不好
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {}),
+        },
+      };
     }
 
+    // 微信内置浏览器特殊处理
+    if (isWechat()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default',
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          // 微信浏览器可能需要特殊的User-Agent处理
+          ...(options.headers || {}),
+        },
+      };
+    }
+
+    // QQ浏览器特殊处理
+    if (isQQBrowser()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default',
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {}),
+        },
+      };
+    }
+
+    // UC浏览器特殊处理
+    if (isUCBrowser()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default',
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {}),
+        },
+      };
+    }
+
+    // 抖音内置浏览器特殊处理
+    if (isTikTok()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default',
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {}),
+        },
+      };
+    }
+
+    // Android设备特殊处理
+    if (isAndroid()) {
+      return {
+        method: options.method || 'GET',
+        mode: 'cors',
+        credentials: 'omit',
+        cache: 'default', // Android浏览器兼容性更好，但保持一致
+        redirect: 'follow',
+        ...options,
+        headers: {
+          ...defaultHeaders,
+          ...(options.headers || {}),
+        },
+      };
+    }
+
+    // 其他浏览器的标准配置
+    defaultHeaders['Cache-Control'] = 'no-cache';
+    
     return {
       method: 'GET',
       mode: 'cors',
-      credentials: 'omit', // 避免Cookie相关问题
+      credentials: 'omit',
       cache: 'no-cache',
       redirect: 'follow',
       ...options,
@@ -118,15 +213,16 @@ export class HttpClient {
   // 处理JSON响应，包含错误处理
   public async handleJsonResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      const error = {
+      const error: any = {
         status: response.status,
         statusText: response.statusText,
-        response: response
+        response: response,
+        message: `HTTP ${response.status}: ${response.statusText}`
       };
       
       try {
         const errorData = await response.json();
-        error.message = errorData.error || errorData.message;
+        error.message = errorData.error || errorData.message || error.message;
       } catch {
         // 如果无法解析错误响应，使用默认错误消息
       }
@@ -168,6 +264,7 @@ export const checkBrowserCompatibility = (): void => {
   if (typeof window === 'undefined') return;
 
   const warnings: string[] = [];
+  const browserInfo: string[] = [];
 
   // 检查fetch支持
   if (!window.fetch) {
@@ -184,22 +281,54 @@ export const checkBrowserCompatibility = (): void => {
     warnings.push('JSON not supported');
   }
 
-  // Safari特殊检查
-  if (isSafari()) {
-    console.info('Safari browser detected, using compatibility mode');
+  // 详细的浏览器检测
+  if (isIOS()) {
+    browserInfo.push('iOS device detected');
+    if (isSafari()) {
+      browserInfo.push('iOS Safari browser detected, using iOS compatibility mode');
+    }
+  } else if (isSafari()) {
+    browserInfo.push('Desktop Safari browser detected, using Safari compatibility mode');
   }
 
-  // 微信浏览器特殊检查
+  if (isAndroid()) {
+    browserInfo.push('Android device detected, using Android compatibility mode');
+  }
+
   if (isWechat()) {
-    console.info('WeChat browser detected, using compatibility mode');
+    browserInfo.push('WeChat embedded browser detected, using WeChat compatibility mode');
   }
 
-  // 移动端检查
+  if (isQQBrowser()) {
+    browserInfo.push('QQ browser detected, using QQ compatibility mode');
+  }
+
+  if (isUCBrowser()) {
+    browserInfo.push('UC browser detected, using UC compatibility mode');
+  }
+
+  if (isTikTok()) {
+    browserInfo.push('TikTok embedded browser detected, using TikTok compatibility mode');
+  }
+
+  if (isEmbeddedBrowser()) {
+    browserInfo.push('Embedded browser environment detected, using enhanced compatibility mode');
+  }
+
   if (isMobile()) {
-    console.info('Mobile browser detected, using optimized settings');
+    browserInfo.push('Mobile browser detected, using mobile-optimized settings');
   }
 
+  // 输出浏览器信息
+  if (browserInfo.length > 0) {
+    console.info('Browser compatibility info:', browserInfo);
+  }
+
+  // 输出警告
   if (warnings.length > 0) {
     console.warn('Browser compatibility issues detected:', warnings);
   }
+
+  // 输出User-Agent用于调试
+  console.info('User-Agent:', navigator.userAgent);
 };

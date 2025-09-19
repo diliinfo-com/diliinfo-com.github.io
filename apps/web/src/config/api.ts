@@ -22,22 +22,58 @@ export const getApiUrl = (endpoint: string): string => {
 export const isDevelopment = import.meta.env.DEV;
 export const isProduction = import.meta.env.PROD;
 
-// Safari兼容性检查
+// Safari兼容性检查（包括iOS Safari）
 export const isSafari = () => {
   if (typeof window === 'undefined') return false;
-  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const ua = navigator.userAgent;
+  return /^((?!chrome|android).)*safari/i.test(ua) || /iPhone|iPad|iPod/i.test(ua);
+};
+
+// iOS设备检查
+export const isIOS = () => {
+  if (typeof window === 'undefined') return false;
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
+
+// Android设备检查
+export const isAndroid = () => {
+  if (typeof window === 'undefined') return false;
+  return /Android/i.test(navigator.userAgent);
 };
 
 // 移动端浏览器检查
 export const isMobile = () => {
   if (typeof window === 'undefined') return false;
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile Safari|Nokia|SymbianOS|Windows Phone/i.test(navigator.userAgent);
 };
 
 // 微信内置浏览器检查
 export const isWechat = () => {
   if (typeof window === 'undefined') return false;
   return /micromessenger/i.test(navigator.userAgent);
+};
+
+// QQ浏览器检查
+export const isQQBrowser = () => {
+  if (typeof window === 'undefined') return false;
+  return /MQQBrowser/i.test(navigator.userAgent);
+};
+
+// UC浏览器检查
+export const isUCBrowser = () => {
+  if (typeof window === 'undefined') return false;
+  return /UCWEB|UCBrowser/i.test(navigator.userAgent);
+};
+
+// 抖音内置浏览器检查
+export const isTikTok = () => {
+  if (typeof window === 'undefined') return false;
+  return /tiktok|bytedance/i.test(navigator.userAgent);
+};
+
+// 检查是否为内置浏览器（微信、QQ、UC、抖音等）
+export const isEmbeddedBrowser = () => {
+  return isWechat() || isQQBrowser() || isUCBrowser() || isTikTok();
 };
 
 // 创建兼容性更好的fetch函数

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { safeStorage, safeSessionStorage, browserDetection } from '../utils/browserCompat';
-import { getApiUrl } from '../config/api';
+import { getApiUrl, isSafari, isWechat, isMobile, isIOS, isAndroid, isQQBrowser, isUCBrowser, isTikTok, isEmbeddedBrowser } from '../config/api';
+import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 
 interface LogEntry {
   timestamp: string;
@@ -32,14 +33,27 @@ const StorageDebugTest: React.FC = () => {
   useEffect(() => {
     addLog('info', '开始存储调试测试');
     
-    // 浏览器检测
+    // 增强的浏览器检测
+    checkBrowserCompatibility();
     const browserInfo = {
       userAgent: navigator.userAgent,
-      isSafari: browserDetection.isSafari,
-      isIOS: browserDetection.isIOS,
-      isWeChat: browserDetection.isWeChat,
-      safariVersion: browserDetection.getSafariVersion(),
-      iosVersion: browserDetection.getIOSVersion()
+      isSafari: isSafari(),
+      isIOS: isIOS(),
+      isAndroid: isAndroid(),
+      isWeChat: isWechat(),
+      isQQBrowser: isQQBrowser(),
+      isUCBrowser: isUCBrowser(),
+      isTikTok: isTikTok(),
+      isEmbeddedBrowser: isEmbeddedBrowser(),
+      isMobile: isMobile(),
+      // 保留原有的检测方法作为对比
+      legacyDetection: {
+        isSafari: browserDetection.isSafari,
+        isIOS: browserDetection.isIOS,
+        isWeChat: browserDetection.isWeChat,
+        safariVersion: browserDetection.getSafariVersion(),
+        iosVersion: browserDetection.getIOSVersion()
+      }
     };
     addLog('info', '浏览器信息', browserInfo);
 
@@ -166,23 +180,62 @@ const StorageDebugTest: React.FC = () => {
 
       addLog('info', '发送请求数据', requestData);
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-ID': sessionId,
-        },
-        body: JSON.stringify(requestData),
-      });
+      // 使用增强的httpClient进行API调用
+      const startTime = Date.now();
+      
+      try {
+        const responseData = await httpClient.postJson('/api/applications/guest', requestData, {
+          headers: {
+            'X-Session-ID': sessionId,
+          }
+        });
+        
+        const responseTime = Date.now() - startTime;
+        addLog('success', `API调用成功 (${responseTime}ms)`, responseData);
+        
+        // 测试数据存储到localStorage
+        try {
+          safeStorage.setItem('last_api_response', JSON.stringify({
+            data: responseData,
+            timestamp: new Date().toISOString(),
+            sessionId
+          }));
+          addLog('success', 'API响应已保存到本地存储');
+        } catch (storageError) {
+          addLog('warn', '无法保存API响应到本地存储', storageError);
+        }
+        
+      } catch (apiError: any) {
+        const responseTime = Date.now() - startTime;
+        addLog('error', `API调用失败 (${responseTime}ms)`, {
+          error: apiError.message || apiError,
+          status: apiError.status,
+          statusText: apiError.statusText
+        });
+        
+        // 尝试使用原生fetch作为备用方案
+        addLog('info', '尝试使用原生fetch作为备用方案');
+        
+        try {
+          const fallbackResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Session-ID': sessionId,
+            },
+            body: JSON.stringify(requestData),
+            mode: 'cors',
+            credentials: 'omit'
+          });
 
-      addLog('info', '收到响应', { 
-        status: response.status, 
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
+          addLog('info', '原生fetch响应', { 
+            status: fallbackResponse.status, 
+            statusText: fallbackResponse.statusText,
+            headers: Object.fromEntries(fallbackResponse.headers.entries())
+          });
 
-      if (response.ok) {
-        const responseData = await response.json();
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
         addLog('success', 'API调用成功', responseData);
       } else {
         const errorText = await response.text();
