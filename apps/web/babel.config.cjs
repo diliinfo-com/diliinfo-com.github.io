@@ -5,17 +5,19 @@ module.exports = {
       {
         targets: {
           browsers: [
-            'defaults',
-            'Safari >= 11',
-            'iOS >= 10',
-            'Chrome >= 60',
-            'Firefox >= 55',
-            'Edge >= 16'
+            '> 0.5%',
+            'last 2 versions',
+            'Firefox ESR',
+            'not dead',
+            'not IE 11',
+            'Safari >= 10',
+            'iOS >= 10'
           ]
         },
-        useBuiltIns: 'entry',
+        useBuiltIns: 'usage',
         corejs: 3,
-        modules: false
+        modules: false,
+        debug: false
       }
     ],
     '@babel/preset-typescript'

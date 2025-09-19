@@ -1,14 +1,18 @@
 module.exports = {
   plugins: {
     tailwindcss: {},
-    autoprefixer: {},
-    'postcss-preset-env': {
-      stage: 3,
-      features: {
-        'nesting-rules': true,
-        'custom-properties': true,
-        'media-query-ranges': true
-      }
+    autoprefixer: {
+      overrideBrowserslist: [
+        '> 0.5%',
+        'last 2 versions',
+        'Firefox ESR',
+        'not dead',
+        'not IE 11',
+        'Safari >= 10',
+        'iOS >= 10'
+      ],
+      grid: 'autoplace',
+      flexbox: 'no-2009'
     }
   }
 }

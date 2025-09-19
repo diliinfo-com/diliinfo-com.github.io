@@ -1,12 +1,11 @@
-// Core polyfills for Safari and mobile browsers
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
-import 'es6-promise/auto';
-import 'whatwg-fetch';
+// Minimal polyfills for Safari compatibility
+console.log('🔧 Loading Safari compatibility polyfills...');
 
-// UUID polyfill for older browsers
+// UUID polyfill for Safari < 15.4
 if (!window.crypto?.randomUUID) {
-  window.crypto = window.crypto || {};
+  if (!window.crypto) {
+    (window as any).crypto = {};
+  }
   (window.crypto as any).randomUUID = function() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = Math.random() * 16 | 0;
@@ -16,63 +15,22 @@ if (!window.crypto?.randomUUID) {
   };
 }
 
-// Array.from polyfill
-if (!Array.from) {
-  Array.from = function(arrayLike: any, mapFn?: any, thisArg?: any) {
-    const items = Object(arrayLike);
-    const len = parseInt(items.length) || 0;
-    const result = new Array(len);
-    let k = 0;
-    while (k < len) {
-      if (mapFn) {
-        result[k] = mapFn.call(thisArg, items[k], k);
-      } else {
-        result[k] = items[k];
+// Simple fetch enhancement for Safari
+if (window.fetch) {
+  const originalFetch = window.fetch;
+  window.fetch = function(input: RequestInfo | URL, init?: RequestInit) {
+    const enhancedInit = {
+      ...init,
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        ...init?.headers
       }
-      k++;
-    }
-    return result;
+    };
+    return originalFetch(input, enhancedInit);
   };
 }
-
-// Object.assign polyfill
-if (!Object.assign) {
-  Object.assign = function(target: any, ...sources: any[]) {
-    if (target == null) {
-      throw new TypeError('Cannot convert undefined or null to object');
-    }
-    const to = Object(target);
-    for (let index = 0; index < sources.length; index++) {
-      const nextSource = sources[index];
-      if (nextSource != null) {
-        for (const nextKey in nextSource) {
-          if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-            to[nextKey] = nextSource[nextKey];
-          }
-        }
-      }
-    }
-    return to;
-  };
-}
-
-// Fetch enhancements for Safari
-const originalFetch = window.fetch;
-window.fetch = function(input: RequestInfo | URL, init?: RequestInit) {
-  // Add default headers for Safari compatibility
-  const enhancedInit = {
-    ...init,
-    headers: {
-      'Accept': 'application/json, text/plain, */*',
-      'Content-Type': 'application/json',
-      ...init?.headers
-    }
-  };
-  
-  return originalFetch(input, enhancedInit);
-};
 
 // Export initialization function
 export function initBrowserCompatibility() {
-  console.log('🔧 Browser compatibility polyfills loaded');
+  console.log('✅ Safari compatibility polyfills loaded successfully');
 }
