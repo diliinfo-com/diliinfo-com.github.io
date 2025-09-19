@@ -205,87 +205,204 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold mb-2">¡Préstamos con Interés Bajo!</h3>
-        <p className="text-gray-600 text-sm sm:text-base">Ingresa tu número de teléfono para ver tu límite de crédito aprobado</p>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step1.phoneLabel')}
-          </label>
-          <div className="flex max-w-full">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="px-2 sm:px-3 py-3 border border-gray-300 border-r-0 rounded-l-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={showApprovedAmount}
-              style={{ minWidth: "80px", maxWidth: "100px" }}
-            >
-              {countryCodes.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.flag} {country.code}
-                </option>
-              ))}
-            </select>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder={t('loanWizard.step1.phonePlaceholder')}
-              className="flex-1 px-2 sm:px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={showApprovedAmount}
-              style={{ minWidth: "0" }}
-            />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* 安全认证条 */}
+      <div className="bg-slate-800 text-white py-2 px-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-center text-sm">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300">SSL Encriptado</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300">Autorizado CNBV</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-slate-300">Datos Protegidos</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        {!showApprovedAmount ? (
-          <button
-            onClick={handleCheckEligibility}
-            disabled={!phone || isRegistering}
-            className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-          >
-            {isRegistering ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Procesando...
-              </div>
-            ) : (
-              'Ver Mi Límite de Crédito'
-            )}
-          </button>
-        ) : (
-          <div className="space-y-4">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6 text-center">
-              <h4 className="font-semibold text-green-800 mb-1 sm:mb-2">¡Felicidades! Tu límite de crédito es:</h4>
-              <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">$50,000 MXN</div>
-              <p className="text-xs sm:text-sm text-green-700">Préstamo con interés bajo disponible ahora</p>
-              {!data.isGuest && data.userId && (
-                <p className="text-xs text-green-600 mt-2">✅ Usuario registrado exitosamente</p>
+      <div className="container mx-auto px-4 py-8 lg:py-12">
+        <div className="max-w-2xl mx-auto">
+          {/* 主标题区域 */}
+          <div className="text-center mb-8 lg:mb-12">
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">
+              ¡Préstamos con Interés Bajo!
+            </h1>
+            <p className="text-slate-600 text-base lg:text-lg leading-relaxed">
+              Ingresa tu número de teléfono para ver tu límite de crédito aprobado
+            </p>
+            <div className="mt-4 text-sm text-slate-500">
+              Su información será protegida con encriptación de grado bancario
+            </div>
+          </div>
+
+          {/* 表单卡片 */}
+          <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+            <div className="p-6 lg:p-8">
+              {!showApprovedAmount ? (
+                <div className="space-y-6">
+                  {/* 手机号输入 */}
+                  <div>
+                    <label className="block text-base font-semibold text-slate-800 mb-3">
+                      {t('loanWizard.step1.phoneLabel')}
+                    </label>
+                    <div className="flex">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="w-24 lg:w-28 px-3 py-4 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        disabled={showApprovedAmount}
+                      >
+                        {countryCodes.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.flag} {country.code}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder={t('loanWizard.step1.phonePlaceholder')}
+                        className="flex-1 px-4 py-4 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        disabled={showApprovedAmount}
+                      />
+                    </div>
+                    <div className="mt-2 text-sm text-slate-500">
+                      Verificaremos su número para procesar su solicitud
+                    </div>
+                  </div>
+
+                  {/* 提交按钮 */}
+                  <button
+                    onClick={handleCheckEligibility}
+                    disabled={!phone || isRegistering}
+                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+                  >
+                    {isRegistering ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                        Procesando solicitud...
+                      </div>
+                    ) : (
+                      'Ver Mi Límite de Crédito'
+                    )}
+                  </button>
+
+                  {/* 安全提示 */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <svg className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-1">Información Segura</h4>
+                        <p className="text-slate-600 text-sm leading-relaxed">
+                          Sus datos personales están protegidos con tecnología de encriptación SSL de 256 bits, 
+                          el mismo estándar utilizado por los bancos más importantes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* 结果展示 */}
+                  <div className="text-center py-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
+                      <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                      ¡Felicidades! Tu límite de crédito es:
+                    </h3>
+                    <div className="text-4xl lg:text-5xl font-bold text-emerald-600 mb-2">
+                      $50,000 <span className="text-2xl lg:text-3xl text-slate-600">MXN</span>
+                    </div>
+                    <p className="text-slate-600">
+                      Préstamo con interés bajo disponible ahora
+                    </p>
+                    {!data.isGuest && data.userId && (
+                      <div className="mt-3 inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-medium rounded-full">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Usuario registrado exitosamente
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 优势展示 */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu préstamo:</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Tasa de interés baja: 15% OFF</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Hasta 100,000 pesos de crédito</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Sin comisión de procesamiento</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Pago anticipado sin penalización</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 继续按钮 */}
+                  <button
+                    onClick={handleContinue}
+                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg"
+                  >
+                    Continuar con mi Solicitud
+                  </button>
+                </div>
               )}
             </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
-              <h4 className="font-medium text-blue-800 mb-1 sm:mb-2">Beneficios de tu préstamo:</h4>
-              <ul className="text-xs sm:text-sm text-blue-700 space-y-1">
-                <li>• Tasa de interés baja: 15% OFF (promoción por tiempo limitado)</li>
-                <li>• Hasta 100,000 pesos de crédito</li>
-                <li>• Sin comisión de procesamiento</li>
-                <li>• Pago anticipado permitido sin penalización</li>
-              </ul>
-            </div>
-
-            <button
-              onClick={handleContinue}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-            >
-              Continuar con mi Solicitud
-            </button>
           </div>
-        )}
+
+          {/* 底部信任标识 */}
+          <div className="mt-8 text-center">
+            <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Regulado CNBV</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                <span>Datos Seguros</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Proceso Transparente</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1575,24 +1692,180 @@ const LoanWizard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full px-2">
-      {/* 进度条 */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-blue-600">{t('loanWizard.stepProgress', { current: currentStep, total: totalSteps })}</span>
-          <span className="text-sm text-gray-500">{Math.round((currentStep / totalSteps) * 100)}% {t('loanWizard.stepCompletion')}</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* 桌面端Full-width，移动端适配 */}
+      <div className="w-full">
+        {/* 进度条 - 固定在顶部 */}
+        <div className="bg-white border-b border-slate-200 shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 py-4 lg:py-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <h2 className="text-lg lg:text-xl font-bold text-slate-800">
+                  Solicitud de Préstamo
+                </h2>
+                <div className="hidden lg:flex items-center space-x-2 text-sm text-slate-600">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Proceso seguro y encriptado</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-semibold text-slate-800">
+                  Paso {currentStep} de {totalSteps}
+                </div>
+                <div className="text-xs text-slate-500">
+                  {Math.round((currentStep / totalSteps) * 100)}% completado
+                </div>
+              </div>
+            </div>
+            
+            {/* 进度条 */}
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div
+                className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              ></div>
+            </div>
+          </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-          ></div>
-        </div>
-      </div>
 
-      {/* 当前步骤内容 */}
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
-        {renderStep()}
+        {/* 主内容区域 */}
+        <div className="w-full">
+          {/* 桌面端：Full-width容器，移动端：适配容器 */}
+          <div className="max-w-6xl mx-auto px-4 py-6 lg:py-8">
+            <div className="flex flex-col lg:flex-row lg:space-x-8">
+              {/* 左侧：步骤内容 (桌面端占2/3，移动端全宽) */}
+              <div className="flex-1 lg:max-w-3xl">
+                <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+                  {renderStep()}
+                </div>
+              </div>
+
+              {/* 右侧：信息面板 (桌面端显示，移动端隐藏) */}
+              <div className="hidden lg:block lg:w-80 xl:w-96">
+                <div className="sticky top-24 space-y-6">
+                  {/* 安全保障 */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4">
+                      Garantías de Seguridad
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Encriptación SSL</h4>
+                          <p className="text-slate-600 text-xs">Datos protegidos con tecnología bancaria</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Regulado CNBV</h4>
+                          <p className="text-slate-600 text-xs">Autorizado por autoridades financieras</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Proceso Transparente</h4>
+                          <p className="text-slate-600 text-xs">Sin costos ocultos ni sorpresas</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ventajas del préstamo */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4">
+                      ¿Por qué elegirnos?
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Aprobación en minutos</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Tasas competitivas</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Sin penalizaciones</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Soporte 24/7</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* contacto de ayuda */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 className="font-semibold text-slate-800 text-base mb-3">
+                      ¿Necesitas ayuda?
+                    </h3>
+                    <p className="text-slate-600 text-sm mb-4">
+                      Nuestro equipo está disponible para asistirte durante todo el proceso.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center space-x-2 text-slate-700">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span>diliads01@outlook.com</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 底部信任条 */}
+        <div className="bg-slate-800 text-white py-4 mt-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-slate-300">SSL Seguro</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-slate-300">CNBV Regulado</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-slate-300">Datos Protegidos</span>
+                </div>
+              </div>
+              <div className="text-sm text-slate-400">
+                © 2024 DiliInfo Financial Services. Todos los derechos reservados.
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

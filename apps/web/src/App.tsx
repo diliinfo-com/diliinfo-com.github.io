@@ -1,11 +1,12 @@
 import { Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import NavbarNew from './components/NavbarNew';
 import Footer from './components/Footer';
+import ChatWidget from './components/ChatWidget';
 import ErrorBoundary from './components/ErrorBoundary';
 import CompatibilityChecker from './components/CompatibilityChecker';
 
-import Home from './pages/Home';
+import HomeNew from './pages/HomeNew';
 import About from './pages/About';
 import Loan from './pages/Loan';
 import Login from './pages/Login';
@@ -22,10 +23,10 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-white">
-      {!isAdminPage && <Navbar />}
+      {!isAdminPage && <NavbarNew />}
       <main className={!isAdminPage ? 'pt-16' : ''}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeNew />} />
           <Route path="/about" element={<About />} />
           <Route path="/loan" element={<Loan />} />
           <Route path="/login" element={<Login />} />
@@ -38,6 +39,7 @@ function AppLayout() {
         </Routes>
       </main>
       {!isAdminPage && <Footer />}
+      {!isAdminPage && <ChatWidget />}
     </div>
   );
 }
