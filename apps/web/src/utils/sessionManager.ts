@@ -39,4 +39,5 @@ class SessionManager {
   }
 }
 
-export const sessionManager = new SessionManager();
+const sessionManager = new SessionManager();
+export default sessionManager;
