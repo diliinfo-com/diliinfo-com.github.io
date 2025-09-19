@@ -1,0 +1,21 @@
+# 浏览器兼容性配置
+# 支持最近2个版本的主流浏览器
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+last 2 Edge versions
+
+# 支持iOS Safari
+iOS >= 10
+
+# 支持Android浏览器
+Android >= 5
+
+# 市场份额大于0.5%的浏览器
+> 0.5%
+
+# 不包括已停止维护的浏览器
+not dead
+
+# 不包括IE 11以下版本
+not IE < 11

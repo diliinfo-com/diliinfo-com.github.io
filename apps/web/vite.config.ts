@@ -22,11 +22,17 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist',
     sourcemap: mode === 'development',
+    target: ['es2015', 'safari11'],
+    polyfillModulePreload: false,
+    cssTarget: ['chrome61', 'safari11', 'firefox60'],
     rollupOptions: {
       input: {
         main: './index.html'
       }
     }
+  },
+  css: {
+    postcss: './postcss.config.js'
   },
   define: {
     // 确保环境变量在构建时正确替换
@@ -35,5 +41,6 @@ export default defineConfig(({ mode }) => ({
         ? 'https://backend.diliinfo.com' 
         : 'http://localhost:8787'
     ),
+    global: 'globalThis'
   }
 })); 
