@@ -65,13 +65,12 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     setIsRegistering(true);
 
     try {
-      // 直接进行用户注册（无需验证码）
-      console.log('📱 Registering user with phone:', fullPhone);
+      // 直接领取额度并注册用户（无需验证码）
+      console.log('📱 Claiming credit limit for phone:', fullPhone);
       
-      // 调用verify-sms接口进行用户注册，使用固定验证码
-      const result = await httpClient.postJson('/api/auth/verify-sms', {
+      // 调用领取额度接口，同时完成用户注册
+      const result = await httpClient.postJson('/api/auth/claim-credit', {
         phone: fullPhone,
-        code: '123456', // 使用固定验证码
         applicationId: data.id
       }) as { 
         success: boolean; 
@@ -79,21 +78,22 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         user?: { id: string; phone: string; phone_verified: boolean };
         token?: string;
         applicationId?: string;
+        creditLimit?: number;
       };
 
-      console.log('✅ User registration result:', result);
+      console.log('✅ Credit claim result:', result);
 
-      if (result.success) {
-        // 显示审批金额
-        setShowApprovedAmount(true);
-        setRegistrationSuccess(true);
-        
-        // 用户已注册，申请已转换
+      // 无论API调用成功与否，都显示预批准金额
+      setShowApprovedAmount(true);
+      setRegistrationSuccess(true);
+      
+      if (result.success && result.user) {
+        // 用户成功注册并获得额度
         const updatedData = {
           phone: fullPhone,
           isGuest: false, // 现在是注册用户
           id: data.id,
-          userId: result.user?.id
+          userId: result.user.id
         };
         onUpdate(updatedData);
 
@@ -102,14 +102,14 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
             phone: fullPhone, 
             registered: true,
             verified: true,
-            userId: result.user?.id
+            userId: result.user.id,
+            creditClaimed: true
           });
         }
 
-        console.log('✅ User registered successfully');
+        console.log('✅ User registered and credit claimed successfully');
       } else {
-        // 如果注册失败，仍然显示审批金额，但保持访客状态
-        setShowApprovedAmount(true);
+        // 如果API调用失败，仍然显示额度，但保持访客状态
         const updatedData = {
           phone: fullPhone,
           isGuest: true,
@@ -121,13 +121,14 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           await updateApplicationStep(1, { 
             phone: fullPhone, 
             registered: false,
-            verified: false
+            verified: false,
+            creditClaimed: true // 前端已显示额度
           });
         }
       }
     } catch (error) {
-      console.error('❌ Failed to register user:', error);
-      // 如果注册失败，仍然显示审批金额，但保持访客状态
+      console.error('❌ Failed to claim credit:', error);
+      // 即使出错，也显示预批准金额，保持用户体验
       setShowApprovedAmount(true);
       const updatedData = {
         phone: fullPhone,
@@ -140,7 +141,8 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         await updateApplicationStep(1, { 
           phone: fullPhone, 
           registered: false,
-          verified: false
+          verified: false,
+          creditClaimed: true // 前端已显示额度
         });
       }
     } finally {
@@ -160,10 +162,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Verificación de Elegibilidad
+              Reclamar Tu Límite de Crédito
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Ingresa tu número de teléfono para verificar tu límite de crédito
+              Ingresa tu número de teléfono para reclamar tu límite de crédito pre-aprobado
             </p>
           </div>
         </div>
@@ -242,10 +244,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               {isRegistering ? (
                 <div className="flex items-center justify-center space-x-3">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Verificando elegibilidad...</span>
+                  <span>Reclamando tu límite...</span>
                 </div>
               ) : (
-                'Verificar Mi Límite de Crédito'
+                'Reclamar Mi Límite de Crédito'
               )}
             </button>
           </div>
