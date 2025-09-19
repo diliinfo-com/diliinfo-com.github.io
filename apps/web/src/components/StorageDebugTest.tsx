@@ -207,15 +207,18 @@ const StorageDebugTest: React.FC = () => {
         
       } catch (apiError: any) {
         const responseTime = Date.now() - startTime;
-        addLog('error', `API调用失败 (${responseTime}ms)`, {
+        addLog('error', `httpClient调用失败 (${responseTime}ms)`, {
           error: apiError.message || apiError,
           status: apiError.status,
-          statusText: apiError.statusText
+          statusText: apiError.statusText,
+          name: apiError.name,
+          cause: apiError.cause
         });
         
         // 尝试使用原生fetch作为备用方案
         addLog('info', '尝试使用原生fetch作为备用方案');
         
+        const fallbackStartTime = Date.now();
         try {
           const fallbackResponse = await fetch(apiUrl, {
             method: 'POST',
@@ -228,9 +231,13 @@ const StorageDebugTest: React.FC = () => {
             credentials: 'omit'
           });
 
-          addLog('info', '原生fetch响应', { 
+          const fallbackResponseTime = Date.now() - fallbackStartTime;
+          addLog('info', `原生fetch响应 (${fallbackResponseTime}ms)`, { 
             status: fallbackResponse.status, 
             statusText: fallbackResponse.statusText,
+            ok: fallbackResponse.ok,
+            type: fallbackResponse.type,
+            url: fallbackResponse.url,
             headers: Object.fromEntries(fallbackResponse.headers.entries())
           });
 
@@ -242,17 +249,96 @@ const StorageDebugTest: React.FC = () => {
             addLog('error', '原生fetch调用失败', { 
               status: fallbackResponse.status, 
               statusText: fallbackResponse.statusText,
-              errorText 
+              errorText,
+              responseTime: fallbackResponseTime
             });
           }
-        } catch (fallbackError) {
-          addLog('error', '原生fetch也失败了', fallbackError);
+        } catch (fallbackError: any) {
+          const fallbackResponseTime = Date.now() - fallbackStartTime;
+          addLog('error', `原生fetch也失败了 (${fallbackResponseTime}ms)`, {
+            message: fallbackError.message || fallbackError,
+            name: fallbackError.name,
+            stack: fallbackError.stack,
+            cause: fallbackError.cause,
+            type: typeof fallbackError
+          });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       addLog('error', 'API调用异常', {
         message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        name: error.name,
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error
+      });
+    }
+  };
+
+  // 新增：网络连接测试
+  const testNetworkConnectivity = async () => {
+    addLog('info', '开始网络连接测试');
+    
+    const testUrls = [
+      'https://backend.diliinfo.com/api/health',
+      'https://backend.diliinfo.com',
+      'https://www.google.com',
+      'https://httpbin.org/get'
+    ];
+
+    for (const testUrl of testUrls) {
+      try {
+        const startTime = Date.now();
+        const response = await fetch(testUrl, {
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'omit',
+          cache: 'no-cache'
+        });
+        const responseTime = Date.now() - startTime;
+        
+        addLog('info', `网络测试: ${testUrl}`, {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          responseTime: `${responseTime}ms`,
+          type: response.type,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+      } catch (error: any) {
+        addLog('error', `网络测试失败: ${testUrl}`, {
+          message: error.message,
+          name: error.name,
+          type: typeof error
+        });
+      }
+    }
+  };
+
+  // 新增：CORS预检测试
+  const testCORSPreflight = async () => {
+    addLog('info', '测试CORS预检请求');
+    
+    try {
+      const apiUrl = getApiUrl('/api/health');
+      const response = await fetch(apiUrl, {
+        method: 'OPTIONS',
+        headers: {
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'Content-Type, X-Session-ID'
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      });
+      
+      addLog('info', 'CORS预检响应', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+    } catch (error: any) {
+      addLog('error', 'CORS预检失败', {
+        message: error.message,
+        name: error.name
       });
     }
   };
@@ -375,6 +461,18 @@ const StorageDebugTest: React.FC = () => {
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
           >
             完整流程测试
+          </button>
+          <button
+            onClick={testNetworkConnectivity}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+          >
+            网络连接测试
+          </button>
+          <button
+            onClick={testCORSPreflight}
+            className="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 transition"
+          >
+            CORS预检测试
           </button>
           <button
             onClick={clearLogs}
