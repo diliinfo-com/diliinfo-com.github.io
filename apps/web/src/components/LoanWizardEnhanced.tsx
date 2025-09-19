@@ -95,7 +95,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   };
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
       {/* 步骤标题 */}
       <div className="mb-8">
         <div className="flex items-center space-x-4 mb-6">
@@ -115,7 +115,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         </div>
         
         {/* 安全认证标识 */}
-        <div className="flex items-center space-x-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
           <div className="flex items-center space-x-2">
             <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -139,16 +139,18 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
       {!showApprovedAmount ? (
         <div className="space-y-6">
-          {/* 手机号输入区域 */}
-          <div className="space-y-2">
+          {/* 手机号输入区域 - 响应式优化 */}
+          <div className="space-y-3">
             <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
               Número de teléfono <span className="text-red-500">*</span>
             </label>
-            <div className="grid grid-cols-[auto_1fr] gap-3">
+            
+            {/* 移动端：垂直布局，桌面端：水平布局 */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <select
                 value={countryCode}
                 onChange={(e) => setCountryCode(e.target.value)}
-                className="px-4 py-3 border border-slate-300 rounded-sm bg-white text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent min-w-[140px]"
+                className="w-full sm:w-auto sm:min-w-[140px] px-4 py-3 border border-slate-300 rounded-sm bg-white text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
               >
                 {countryCodes.map((country) => (
                   <option key={country.code} value={country.code}>
@@ -160,7 +162,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+                className="flex-1 px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
                 placeholder="Ingresa tu número de teléfono"
               />
             </div>
@@ -195,17 +197,17 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           </div>
 
           {/* 信任指标 */}
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-slate-200">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-slate-200">
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">2min</div>
+              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">2min</div>
               <div className="text-xs text-slate-600 mt-1">Aprobación</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">0%</div>
+              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">0%</div>
               <div className="text-xs text-slate-600 mt-1">Comisión</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">24/7</div>
+              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">24/7</div>
               <div className="text-xs text-slate-600 mt-1">Soporte</div>
             </div>
           </div>
