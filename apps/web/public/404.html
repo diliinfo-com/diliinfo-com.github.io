@@ -5,9 +5,13 @@
   <title>DiliInfo - Préstamos Rápidos México</title>
   <script type="text/javascript">
     // GitHub Pages SPA路由处理
-    // 将当前路径保存到sessionStorage，然后重定向到根路径
-    sessionStorage.redirect = location.href;
-    location.replace(location.origin);
+    // 将当前路径和搜索参数保存到sessionStorage，然后重定向到根路径
+    var l = window.location;
+    sessionStorage.redirect = l.href;
+    l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + 
+              '/?p=/' + l.pathname.slice(1).split('/').join('&') + 
+              (l.search ? '&q=' + l.search.slice(1) : '') + 
+              l.hash);
   </script>
 </head>
 <body>
