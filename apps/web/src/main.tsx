@@ -4,14 +4,10 @@ import App from './App';
 import './i18n';
 import './index.css';
 import { setupTikTokEvents } from './utils/tiktokInit';
-import { initBrowserCompatibility } from './utils/polyfills';
-import './styles/safari-compat.css';
-import './utils/compatibilityTest'; // 自动运行兼容性测试
-import { initBrowserCompat } from './utils/browserCompat';
+import { initSafariCompat } from './utils/safariCompat';
 
-// 在应用启动前初始化浏览器兼容性修复
-initBrowserCompatibility();
-initBrowserCompat();
+// 初始化轻量级Safari兼容性修复
+initSafariCompat();
 
 // 初始化TikTok Events API
 setupTikTokEvents().catch(error => {
