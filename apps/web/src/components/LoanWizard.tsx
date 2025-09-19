@@ -45,6 +45,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   const [phone, setPhone] = useState(data.phone || '');
   const [countryCode, setCountryCode] = useState('+52');
   const [showApprovedAmount, setShowApprovedAmount] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isSendingSMS, setIsSendingSMS] = useState(false);
 
   const countryCodes = [
     // 拉丁美洲国家（优先显示）
@@ -106,32 +110,108 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
-  const handleCheckEligibility = () => {
+  const handleCheckEligibility = async () => {
     if (!phone) {
       alert(t('errors.phoneRequired'));
       return;
     }
 
     const fullPhone = countryCode + phone;
+    setIsSendingSMS(true);
 
-    // 显示审批金额
-    setShowApprovedAmount(true);
+    try {
+      // 发送短信验证码
+      console.log('📱 Sending SMS to:', fullPhone);
+      const smsResult = await httpClient.postJson('/api/auth/send-sms', {
+        phone: fullPhone,
+        purpose: 'loan_application'
+      }) as { success: boolean; message?: string };
 
-    // 更新申请数据
-    const updatedData = {
-      phone: fullPhone,
-      isGuest: false,
-      id: data.id
-    };
-    onUpdate(updatedData);
+      // 显示审批金额和验证码输入
+      setShowApprovedAmount(true);
+      setShowVerification(true);
+      
+      // 更新申请数据
+      const updatedData = {
+        phone: fullPhone,
+        isGuest: true, // 保持访客状态直到验证完成
+        id: data.id
+      };
+      onUpdate(updatedData);
 
-    if (updateApplicationStep) {
-      updateApplicationStep(1, { phone: fullPhone, registered: true });
+      console.log('✅ SMS sent successfully');
+    } catch (error) {
+      console.error('❌ Failed to send SMS:', error);
+      alert('发送验证码失败，请重试');
+    } finally {
+      setIsSendingSMS(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode || verificationCode.length !== 6) {
+      alert('请输入6位验证码');
+      return;
+    }
+
+    setIsVerifying(true);
+
+    try {
+      console.log('🔐 Verifying SMS code:', verificationCode);
+      const result = await httpClient.postJson('/api/auth/verify-sms', {
+        phone: countryCode + phone,
+        code: verificationCode,
+        applicationId: data.id
+      }) as { 
+        success: boolean; 
+        error?: string; 
+        user?: { id: string; phone: string; phone_verified: boolean };
+        token?: string;
+        applicationId?: string;
+      };
+
+      console.log('✅ SMS verification result:', result);
+
+      if (result.success) {
+        // 验证成功，用户已注册，申请已转换
+        const updatedData = {
+          phone: countryCode + phone,
+          isGuest: false, // 现在是注册用户
+          id: data.id,
+          userId: result.user?.id
+        };
+        onUpdate(updatedData);
+
+        if (updateApplicationStep) {
+          await updateApplicationStep(1, { 
+            phone: countryCode + phone, 
+            registered: true,
+            verified: true,
+            userId: result.user?.id
+          });
+        }
+
+        // 继续下一步
+        onNext();
+      } else {
+        alert(result.error || '验证失败，请重试');
+      }
+    } catch (error) {
+      console.error('❌ Failed to verify SMS:', error);
+      alert('验证失败，请检查验证码');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   const handleContinue = () => {
-    onNext();
+    if (!showVerification) {
+      // 如果还没有验证，先发送验证码
+      handleCheckEligibility();
+    } else {
+      // 如果已经显示验证码输入，进行验证
+      handleVerifyCode();
+    }
   };
 
   return (
@@ -175,10 +255,17 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         {!showApprovedAmount ? (
           <button
             onClick={handleCheckEligibility}
-            disabled={!phone}
+            disabled={!phone || isSendingSMS}
             className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
           >
-            Ver Mi Límite de Crédito
+            {isSendingSMS ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Enviando código...
+              </div>
+            ) : (
+              'Ver Mi Límite de Crédito'
+            )}
           </button>
         ) : (
           <div className="space-y-4">
@@ -198,12 +285,47 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               </ul>
             </div>
 
-            <button
-              onClick={handleContinue}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-            >
-              Continuar con mi Solicitud
-            </button>
+            {showVerification && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 className="font-medium text-yellow-800 mb-2">Verificación de teléfono</h4>
+                <p className="text-sm text-yellow-700 mb-3">
+                  Hemos enviado un código de 6 dígitos a {countryCode + phone}
+                </p>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="Ingresa el código de 6 dígitos"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-mono"
+                    maxLength={6}
+                  />
+                  <button
+                    onClick={handleVerifyCode}
+                    disabled={verificationCode.length !== 6 || isVerifying}
+                    className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  >
+                    {isVerifying ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Verificando...
+                      </div>
+                    ) : (
+                      'Verificar y Continuar'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!showVerification && (
+              <button
+                onClick={handleContinue}
+                className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              >
+                Continuar con mi Solicitud
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -1365,7 +1487,12 @@ const LoanWizard: React.FC = () => {
         headers: {
           'X-Session-ID': sessionId
         }
-      });
+      }) as {
+        success: boolean;
+        applicationId: string;
+        sessionId: string;
+        message?: string;
+      };
 
       console.log('✅ Guest application result:', result);
 
