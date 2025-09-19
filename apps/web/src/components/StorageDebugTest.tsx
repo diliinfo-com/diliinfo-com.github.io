@@ -236,14 +236,18 @@ const StorageDebugTest: React.FC = () => {
 
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
-        addLog('success', 'API调用成功', responseData);
-      } else {
-        const errorText = await response.text();
-        addLog('error', 'API调用失败', { 
-          status: response.status, 
-          statusText: response.statusText,
-          errorText 
-        });
+            addLog('success', '原生fetch调用成功', fallbackData);
+          } else {
+            const errorText = await fallbackResponse.text();
+            addLog('error', '原生fetch调用失败', { 
+              status: fallbackResponse.status, 
+              statusText: fallbackResponse.statusText,
+              errorText 
+            });
+          }
+        } catch (fallbackError) {
+          addLog('error', '原生fetch也失败了', fallbackError);
+        }
       }
     } catch (error) {
       addLog('error', 'API调用异常', {
