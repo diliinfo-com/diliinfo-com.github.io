@@ -1,15 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import '../styles/design-system.css';
 
 function HomeNew() {
   const { t } = useTranslation();
   
   return (
-    <>
-      {/* 引入设计系统样式 */}
-      <link rel="stylesheet" href="/src/styles/design-system.css" />
-      
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
         {/* Hero Section - 专业金融风格 */}
         <section className="pt-24 pb-16 relative overflow-hidden">
           {/* 背景装饰 */}
@@ -374,7 +371,6 @@ function HomeNew() {
           </div>
         </footer>
       </div>
-    </>
   );
 }
 

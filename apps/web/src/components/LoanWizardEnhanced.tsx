@@ -442,7 +442,7 @@ const LoanWizardEnhanced: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen">
       {/* Hero区域 - 信任背书 */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
