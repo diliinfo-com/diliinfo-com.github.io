@@ -266,4 +266,10 @@ Object.defineProperty(Date, 'prototype', {
   writable: false
 });
 
-console.log('浏览器兼容性 Polyfills 已加载');
+// 初始化浏览器兼容性修复
+export const initBrowserCompatibility = (): void => {
+  console.log('浏览器兼容性 Polyfills 已加载');
+};
+
+// 自动初始化
+initBrowserCompatibility();

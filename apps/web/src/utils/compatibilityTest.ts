@@ -1,7 +1,7 @@
 // 浏览器兼容性测试工具
 import { httpClient } from './httpClient';
 import { isSafari, isWechat, isMobile } from '../config/api';
-import { checkBrowserFeatures } from './polyfills';
+// import { checkBrowserFeatures } from './polyfills';
 
 export interface CompatibilityTestResult {
   browser: string;
@@ -104,10 +104,40 @@ export class CompatibilityTester {
     return recommendations;
   }
 
+  // 检测浏览器功能支持
+  private checkBrowserFeatures(): { [key: string]: boolean } {
+    return {
+      fetch: typeof fetch !== 'undefined',
+      promise: typeof Promise !== 'undefined',
+      randomUUID: !!(window.crypto && window.crypto.randomUUID),
+      localStorage: (() => {
+        try {
+          localStorage.setItem('test', 'test');
+          localStorage.removeItem('test');
+          return true;
+        } catch (e) {
+          return false;
+        }
+      })(),
+      sessionStorage: (() => {
+        try {
+          sessionStorage.setItem('test', 'test');
+          sessionStorage.removeItem('test');
+          return true;
+        } catch (e) {
+          return false;
+        }
+      })(),
+      flexbox: CSS.supports('display', 'flex'),
+      grid: CSS.supports('display', 'grid'),
+      cssVariables: CSS.supports('color', 'var(--test)')
+    };
+  }
+
   // 运行完整的兼容性测试
   public async runCompatibilityTest(): Promise<CompatibilityTestResult> {
     const browser = this.detectBrowser();
-    const features = checkBrowserFeatures();
+    const features = this.checkBrowserFeatures();
     const apiTest = await this.testApiConnection();
     const recommendations = this.generateRecommendations(browser, features);
 

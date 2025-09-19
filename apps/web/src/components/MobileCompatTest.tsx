@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  getBrowserInfo, 
-  checkStorageAvailability, 
-  safeFetch, 
-  safeSessionStorage,
-  generateUUID 
+  browserDetection, 
+  safeSessionStorage
 } from '../utils/browserCompat';
 import { getApiUrl } from '../config/api';
 
@@ -29,11 +26,19 @@ const MobileCompatTest: React.FC = () => {
 
     // 1. 浏览器检测测试
     try {
-      const browserInfo = getBrowserInfo();
+      const browserInfo = {
+        isSafari: browserDetection.isSafari,
+        isIOS: browserDetection.isIOS,
+        isAndroid: browserDetection.isAndroid,
+        isWeChat: browserDetection.isWeChat,
+        safariVersion: browserDetection.getSafariVersion(),
+        iosVersion: browserDetection.getIOSVersion(),
+        userAgent: navigator.userAgent
+      };
       addResult({
         name: '浏览器检测',
         status: 'success',
-        message: `检测到: ${browserInfo.name}`,
+        message: `检测到: ${browserInfo.isSafari ? 'Safari' : browserInfo.isWeChat ? 'WeChat' : '其他浏览器'}`,
         details: browserInfo
       });
     } catch (error) {
@@ -47,7 +52,22 @@ const MobileCompatTest: React.FC = () => {
 
     // 2. 存储可用性测试
     try {
-      const storageInfo = checkStorageAvailability();
+      let sessionStorageAvailable = false;
+      let localStorageAvailable = false;
+      
+      try {
+        sessionStorage.setItem('test', 'test');
+        sessionStorage.removeItem('test');
+        sessionStorageAvailable = true;
+      } catch (e) {}
+      
+      try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+        localStorageAvailable = true;
+      } catch (e) {}
+      
+      const storageInfo = { sessionStorage: sessionStorageAvailable, localStorage: localStorageAvailable };
       addResult({
         name: '存储可用性',
         status: storageInfo.sessionStorage && storageInfo.localStorage ? 'success' : 'warning',
@@ -65,6 +85,17 @@ const MobileCompatTest: React.FC = () => {
 
     // 3. UUID生成测试
     try {
+      const generateUUID = () => {
+        if (window.crypto?.randomUUID) {
+          return window.crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      };
+      
       const uuid1 = generateUUID();
       const uuid2 = generateUUID();
       const isValid = uuid1 !== uuid2 && uuid1.length === 36;
@@ -114,7 +145,7 @@ const MobileCompatTest: React.FC = () => {
       console.log('🧪 Testing network request to:', testUrl);
       
       const startTime = Date.now();
-      const response = await safeFetch(testUrl, {
+      const response = await fetch(testUrl, {
         method: 'GET',
         headers: {
           'Accept': 'application/json'
@@ -147,12 +178,23 @@ const MobileCompatTest: React.FC = () => {
 
     // 6. 应用创建测试
     try {
+      const generateUUID = () => {
+        if (window.crypto?.randomUUID) {
+          return window.crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      };
+      
       const sessionId = generateUUID();
       const createUrl = getApiUrl('/api/applications/guest');
       
       console.log('🧪 Testing application creation:', createUrl);
       
-      const response = await safeFetch(createUrl, {
+      const response = await fetch(createUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

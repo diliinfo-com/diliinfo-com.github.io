@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => ({
     }
   },
   css: {
-    postcss: './postcss.config.js'
+    postcss: './postcss.config.cjs'
   },
   define: {
     // 确保环境变量在构建时正确替换
