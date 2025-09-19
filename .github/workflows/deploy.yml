@@ -43,7 +43,7 @@ jobs:
     - name: Build application
       run: |
         cd apps/web
-        npm run build
+        npx vite build
       env:
         VITE_API_BASE_URL: https://backend.diliinfo.com
 
