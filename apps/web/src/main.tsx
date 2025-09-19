@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './i18n';
 import './index.css';
+import './styles/safari-compat.css';
+import './utils/polyfills';
 import { setupTikTokEvents } from './utils/tiktokInit';
 
 // 初始化TikTok Events API

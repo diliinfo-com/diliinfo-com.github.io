@@ -1,0 +1,92 @@
+/* Safari and iOS specific compatibility styles */
+
+/* Fix iOS Safari viewport issues */
+@supports (-webkit-touch-callout: none) {
+  .ios-safe-area {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Safari flexbox fixes */
+.safari-flex-fix {
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+}
+
+/* Safari input styling fixes */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+textarea {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+  border-radius: 0.375rem;
+}
+
+/* Safari button fixes */
+button {
+  -webkit-appearance: none;
+  -webkit-border-radius: 0;
+}
+
+/* Safari transform fixes */
+.safari-transform-fix {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Safari sticky positioning */
+.safari-sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
+/* Safari backdrop-filter support */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+  .safari-backdrop-blur {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* Safari gradient fixes */
+.safari-gradient {
+  background: -webkit-linear-gradient(left, #3b82f6, #1d4ed8);
+  background: linear-gradient(to right, #3b82f6, #1d4ed8);
+}
+
+/* Safari animation performance */
+.safari-animate {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Safari touch action */
+.safari-touch {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+/* Safari scroll fixes */
+.safari-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* Safari font rendering */
+.safari-font-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

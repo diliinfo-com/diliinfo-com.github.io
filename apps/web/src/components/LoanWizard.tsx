@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
+import { safeStorage, safeDateParse, arrayCompat, smoothScroll } from '../utils/browserCompat';
 
 import { 
   trackLoanApplicationStart, 
@@ -1353,8 +1354,8 @@ const LoanWizard: React.FC = () => {
 
   const createGuestApplication = async () => {
     console.log('=== createGuestApplication called ===');
-    const sessionId = localStorage.getItem('sessionId') || 'guest-' + Date.now();
-    localStorage.setItem('sessionId', sessionId);
+    const sessionId = safeStorage.getItem('sessionId') || 'guest-' + Date.now();
+    safeStorage.setItem('sessionId', sessionId);
     console.log('🔑 Session ID:', sessionId);
 
     try {
