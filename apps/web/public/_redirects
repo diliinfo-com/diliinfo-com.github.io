@@ -1,0 +1,7 @@
+# Netlify/Cloudflare Pages重定向规则
+# 将所有HTTP请求重定向到HTTPS
+http://diliinfo.com/* https://diliinfo.com/:splat 301!
+http://www.diliinfo.com/* https://diliinfo.com/:splat 301!
+
+# 将www重定向到非www
+https://www.diliinfo.com/* https://diliinfo.com/:splat 301!

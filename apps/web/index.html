@@ -24,6 +24,14 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
     </script>
     <!-- TikTok Pixel Code End -->
     
+    <!-- HTTPS重定向脚本 -->
+    <script type="text/javascript">
+      // 强制HTTPS重定向
+      if (location.protocol !== 'https:' && location.hostname === 'diliinfo.com') {
+        location.replace('https:' + window.location.href.substring(window.location.protocol.length));
+      }
+    </script>
+    
     <!-- GitHub Pages SPA路由处理脚本 -->
     <script type="text/javascript">
       // 处理从404.html重定向过来的路径

@@ -1,0 +1,18 @@
+# Apache HTTPS重定向配置
+RewriteEngine On
+
+# 强制HTTPS重定向
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 将www重定向到非www
+RewriteCond %{HTTP_HOST} ^www\.diliinfo\.com [NC]
+RewriteRule ^(.*)$ https://diliinfo.com/$1 [L,R=301]
+
+# 安全头设置
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
