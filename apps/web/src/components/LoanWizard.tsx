@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
-import { sessionManager } from '../utils/sessionManager';
+import sessionManager from '../utils/sessionManager';
 import { 
   trackLoanApplicationStart, 
   trackLoanApplicationComplete,
