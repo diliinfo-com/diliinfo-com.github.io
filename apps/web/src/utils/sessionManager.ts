@@ -45,6 +45,7 @@ const getSessionIdInternal = (): string => {
  * Manages session-related data, providing a stable API for components
  * and handling browser compatibility issues internally.
  */
+// The one and only session manager
 export const sessionManager = {
   /**
    * Gets the session ID, ensuring one is created if it doesn't exist.
