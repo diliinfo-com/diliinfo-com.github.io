@@ -61,34 +61,88 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
   const handleCheckEligibility = async () => {
     if (!phone.trim()) return;
 
+    const fullPhone = countryCode + phone;
     setIsRegistering(true);
+
     try {
-      // 自动注册用户（使用固定验证码绕过短信）
-      const result = await httpClient.post('/auth/verify-sms', {
-        phone: `${countryCode}${phone}`,
-        code: '123456' // 固定验证码
-      }) as any;
+      // 直接进行用户注册（无需验证码）
+      console.log('📱 Registering user with phone:', fullPhone);
+      
+      // 调用verify-sms接口进行用户注册，使用固定验证码
+      const result = await httpClient.postJson('/api/auth/verify-sms', {
+        phone: fullPhone,
+        code: '123456', // 使用固定验证码
+        applicationId: data.id
+      }) as { 
+        success: boolean; 
+        error?: string; 
+        user?: { id: string; phone: string; phone_verified: boolean };
+        token?: string;
+        applicationId?: string;
+      };
+
+      console.log('✅ User registration result:', result);
 
       if (result.success) {
-        setRegistrationSuccess(true);
-        onUpdate({ 
-          phone: `${countryCode}${phone}`,
-          userId: result.userId 
-        });
-        
-        // 显示预批准金额
+        // 显示审批金额
         setShowApprovedAmount(true);
+        setRegistrationSuccess(true);
         
-        // 更新申请步骤
+        // 用户已注册，申请已转换
+        const updatedData = {
+          phone: fullPhone,
+          isGuest: false, // 现在是注册用户
+          id: data.id,
+          userId: result.user?.id
+        };
+        onUpdate(updatedData);
+
         if (updateApplicationStep) {
           await updateApplicationStep(1, { 
-            phone: `${countryCode}${phone}`,
-            userId: result.userId 
+            phone: fullPhone, 
+            registered: true,
+            verified: true,
+            userId: result.user?.id
+          });
+        }
+
+        console.log('✅ User registered successfully');
+      } else {
+        // 如果注册失败，仍然显示审批金额，但保持访客状态
+        setShowApprovedAmount(true);
+        const updatedData = {
+          phone: fullPhone,
+          isGuest: true,
+          id: data.id
+        };
+        onUpdate(updatedData);
+        
+        if (updateApplicationStep) {
+          await updateApplicationStep(1, { 
+            phone: fullPhone, 
+            registered: false,
+            verified: false
           });
         }
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('❌ Failed to register user:', error);
+      // 如果注册失败，仍然显示审批金额，但保持访客状态
+      setShowApprovedAmount(true);
+      const updatedData = {
+        phone: fullPhone,
+        isGuest: true,
+        id: data.id
+      };
+      onUpdate(updatedData);
+      
+      if (updateApplicationStep) {
+        await updateApplicationStep(1, { 
+          phone: fullPhone, 
+          registered: false,
+          verified: false
+        });
+      }
     } finally {
       setIsRegistering(false);
     }
