@@ -4,7 +4,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import CompatibilityChecker from './components/CompatibilityChecker';
-import MobileCompatTest from './components/MobileCompatTest';
+
 import Home from './pages/Home';
 import About from './pages/About';
 import Loan from './pages/Loan';
@@ -30,7 +30,7 @@ function AppLayout() {
           <Route path="/register" element={<Register />} />
           <Route path="/user-center" element={<UserCenter />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/test" element={<MobileCompatTest />} />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
