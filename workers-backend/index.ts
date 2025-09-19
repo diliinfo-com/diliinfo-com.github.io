@@ -9,36 +9,60 @@ export interface Env {
 
 const app = new Hono<{ Bindings: Env; Variables: { user: any; admin: any } }>();
 
-// CORS设置 - 针对Safari和移动端浏览器优化
+// CORS设置 - 针对Safari和移动端浏览器严格优化
 app.use('*', cors({
-  origin: [
-    'http://localhost:5173', 
-    'https://diliinfo-com.github.io',
-    'https://diliinfo.com',
-    'https://www.diliinfo.com',
-    'https://*.github.io',
-    'https://*.pages.dev',
-    // 添加更多可能的域名
-    'https://diliinfo-com.github.io',
-    'https://backend.diliinfo.com'
-  ],
+  origin: (origin) => {
+    // Safari需要明确的origin匹配，不支持通配符
+    const allowedOrigins = [
+      'http://localhost:5173', 
+      'https://diliinfo-com.github.io',
+      'https://diliinfo.com',
+      'https://www.diliinfo.com'
+    ];
+    
+    // 如果没有origin（同源请求）或在允许列表中，则允许
+    if (!origin || allowedOrigins.includes(origin)) {
+      return origin || '*';
+    }
+    
+    // 检查是否是github.io子域名
+    if (origin.endsWith('.github.io')) {
+      return origin;
+    }
+    
+    return false;
+  },
   allowHeaders: [
     'Content-Type', 
     'Authorization', 
-    'X-Requested-With',
     'Accept',
-    'Accept-Language',
-    'Accept-Encoding',
-    'Origin',
-    'X-Session-ID',
-    'Cache-Control',
-    'User-Agent',
-    'Referer'
+    'X-Session-ID'
   ],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-  credentials: false, // 避免Safari的Cookie问题
-  maxAge: 86400, // 24小时预检缓存
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: false, // Safari严格要求：避免Cookie问题
+  maxAge: 3600, // 减少预检缓存时间，提高兼容性
 }));
+
+// Safari专用的CORS处理中间件
+app.use('*', async (c, next) => {
+  // 手动设置Safari需要的CORS头
+  const origin = c.req.header('Origin');
+  const allowedOrigins = [
+    'http://localhost:5173', 
+    'https://diliinfo-com.github.io',
+    'https://diliinfo.com',
+    'https://www.diliinfo.com'
+  ];
+  
+  if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.github.io')) {
+    c.header('Access-Control-Allow-Origin', origin || '*');
+    c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Session-ID');
+    c.header('Access-Control-Max-Age', '3600');
+  }
+  
+  await next();
+});
 
 // 添加额外的响应头以提高兼容性
 app.use('*', async (c, next) => {
@@ -58,7 +82,7 @@ app.use('*', async (c, next) => {
 
 // 处理预检请求
 app.options('*', (c) => {
-  return c.text('', 204);
+  return new Response('', { status: 204 });
 });
 
 // 工具函数

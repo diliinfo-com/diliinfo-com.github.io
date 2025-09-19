@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { safeStorage, safeSessionStorage, browserDetection } from '../utils/browserCompat';
 import { getApiUrl, isSafari, isWechat, isMobile, isIOS, isAndroid, isQQBrowser, isUCBrowser, isTikTok, isEmbeddedBrowser } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
+import { safariFetch, safariPost, testNetworkConnectivity, testCORSPreflight } from '../utils/safariFetch';
 
 interface LogEntry {
   timestamp: string;
@@ -166,109 +167,142 @@ const StorageDebugTest: React.FC = () => {
       return;
     }
 
+    const requestData = {
+      sessionId,
+      name: testData.name,
+      phone: testData.phone,
+      email: testData.email,
+      timestamp: new Date().toISOString()
+    };
+
+    addLog('info', '发送请求数据', requestData);
+
+    // 1. 首先尝试Safari专用fetch
+    addLog('info', '尝试Safari专用fetch包装器');
+    const safariResult = await safariPost('/api/applications/guest', requestData, {
+      headers: {
+        'X-Session-ID': sessionId,
+      },
+      retries: 2,
+      timeout: 15000
+    });
+
+    if (safariResult.success) {
+      addLog('success', `Safari fetch成功 (${safariResult.responseTime}ms)`, safariResult.data);
+      
+      // 保存到本地存储
+      try {
+        safeStorage.setItem('last_api_response', JSON.stringify({
+          data: safariResult.data,
+          timestamp: new Date().toISOString(),
+          sessionId,
+          method: 'safariFetch'
+        }));
+        addLog('success', 'API响应已保存到本地存储');
+      } catch (storageError) {
+        addLog('warn', '无法保存API响应到本地存储', storageError);
+      }
+      return;
+    }
+
+    addLog('error', `Safari fetch失败 (${safariResult.responseTime}ms)`, {
+      error: safariResult.error,
+      status: safariResult.status,
+      headers: safariResult.headers
+    });
+
+    // 2. 尝试httpClient作为备用
+    addLog('info', '尝试httpClient作为备用方案');
+    try {
+      const startTime = Date.now();
+      const responseData = await httpClient.postJson('/api/applications/guest', requestData, {
+        headers: {
+          'X-Session-ID': sessionId,
+        }
+      });
+      
+      const responseTime = Date.now() - startTime;
+      addLog('success', `httpClient调用成功 (${responseTime}ms)`, responseData);
+      
+      // 保存到本地存储
+      try {
+        safeStorage.setItem('last_api_response', JSON.stringify({
+          data: responseData,
+          timestamp: new Date().toISOString(),
+          sessionId,
+          method: 'httpClient'
+        }));
+        addLog('success', 'API响应已保存到本地存储');
+      } catch (storageError) {
+        addLog('warn', '无法保存API响应到本地存储', storageError);
+      }
+      return;
+      
+    } catch (apiError: any) {
+      addLog('error', 'httpClient也失败了', {
+        error: apiError.message || apiError,
+        status: apiError.status,
+        statusText: apiError.statusText,
+        name: apiError.name
+      });
+    }
+
+    // 3. 最后尝试原生fetch
+    addLog('info', '尝试原生fetch作为最后备用方案');
     try {
       const apiUrl = getApiUrl('/api/applications/guest');
-      addLog('info', '准备调用API', { url: apiUrl, sessionId });
-
-      const requestData = {
-        sessionId,
-        name: testData.name,
-        phone: testData.phone,
-        email: testData.email,
-        timestamp: new Date().toISOString()
-      };
-
-      addLog('info', '发送请求数据', requestData);
-
-      // 使用增强的httpClient进行API调用
       const startTime = Date.now();
       
-      try {
-        const responseData = await httpClient.postJson('/api/applications/guest', requestData, {
-          headers: {
-            'X-Session-ID': sessionId,
-          }
-        });
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Session-ID': sessionId,
+        },
+        body: JSON.stringify(requestData),
+        mode: 'cors',
+        credentials: 'omit'
+      });
+
+      const responseTime = Date.now() - startTime;
+      addLog('info', `原生fetch响应 (${responseTime}ms)`, { 
+        status: response.status, 
+        statusText: response.statusText,
+        ok: response.ok,
+        type: response.type,
+        url: response.url,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        addLog('success', '原生fetch调用成功', data);
         
-        const responseTime = Date.now() - startTime;
-        addLog('success', `API调用成功 (${responseTime}ms)`, responseData);
-        
-        // 测试数据存储到localStorage
+        // 保存到本地存储
         try {
           safeStorage.setItem('last_api_response', JSON.stringify({
-            data: responseData,
+            data,
             timestamp: new Date().toISOString(),
-            sessionId
+            sessionId,
+            method: 'nativeFetch'
           }));
           addLog('success', 'API响应已保存到本地存储');
         } catch (storageError) {
           addLog('warn', '无法保存API响应到本地存储', storageError);
         }
-        
-      } catch (apiError: any) {
-        const responseTime = Date.now() - startTime;
-        addLog('error', `httpClient调用失败 (${responseTime}ms)`, {
-          error: apiError.message || apiError,
-          status: apiError.status,
-          statusText: apiError.statusText,
-          name: apiError.name,
-          cause: apiError.cause
+      } else {
+        const errorText = await response.text();
+        addLog('error', '原生fetch调用失败', { 
+          status: response.status, 
+          statusText: response.statusText,
+          errorText,
+          responseTime
         });
-        
-        // 尝试使用原生fetch作为备用方案
-        addLog('info', '尝试使用原生fetch作为备用方案');
-        
-        const fallbackStartTime = Date.now();
-        try {
-          const fallbackResponse = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Session-ID': sessionId,
-            },
-            body: JSON.stringify(requestData),
-            mode: 'cors',
-            credentials: 'omit'
-          });
-
-          const fallbackResponseTime = Date.now() - fallbackStartTime;
-          addLog('info', `原生fetch响应 (${fallbackResponseTime}ms)`, { 
-            status: fallbackResponse.status, 
-            statusText: fallbackResponse.statusText,
-            ok: fallbackResponse.ok,
-            type: fallbackResponse.type,
-            url: fallbackResponse.url,
-            headers: Object.fromEntries(fallbackResponse.headers.entries())
-          });
-
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            addLog('success', '原生fetch调用成功', fallbackData);
-          } else {
-            const errorText = await fallbackResponse.text();
-            addLog('error', '原生fetch调用失败', { 
-              status: fallbackResponse.status, 
-              statusText: fallbackResponse.statusText,
-              errorText,
-              responseTime: fallbackResponseTime
-            });
-          }
-        } catch (fallbackError: any) {
-          const fallbackResponseTime = Date.now() - fallbackStartTime;
-          addLog('error', `原生fetch也失败了 (${fallbackResponseTime}ms)`, {
-            message: fallbackError.message || fallbackError,
-            name: fallbackError.name,
-            stack: fallbackError.stack,
-            cause: fallbackError.cause,
-            type: typeof fallbackError
-          });
-        }
       }
     } catch (error: any) {
-      addLog('error', 'API调用异常', {
-        message: error instanceof Error ? error.message : String(error),
+      addLog('error', '所有API调用方法都失败了', {
+        message: error.message || error,
         name: error.name,
-        stack: error instanceof Error ? error.stack : undefined,
         type: typeof error
       });
     }
@@ -278,39 +312,34 @@ const StorageDebugTest: React.FC = () => {
   const testNetworkConnectivity = async () => {
     addLog('info', '开始网络连接测试');
     
-    const testUrls = [
-      'https://backend.diliinfo.com/api/health',
-      'https://backend.diliinfo.com',
-      'https://www.google.com',
-      'https://httpbin.org/get'
-    ];
-
-    for (const testUrl of testUrls) {
-      try {
-        const startTime = Date.now();
-        const response = await fetch(testUrl, {
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'omit',
-          cache: 'no-cache'
-        });
-        const responseTime = Date.now() - startTime;
-        
-        addLog('info', `网络测试: ${testUrl}`, {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
-          responseTime: `${responseTime}ms`,
-          type: response.type,
-          headers: Object.fromEntries(response.headers.entries())
-        });
-      } catch (error: any) {
-        addLog('error', `网络测试失败: ${testUrl}`, {
-          message: error.message,
-          name: error.name,
-          type: typeof error
-        });
-      }
+    try {
+      const results = await testNetworkConnectivity();
+      
+      addLog('info', '网络连接测试结果', {
+        backend: results.backend ? '✅ 成功' : '❌ 失败',
+        google: results.google ? '✅ 成功' : '❌ 失败',
+        httpbin: results.httpbin ? '✅ 成功' : '❌ 失败'
+      });
+      
+      // 详细结果
+      Object.entries(results.details).forEach(([name, detail]: [string, any]) => {
+        if (detail.success) {
+          addLog('success', `${name} 连接成功`, {
+            status: detail.status,
+            responseTime: `${detail.responseTime}ms`
+          });
+        } else {
+          addLog('error', `${name} 连接失败`, {
+            error: detail.error
+          });
+        }
+      });
+      
+    } catch (error: any) {
+      addLog('error', '网络连接测试异常', {
+        message: error.message,
+        name: error.name
+      });
     }
   };
 
@@ -319,24 +348,16 @@ const StorageDebugTest: React.FC = () => {
     addLog('info', '测试CORS预检请求');
     
     try {
-      const apiUrl = getApiUrl('/api/health');
-      const response = await fetch(apiUrl, {
-        method: 'OPTIONS',
-        headers: {
-          'Access-Control-Request-Method': 'POST',
-          'Access-Control-Request-Headers': 'Content-Type, X-Session-ID'
-        },
-        mode: 'cors',
-        credentials: 'omit'
-      });
+      const result = await testCORSPreflight();
       
-      addLog('info', 'CORS预检响应', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
+      if (result.success) {
+        addLog('success', 'CORS预检成功', result.details);
+      } else {
+        addLog('error', 'CORS预检失败', result.details);
+      }
+      
     } catch (error: any) {
-      addLog('error', 'CORS预检失败', {
+      addLog('error', 'CORS预检测试异常', {
         message: error.message,
         name: error.name
       });
