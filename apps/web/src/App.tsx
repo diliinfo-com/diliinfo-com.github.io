@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import UserCenter from './pages/UserCenter';
 import Admin from './pages/Admin';
+import MobileCompatTest from './components/MobileCompatTest';
 import { initAnalytics } from './utils/analytics';
 
 function AppLayout() {
@@ -30,7 +31,7 @@ function AppLayout() {
           <Route path="/register" element={<Register />} />
           <Route path="/user-center" element={<UserCenter />} />
           <Route path="/admin" element={<Admin />} />
-
+          <Route path="/test" element={<MobileCompatTest />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
