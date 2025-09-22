@@ -442,6 +442,60 @@ const LoanWizardEnhanced: React.FC = () => {
   });
   const totalSteps = 12;
 
+  // 初始化应用程序和跟踪
+  useEffect(() => {
+    const initializeApplication = async () => {
+      try {
+        // 检查浏览器兼容性
+        checkBrowserCompatibility();
+        
+        // 启动应用程序跟踪
+        trackLoanApplicationStart();
+        
+        // 生成会话ID和应用程序ID
+        const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const applicationId = `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        // 尝试从本地存储恢复数据
+        const savedData = safeStorage.getItem('loanApplication');
+        if (savedData) {
+          try {
+            const parsedData = JSON.parse(savedData);
+            // 如果没有ID，则生成新的ID
+            const finalData = {
+              ...parsedData,
+              sessionId,
+              id: parsedData.id || applicationId
+            };
+            setApplicationData(prev => ({ ...prev, ...finalData }));
+          } catch (error) {
+            console.warn('Failed to parse saved application data:', error);
+            setApplicationData(prev => ({ ...prev, sessionId, id: applicationId }));
+          }
+        } else {
+          setApplicationData(prev => ({ ...prev, sessionId, id: applicationId }));
+        }
+        
+        console.log('✅ Application initialized successfully');
+      } catch (error) {
+        console.error('❌ Failed to initialize application:', error);
+      }
+    };
+
+    initializeApplication();
+  }, []);
+
+  // 保存应用程序数据到本地存储
+  useEffect(() => {
+    if (applicationData.sessionId) {
+      try {
+        safeStorage.setItem('loanApplication', JSON.stringify(applicationData));
+      } catch (error) {
+        console.warn('Failed to save application data:', error);
+      }
+    }
+  }, [applicationData]);
+
   const updateApplicationData = (data: Partial<LoanApplication>) => {
     setApplicationData(prev => ({ ...prev, ...data }));
   };
