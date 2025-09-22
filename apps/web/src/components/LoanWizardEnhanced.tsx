@@ -428,55 +428,76 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div>
-        <h3 className="text-xl sm:text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
-        <p className="text-gray-600 text-sm sm:text-base">{t('loanWizard.step2.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Información de Identidad
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Completa tu información personal para continuar
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step2.realNameLabel')}
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+            Nombre completo <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={realName}
             onChange={(e) => setRealName(e.target.value)}
-            placeholder={t('loanWizard.step2.realNamePlaceholder')}
-            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            style={{ maxWidth: "100%" }}
+            placeholder="Ingresa tu nombre completo"
+            className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step2.idNumberLabel')}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+            Número de identificación <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
-            placeholder={t('loanWizard.step2.idNumberPlaceholder')}
-            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Ingresa tu número de identificación"
+            className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
             maxLength={18}
-            style={{ maxWidth: "100%" }}
           />
         </div>
       </div>
 
-      <div className="flex gap-2 sm:gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleNext}
-          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.nextButton')}
+          <span>Siguiente</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </div>
         </button>
       </div>
     </div>
@@ -543,10 +564,23 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step3.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step3.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Subir Identificación
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Sube fotos claras de tu identificación oficial
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -554,17 +588,17 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
           <div className="space-y-4">
             <div className="text-4xl text-gray-400">📄</div>
             <div>
-              <h4 className="font-medium">{t('loanWizard.step3.front')}</h4>
-              <p className="text-sm text-gray-500">{t('loanWizard.step3.frontDesc')}</p>
+              <h4 className="font-medium">Frente de la identificación</h4>
+              <p className="text-sm text-gray-500">Foto clara del frente de tu ID</p>
             </div>
             {frontUploaded ? (
               <div className="space-y-2">
                 <div className="text-green-600">✓ {frontFileName}</div>
-                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+                <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : frontUploading ? (
               <div className="space-y-2">
-                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="text-blue-600">Subiendo...</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
                 </div>
@@ -572,9 +606,9 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
             ) : (
               <button
                 onClick={() => handleFileSelect('front')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
               >
-                {t('loanWizard.step3.uploadButton')}
+                Subir Foto
               </button>
             )}
           </div>
@@ -584,17 +618,17 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
           <div className="space-y-4">
             <div className="text-4xl text-gray-400">📄</div>
             <div>
-              <h4 className="font-medium">{t('loanWizard.step3.back')}</h4>
-              <p className="text-sm text-gray-500">{t('loanWizard.step3.backDesc')}</p>
+              <h4 className="font-medium">Reverso de la identificación</h4>
+              <p className="text-sm text-gray-500">Foto clara del reverso de tu ID</p>
             </div>
             {backUploaded ? (
               <div className="space-y-2">
                 <div className="text-green-600">✓ {backFileName}</div>
-                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+                <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : backUploading ? (
               <div className="space-y-2">
-                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="text-blue-600">Subiendo...</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
                 </div>
@@ -602,27 +636,34 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
             ) : (
               <button
                 onClick={() => handleFileSelect('back')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
               >
-                {t('loanWizard.step3.uploadButton')}
+                Subir Foto
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleNext}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.nextButton')}
+          <span>Siguiente</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
       </div>
     </div>
