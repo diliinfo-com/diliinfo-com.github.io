@@ -996,54 +996,68 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step6.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step6.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M4 5a2 2 0 012-2h8a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 3a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Autorización de Crédito
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Lee y acepta los términos de autorización crediticia
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="border rounded-lg">
-        <div className="bg-gray-50 px-4 py-3 border-b">
-          <h4 className="font-semibold">{t('loanWizard.step6.creditAgreementTitle')}</h4>
+      <div className="border border-slate-200 rounded-lg shadow-sm">
+        <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+          <h4 className="font-semibold text-slate-800">Acuerdo de Autorización Crediticia</h4>
         </div>
         <div
           className="p-4 h-64 overflow-y-auto text-sm leading-relaxed"
           onScroll={handleScroll}
         >
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPurpose')}</strong><br />
-            {t('loanWizard.step6.agreementPurposeDesc')}
+            <strong>Propósito de la Autorización:</strong><br />
+            Autorizo a DiliInfo Financial Services a consultar mi historial crediticio para evaluar mi solicitud de préstamo.
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementScope')}</strong><br />
-            {t('loanWizard.step6.agreementScopeDesc')}
+            <strong>Alcance de la Consulta:</strong><br />
+            La consulta incluirá mi historial de pagos, deudas actuales, y calificación crediticia general.
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPrivacy')}</strong><br />
-            {t('loanWizard.step6.agreementPrivacyDesc')}
+            <strong>Protección de Privacidad:</strong><br />
+            Toda la información obtenida será tratada de manera confidencial y utilizada únicamente para fines de evaluación crediticia.
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementPeriod')}</strong><br />
-            {t('loanWizard.step6.agreementPeriodDesc')}
+            <strong>Período de Validez:</strong><br />
+            Esta autorización es válida por 30 días a partir de la fecha de firma.
           </p>
           <p className="mb-4">
-            <strong>{t('loanWizard.step6.agreementOther')}</strong><br />
-            {t('loanWizard.step6.agreementOtherDesc')}
+            <strong>Otros Términos:</strong><br />
+            Puedes revocar esta autorización en cualquier momento contactando nuestro servicio al cliente.
           </p>
           <p className="mb-4">
-            {t('loanWizard.step6.agreementExplanation')}
+            Al marcar la casilla a continuación, confirmas que has leído y entendido todos los términos de esta autorización.
           </p>
           <div className="text-center py-4">
             {hasRead ? (
-              <div className="text-green-600 font-medium">✓ 您已阅读完整协议</div>
+              <div className="text-green-600 font-medium">✓ Has leído el acuerdo completo</div>
             ) : (
               <div className="space-y-2">
-                <div className="text-gray-500">请滑动到底部阅读完整协议</div>
+                <div className="text-gray-500">Desplázate hasta el final para leer el acuerdo completo</div>
                 <button
                   onClick={() => setHasRead(true)}
-                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                  className="text-slate-600 hover:text-slate-800 text-sm underline"
                 >
-                  我已阅读完整协议
+                  He leído el acuerdo completo
                 </button>
               </div>
             )}
@@ -1051,33 +1065,40 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
         </div>
       </div>
 
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-3 mt-6">
         <input
           type="checkbox"
           id="credit-agreement"
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
           disabled={!hasRead}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="w-4 h-4 text-slate-600 border-slate-300 rounded focus:ring-slate-500"
         />
-        <label htmlFor="credit-agreement" className="text-sm text-gray-700">
-          {t('loanWizard.step6.creditAuthorizationLabel')}
+        <label htmlFor="credit-agreement" className="text-sm text-slate-700">
+          Acepto los términos de autorización crediticia
         </label>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleNext}
           disabled={!agreed}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {t('loanWizard.step6.agreeAndContinueButton')}
+          <span>Aceptar y Continuar</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
       </div>
     </div>
