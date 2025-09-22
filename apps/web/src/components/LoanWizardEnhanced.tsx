@@ -1229,66 +1229,88 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step8.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step8.subtitle')}</p>
-      </div>
-
-      <div className="bg-gray-50 rounded-lg p-6">
-        <h4 className="font-semibold mb-4">{t('loanWizard.step8.applicationSummaryTitle')}</h4>
-        <div className="space-y-3 text-sm">
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.phoneLabel')}:</span>
-            <span>{data.phone}</span>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.realNameLabel')}:</span>
-            <span>{data.realName}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.idNumberLabel')}:</span>
-            <span>{data.idNumber}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.contact1Label')}:</span>
-            <span>{data.contact1Name} ({data.contact1Phone})</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.contact2Label')}:</span>
-            <span>{data.contact2Name} ({data.contact2Phone})</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step8.bankCardLabel')}:</span>
-            <span>****{data.bankCardNumber?.slice(-4)}</span>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Enviar Solicitud
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Revisa y confirma tu información antes de enviar
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step8.importantHintTitle')}</h4>
+      <div className="bg-slate-50 rounded-lg p-6 mb-6">
+        <h4 className="font-semibold mb-4 text-slate-800">Resumen de la Solicitud</h4>
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-slate-600">Teléfono:</span>
+            <span className="text-slate-900">{data.phone}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Nombre Completo:</span>
+            <span className="text-slate-900">{data.realName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Número de ID:</span>
+            <span className="text-slate-900">{data.idNumber}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Contacto 1:</span>
+            <span className="text-slate-900">{data.contact1Name} ({data.contact1Phone})</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Contacto 2:</span>
+            <span className="text-slate-900">{data.contact2Name} ({data.contact2Phone})</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Tarjeta Bancaria:</span>
+            <span className="text-slate-900">****{data.bankCardNumber?.slice(-4)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h4 className="font-medium text-blue-800 mb-2">Información Importante:</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>{t('loanWizard.step8.importantHint1')}</li>
-          <li>{t('loanWizard.step8.importantHint2')}</li>
-          <li>{t('loanWizard.step8.importantHint3')}</li>
-          <li>{t('loanWizard.step8.importantHint4')}</li>
+          <li>• Tu solicitud será procesada en 24-48 horas</li>
+          <li>• Recibirás una notificación por SMS del resultado</li>
+          <li>• Mantén tu teléfono disponible para verificación</li>
+          <li>• Los fondos se depositarán en tu cuenta bancaria</li>
         </ul>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
           disabled={isSubmitting}
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50"
         >
-          {isSubmitting ? t('loanWizard.step8.submittingText') : t('loanWizard.step8.submitApplicationButton')}
+          <span>{isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}</span>
+          {!isSubmitting && (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
         </button>
       </div>
     </div>
@@ -1320,51 +1342,64 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
   }, [onNext, updateApplicationStep]);
 
   return (
-    <div className="space-y-6 text-center">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step9.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step9.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
+      <div className="mb-8">
+        <div className="flex items-center justify-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white animate-spin" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Procesando Solicitud
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Tu solicitud está siendo evaluada por nuestro sistema
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="py-12">
         <div className="w-16 h-16 mx-auto mb-6 relative">
-          <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-          <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+          <div className="absolute inset-0 border-4 border-slate-200 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-slate-600 rounded-full border-t-transparent animate-spin"></div>
         </div>
-        <div className="text-lg font-medium text-blue-600 mb-2">
-          {t('loanWizard.step9.processingTitle')}
+        <div className="text-lg font-medium text-slate-600 mb-2">
+          Procesando tu solicitud...
         </div>
-        <div className="text-sm text-gray-500">
-          {t('loanWizard.step9.timeLeft', { time: timeLeft })}
+        <div className="text-sm text-slate-500">
+          Tiempo restante: {timeLeft} segundos
         </div>
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-6">
-        <h4 className="font-semibold mb-4">{t('loanWizard.step9.auditProcessTitle')}</h4>
+      <div className="bg-slate-50 rounded-lg p-6 text-left">
+        <h4 className="font-semibold mb-4 text-slate-800">Proceso de Evaluación</h4>
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm">{t('loanWizard.step9.identityVerification')}</span>
+            <span className="text-sm text-slate-700">Verificación de Identidad</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm">{t('loanWizard.step9.creditAuthorization')}</span>
+            <span className="text-sm text-slate-700">Autorización Crediticia</span>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
+            <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center animate-pulse">
               <span className="text-white text-xs">?</span>
             </div>
-            <span className="text-sm">{t('loanWizard.step9.riskControl')}</span>
+            <span className="text-sm text-slate-700">Control de Riesgo</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">-</span>
             </div>
-            <span className="text-sm text-gray-400">{t('loanWizard.step9.finalApproval')}</span>
+            <span className="text-sm text-gray-400">Aprobación Final</span>
           </div>
         </div>
       </div>
@@ -1378,33 +1413,35 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
   const approvedAmount = 100000; // 模拟审批金额
 
   return (
-    <div className="space-y-6 text-center">
-      <div>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
+      <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
           <span className="text-4xl">🎉</span>
         </div>
-        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step10.congratulationsTitle')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step10.approvedDesc')}</p>
+        <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+          ¡Felicitaciones!
+        </h2>
+        <p className="text-slate-600">Tu solicitud ha sido aprobada exitosamente</p>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step10.approvalResultTitle')}</h4>
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+        <h4 className="font-semibold text-green-800 mb-4">Resultado de la Aprobación</h4>
         <div className="space-y-2">
           <div className="text-3xl font-bold text-green-600">
             ${approvedAmount.toLocaleString()}
           </div>
-          <div className="text-sm text-green-700">{t('loanWizard.step10.approvedAmountDesc')}</div>
+          <div className="text-sm text-green-700">Monto aprobado para tu préstamo</div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step10.loanConditionsTitle')}</h4>
-          <div className="text-sm text-blue-700 space-y-1">
-            <div>{t('loanWizard.step10.interestRate')}</div>
-            <div>{t('loanWizard.step10.installmentOptions')}</div>
-            <div>{t('loanWizard.step10.noPreFee')}</div>
-            <div>{t('loanWizard.step10.earlyRepayment')}</div>
+          <h4 className="font-medium text-blue-800 mb-2">Condiciones del Préstamo:</h4>
+          <div className="text-sm text-blue-700 space-y-1 text-left">
+            <div>• Tasa de interés competitiva</div>
+            <div>• Opciones de pago flexibles</div>
+            <div>• Sin comisiones por adelantado</div>
+            <div>• Pago anticipado sin penalización</div>
           </div>
         </div>
 
@@ -1416,9 +1453,9 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
             }
             onNext();
           }}
-          className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-lg"
+          className="w-full px-6 py-4 bg-green-600 text-white rounded-sm hover:bg-green-700 font-medium text-lg font-['Roboto','Helvetica_Neue',Arial,sans-serif] transition-colors duration-200"
         >
-          {t('loanWizard.step10.withdrawNowButton')}
+          Retirar Ahora
         </button>
       </div>
     </div>
@@ -1467,96 +1504,115 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
   const repaymentDate = withdrawalAmount ? calculateRepaymentDate(installmentPeriod) : '';
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step11.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step11.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Configuración de Retiro
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Configura el monto y período de pago
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step11.withdrawalAmountLabel')}
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Monto a Retirar
           </label>
           <input
             type="number"
             value={withdrawalAmount}
             onChange={(e) => setWithdrawalAmount(e.target.value)}
-            placeholder={t('loanWizard.step11.withdrawalAmountPlaceholder')}
+            placeholder="Ingresa el monto"
             max={maxAmount.toString()}
             min="1000"
             step="100"
-            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
-            style={{ maxWidth: "100%" }}
+            className="w-full px-4 py-3 border border-slate-300 rounded-sm focus:ring-2 focus:ring-slate-500 focus:border-transparent text-base sm:text-lg font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
           />
-          <div className="mt-2 text-sm text-gray-500">
-            {t('loanWizard.step11.withdrawalRangeLabel', { maxAmount: maxAmount.toLocaleString() })}
+          <div className="mt-2 text-sm text-slate-500">
+            Rango: $1,000 - ${maxAmount.toLocaleString()}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {t('loanWizard.step11.installmentPeriodLabel')}
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Período de Pago
           </label>
           <div className="grid grid-cols-3 gap-3">
             {[8, 15, 30].map((period) => (
               <button
                 key={period}
                 onClick={() => setInstallmentPeriod(period)}
-                className={`p-3 border rounded-lg text-center transition-colors ${installmentPeriod === period
-                  ? 'border-blue-500 bg-blue-50 text-blue-600'
-                  : 'border-gray-300 hover:border-gray-400'
+                className={`p-3 border rounded-sm text-center transition-colors font-['Roboto','Helvetica_Neue',Arial,sans-serif] ${installmentPeriod === period
+                  ? 'border-slate-500 bg-slate-50 text-slate-600'
+                  : 'border-slate-300 hover:border-slate-400'
                   }`}
               >
-                <div className="font-medium">{period}{t('loanWizard.step11.installmentPeriodSuffix')}</div>
-                <div className="text-sm text-gray-500">{period}{t('loanWizard.step11.installmentMonths')}</div>
+                <div className="font-medium">{period} días</div>
+                <div className="text-sm text-slate-500">{period} días</div>
               </button>
             ))}
           </div>
         </div>
 
         {withdrawalAmount && (
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-semibold mb-3">{t('loanWizard.step11.repaymentPlanTitle')}</h4>
+          <div className="bg-slate-50 rounded-lg p-4">
+            <h4 className="font-semibold mb-3 text-slate-800">Plan de Pago</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('loanWizard.step11.loanAmountLabel')}:</span>
-                <span>${parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
+                <span className="text-slate-600">Monto del Préstamo:</span>
+                <span className="text-slate-900">${parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('loanWizard.step11.installmentPeriodLabel')}:</span>
-                <span>{installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
+                <span className="text-slate-600">Período de Pago:</span>
+                <span className="text-slate-900">{installmentPeriod} días</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('loanWizard.step11.interestRateLabel')}:</span>
-                <span>3%</span>
+                <span className="text-slate-600">Tasa de Interés:</span>
+                <span className="text-slate-900">3% diario</span>
               </div>
-              <hr className="my-2" />
+              <hr className="my-2 border-slate-200" />
               <div className="flex justify-between font-medium">
-                <span>{t('loanWizard.step11.monthlyPaymentLabel')}:</span>
-                <span className="text-blue-600">{repaymentDate}</span>
+                <span className="text-slate-700">Fecha de Pago:</span>
+                <span className="text-slate-600">{repaymentDate}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('loanWizard.step11.totalRepaymentLabel')}:</span>
-                <span>${totalRepayment.toFixed(2)}</span>
+                <span className="text-slate-600">Total a Pagar:</span>
+                <span className="text-slate-900 font-semibold">${totalRepayment.toFixed(2)}</span>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleNext}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.nextButton')}
+          <span>Siguiente</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
       </div>
     </div>
@@ -1586,60 +1642,62 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
   }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod]);
 
   return (
-    <div className="space-y-6 text-center">
-      <div>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
+      <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
           <span className="text-4xl">✅</span>
         </div>
-        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step12.successTitle')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step12.successDesc')}</p>
+        <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+          ¡Retiro Exitoso!
+        </h2>
+        <p className="text-slate-600">Tu solicitud ha sido procesada correctamente</p>
       </div>
 
-      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step12.withdrawalDetailsTitle')}</h4>
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+        <h4 className="font-semibold text-green-800 mb-4">Detalles del Retiro</h4>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step12.withdrawalAmountLabel')}:</span>
-            <span className="font-medium">${data.withdrawalAmount?.toLocaleString()}</span>
+            <span className="text-slate-600">Monto Retirado:</span>
+            <span className="font-medium text-slate-900">${data.withdrawalAmount?.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step12.arrivalBankCardLabel')}:</span>
-            <span>****{data.bankCardNumber?.slice(-4)}</span>
+            <span className="text-slate-600">Tarjeta de Destino:</span>
+            <span className="text-slate-900">****{data.bankCardNumber?.slice(-4)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step12.installmentPeriodLabel')}:</span>
-            <span>{data.installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
+            <span className="text-slate-600">Período de Pago:</span>
+            <span className="text-slate-900">{data.installmentPeriod} días</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-600">{t('loanWizard.step12.arrivalTimeLabel')}:</span>
-            <span>{t('loanWizard.step12.arrivalTimeValue')}</span>
+            <span className="text-slate-600">Tiempo de Llegada:</span>
+            <span className="text-slate-900">2-5 minutos</span>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step12.tipsTitle')}</h4>
+          <h4 className="font-medium text-blue-800 mb-2">Consejos Importantes:</h4>
           <ul className="text-sm text-blue-700 space-y-1 text-left">
-            <li>{t('loanWizard.step12.tips1')}</li>
-            <li>{t('loanWizard.step12.tips2')}</li>
-            <li>{t('loanWizard.step12.tips3')}</li>
-            <li>{t('loanWizard.step12.tips4')}</li>
+            <li>• Verifica tu cuenta bancaria en los próximos minutos</li>
+            <li>• Recibirás una notificación SMS de confirmación</li>
+            <li>• Recuerda la fecha de vencimiento de tu pago</li>
+            <li>• Contacta soporte si tienes alguna pregunta</li>
           </ul>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <button
             onClick={() => window.location.href = '/user-center'}
-            className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            className="flex-1 px-6 py-3 border border-slate-300 text-slate-700 rounded-sm hover:bg-slate-50 font-semibold font-['Roboto','Helvetica_Neue',Arial,sans-serif] transition-colors duration-200"
           >
-            {t('loanWizard.step12.viewRepaymentPlanButton')}
+            Ver Plan de Pago
           </button>
           <button
             onClick={() => window.location.href = '/'}
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex-1 px-6 py-3 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-semibold font-['Roboto','Helvetica_Neue',Arial,sans-serif] transition-colors duration-200"
           >
-            {t('loanWizard.step12.returnHomeButton')}
+            Volver al Inicio
           </button>
         </div>
       </div>
