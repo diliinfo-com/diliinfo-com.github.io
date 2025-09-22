@@ -2003,6 +2003,48 @@ const LoanWizard: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* 客户评价 */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4">
+                      Lo que dicen nuestros clientes
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="border-l-4 border-slate-800 pl-4">
+                        <p className="text-sm text-slate-600 italic mb-2">
+                          "Proceso muy rápido y transparente. Obtuve mi préstamo en menos de 24 horas."
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex text-yellow-400">
+                            {'★'.repeat(5)}
+                          </div>
+                          <span className="text-xs text-slate-500">- María G.</span>
+                        </div>
+                      </div>
+                      <div className="border-l-4 border-slate-800 pl-4">
+                        <p className="text-sm text-slate-600 italic mb-2">
+                          "Excelente atención al cliente y tasas muy competitivas."
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex text-yellow-400">
+                            {'★'.repeat(5)}
+                          </div>
+                          <span className="text-xs text-slate-500">- Carlos R.</span>
+                        </div>
+                      </div>
+                      <div className="border-l-4 border-slate-800 pl-4">
+                        <p className="text-sm text-slate-600 italic mb-2">
+                          "Las tasas son realmente competitivas y no hay sorpresas. Todo está muy claro desde el inicio."
+                        </p>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex text-yellow-400">
+                            {'★'.repeat(5)}
+                          </div>
+                          <span className="text-xs text-slate-500">- Ana L.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2015,4 +2057,4 @@ const LoanWizard: React.FC = () => {
   );
 };
 
-export default LoanWizard; 
+export default LoanWizardEnhanced; 
