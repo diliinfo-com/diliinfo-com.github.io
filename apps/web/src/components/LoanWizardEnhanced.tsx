@@ -1865,7 +1865,105 @@ const LoanWizardEnhanced: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen">
+      {/* Hero Section - 完整的原版介绍内容 */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* 左侧文字内容 */}
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                  Préstamos Personales Seguros
+                </h1>
+                <p className="text-lg text-slate-600 leading-relaxed">
+                  Obtén el financiamiento que necesitas con tasas competitivas y proceso 100% digital. 
+                  Regulados por CNBV y con la máxima seguridad en el manejo de tus datos.
+                </p>
+              </div>
+              
+              {/* características principales */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">Aprobación en 2 minutos</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">Datos 100% seguros</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">Sin comisiones ocultas</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-slate-700">Plazos flexibles</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 右侧图片内容 */}
+            <div className="space-y-6">
+              {/* 主要图片 */}
+              <div className="relative">
+                <img 
+                  src="/images/hero-financial-security.jpg" 
+                  alt="Seguridad Financiera - Préstamos Seguros"
+                  className="w-full h-64 lg:h-80 object-cover rounded-lg shadow-lg"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent rounded-lg"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4">
+                    <h3 className="font-semibold text-slate-800 text-sm mb-2">Proceso 100% Digital</h3>
+                    <p className="text-xs text-slate-600">Solicita desde la comodidad de tu hogar</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 认证标识 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
+                  <img 
+                    src="/images/cnbv-logo.png" 
+                    alt="CNBV Regulado"
+                    className="w-12 h-12 mx-auto mb-3 object-contain"
+                  />
+                  <h3 className="font-semibold text-slate-800 text-sm mb-1">CNBV</h3>
+                  <p className="text-xs text-slate-600">Regulado</p>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
+                  <img 
+                    src="/images/ssl-security.png" 
+                    alt="SSL 256-bit Security"
+                    className="w-12 h-12 mx-auto mb-3 object-contain"
+                  />
+                  <h3 className="font-semibold text-slate-800 text-sm mb-1">SSL</h3>
+                  <p className="text-xs text-slate-600">256-bit</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 桌面端Full-width，移动端适配 */}
       <div className="w-full">
         {/* 进度条 - 固定在顶部 */}
@@ -1912,6 +2010,196 @@ const LoanWizardEnhanced: React.FC = () => {
               <div className="flex-1 lg:max-w-3xl">
                 <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
                   {renderStep()}
+                </div>
+
+                {/* 下方额外信息内容 - 包含所有原版的丰富内容 */}
+                <div className="mt-8 space-y-8">
+                  {/* 简单流程介绍 */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                      Proceso Simple en 3 Pasos
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <div className="relative mb-4">
+                          <img 
+                            src="/images/step-1-phone.jpg" 
+                            alt="Paso 1: Verificación telefónica"
+                            className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
+                          />
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            1
+                          </div>
+                        </div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Verificación</h4>
+                        <p className="text-xs text-slate-600">Ingresa tu teléfono y verifica tu elegibilidad</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="relative mb-4">
+                          <img 
+                            src="/images/step-2-form.jpg" 
+                            alt="Paso 2: Completar información"
+                            className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
+                          />
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            2
+                          </div>
+                        </div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Información</h4>
+                        <p className="text-xs text-slate-600">Completa tus datos personales y financieros</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="relative mb-4">
+                          <img 
+                            src="/images/step-3-approval.jpg" 
+                            alt="Paso 3: Aprobación y desembolso"
+                            className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
+                          />
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                            3
+                          </div>
+                        </div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación</h4>
+                        <p className="text-xs text-slate-600">Recibe tu dinero en minutos</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* beneficios con imágenes */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                      Beneficios Exclusivos
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src="/images/benefit-fast-approval.jpg" 
+                          alt="Aprobación Rápida"
+                          className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación Instantánea</h4>
+                          <p className="text-xs text-slate-600">Respuesta automática en menos de 2 minutos usando tecnología avanzada de análisis crediticio.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src="/images/benefit-low-rates.jpg" 
+                          alt="Tasas Bajas"
+                          className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Tasas Competitivas</h4>
+                          <p className="text-xs text-slate-600">Desde 12% anual, las mejores tasas del mercado sin comisiones por apertura.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src="/images/benefit-flexible-terms.jpg" 
+                          alt="Plazos Flexibles"
+                          className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Plazos Flexibles</h4>
+                          <p className="text-xs text-slate-600">Elige el plazo que mejor se adapte a tu capacidad de pago, de 6 a 36 meses.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src="/images/benefit-24-7-support.jpg" 
+                          alt="Soporte 24/7"
+                          className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
+                        />
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Soporte Especializado</h4>
+                          <p className="text-xs text-slate-600">Equipo de atención al cliente disponible 24/7 para resolver todas tus dudas.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Testimonios con fotos */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                      Testimonios de Clientes Reales
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <div className="flex items-start space-x-4 mb-4">
+                          <img 
+                            src="/images/testimonial-maria.jpg" 
+                            alt="María González - Cliente satisfecha"
+                            className="w-12 h-12 rounded-full object-cover shadow-sm"
+                          />
+                          <div>
+                            <h4 className="font-semibold text-slate-800 text-sm">María González</h4>
+                            <div className="flex text-yellow-400 text-sm">
+                              {'★'.repeat(5)}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 italic">
+                          "Increíble lo rápido que fue todo el proceso. En menos de 30 minutos tenía el dinero en mi cuenta. 
+                          El equipo de soporte fue muy profesional y me explicaron todo claramente."
+                        </p>
+                      </div>
+                      <div className="bg-slate-50 rounded-lg p-4">
+                        <div className="flex items-start space-x-4 mb-4">
+                          <img 
+                            src="/images/testimonial-carlos.jpg" 
+                            alt="Carlos Rodríguez - Cliente satisfecho"
+                            className="w-12 h-12 rounded-full object-cover shadow-sm"
+                          />
+                          <div>
+                            <h4 className="font-semibold text-slate-800 text-sm">Carlos Rodríguez</h4>
+                            <div className="flex text-yellow-400 text-sm">
+                              {'★'.repeat(5)}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 italic">
+                          "Las tasas son realmente competitivas y no hay sorpresas. Todo está muy claro desde el inicio. 
+                          Definitivamente recomiendo este servicio a cualquiera que necesite financiamiento."
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Seguridad y regulación */}
+                  <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                      Máxima Seguridad y Regulación
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="text-center">
+                        <img 
+                          src="/images/security-encryption.jpg" 
+                          alt="Encriptación de datos"
+                          className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
+                        />
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Encriptación SSL</h4>
+                        <p className="text-xs text-slate-600">Todos tus datos están protegidos con encriptación de nivel bancario SSL 256-bit.</p>
+                      </div>
+                      <div className="text-center">
+                        <img 
+                          src="/images/regulation-cnbv.jpg" 
+                          alt="Regulación CNBV"
+                          className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
+                        />
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">CNBV Regulado</h4>
+                        <p className="text-xs text-slate-600">Autorizados y supervisados por la Comisión Nacional Bancaria y de Valores.</p>
+                      </div>
+                      <div className="text-center">
+                        <img 
+                          src="/images/privacy-protection.jpg" 
+                          alt="Protección de privacidad"
+                          className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
+                        />
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Privacidad Total</h4>
+                        <p className="text-xs text-slate-600">Cumplimos con todas las normativas de protección de datos personales.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
