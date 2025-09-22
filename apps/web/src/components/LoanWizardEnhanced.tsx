@@ -1704,7 +1704,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
 
 // 主向导组件
 // Main component for the loan application wizard
-const LoanWizard: React.FC = () => {
+const LoanWizardEnhanced: React.FC = () => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
