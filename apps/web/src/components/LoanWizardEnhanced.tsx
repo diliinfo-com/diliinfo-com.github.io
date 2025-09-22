@@ -498,9 +498,6 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         </button>
       </div>
     </div>
-        </button>
-      </div>
-    </div>
   );
 };
 
