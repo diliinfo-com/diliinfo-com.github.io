@@ -856,23 +856,10 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Verificación de Identidad
-            </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Graba un video corto para verificar tu identidad
-            </p>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step5.title')}</h3>
+        <p className="text-gray-600">{t('loanWizard.step5.subtitle')}</p>
       </div>
 
       <div className="text-center">
@@ -880,27 +867,27 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
           <div className="space-y-4">
             <div className="text-6xl">📹</div>
             <div>
-              <h4 className="font-medium mb-2">Verificación de Identidad en Vivo</h4>
+              <h4 className="font-medium mb-2">{t('loanWizard.step5.livenessTitle')}</h4>
               <p className="text-sm text-gray-500 mb-4">
-                Graba un video de 3 segundos mostrando tu rostro
+                {t('loanWizard.step5.livenessDesc')}
               </p>
             </div>
 
             {videoUploaded ? (
               <div className="space-y-2">
                 <div className="text-green-600">✓ {videoFileName}</div>
-                <div className="text-xs text-gray-500">Verificación completada</div>
+                <div className="text-xs text-gray-500">{t('loanWizard.step5.livenessComplete')}</div>
               </div>
             ) : isUploading ? (
               <div className="space-y-2">
-                <div className="text-blue-600">Subiendo video...</div>
+                <div className="text-blue-600">{t('loanWizard.step5.uploading')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '70%' }}></div>
                 </div>
               </div>
             ) : isRecording ? (
               <div className="space-y-2">
-                <div className="text-blue-600">Grabando... Mantén tu rostro visible</div>
+                <div className="text-blue-600">{t('loanWizard.step5.recordingDesc')}</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
                 </div>
@@ -908,24 +895,24 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
             ) : !showVideoOptions ? (
               <button
                 onClick={() => setShowVideoOptions(true)}
-                className="px-6 py-3 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Iniciar Verificación
+                {t('loanWizard.step5.startVerificationButton')}
               </button>
             ) : (
               <div className="space-y-3">
                 <button
                   onClick={startRecording}
-                  className="block w-full px-6 py-3 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
+                  className="block w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
-                  Grabar Video
+                  {t('loanWizard.step5.startRecordingButton')}
                 </button>
-                <div className="text-gray-500 text-sm">o</div>
+                <div className="text-gray-500 text-sm">{t('loanWizard.step5.orText')}</div>
                 <button
                   onClick={handleVideoSelect}
-                  className="block w-full px-6 py-3 bg-gray-600 text-white rounded-sm hover:bg-gray-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
+                  className="block w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
                 >
-                  Subir Video
+                  {t('loanWizard.step5.uploadVideoButton')}
                 </button>
               </div>
             )}
@@ -933,35 +920,28 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
         </div>
       </div>
 
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
-        <h4 className="font-medium text-yellow-800 mb-2">Consejos para la grabación:</h4>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <h4 className="font-medium text-yellow-800 mb-2">{t('loanWizard.step5.recordingHintTitle')}</h4>
         <ul className="text-sm text-yellow-700 space-y-1">
-          <li>• Asegúrate de tener buena iluminación</li>
-          <li>• Mantén tu rostro centrado en la cámara</li>
-          <li>• No uses lentes oscuros o sombreros</li>
-          <li>• El video debe durar al menos 3 segundos</li>
+          <li>• {t('loanWizard.step5.recordingHint1')}</li>
+          <li>• {t('loanWizard.step5.recordingHint2')}</li>
+          <li>• {t('loanWizard.step5.recordingHint3')}</li>
+          <li>• {t('loanWizard.step5.recordingHint4')}</li>
         </ul>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="flex gap-3">
         <button
           onClick={onBack}
-          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-          <span>Anterior</span>
+          {t('loanWizard.step2.backButton')}
         </button>
-        
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          <span>Siguiente</span>
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
+          {t('loanWizard.step2.nextButton')}
         </button>
       </div>
     </div>
