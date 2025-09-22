@@ -692,92 +692,109 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-2xl font-bold mb-2">{t('loanWizard.step4.title')}</h3>
-        <p className="text-gray-600">{t('loanWizard.step4.subtitle')}</p>
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12a1 1 0 01-.117-1.993L9 10h2a1 1 0 01.117 1.993L11 12H9zm4-6a1 1 0 01.117 1.993L13 8H7a1 1 0 01-.117-1.993L7 6h6z" />
+              <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+              Contactos de Referencia
+            </h2>
+            <p className="text-sm text-slate-600 mt-1">
+              Proporciona dos contactos de referencia
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-6">
-        <div className="border rounded-lg p-3 sm:p-4">
-          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact1Title')}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('loanWizard.step4.contactNameLabel')}
+        <div className="border rounded-lg p-4">
+          <h4 className="font-semibold mb-4">Contacto de referencia 1</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+                Nombre completo <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={contact1Name}
                 onChange={(e) => setContact1Name(e.target.value)}
-                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                style={{ maxWidth: "100%" }}
+                placeholder="Nombre del contacto"
+                className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('loanWizard.step4.contactPhoneLabel')}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+                Número de teléfono <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 value={contact1Phone}
                 onChange={(e) => setContact1Phone(e.target.value)}
-                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Teléfono del contacto"
+                className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
                 maxLength={11}
-                style={{ maxWidth: "100%" }}
               />
             </div>
           </div>
         </div>
 
-        <div className="border rounded-lg p-3 sm:p-4">
-          <h4 className="font-semibold mb-3 sm:mb-4">{t('loanWizard.step4.contact2Title')}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('loanWizard.step4.contactNameLabel')}
+        <div className="border rounded-lg p-4">
+          <h4 className="font-semibold mb-4">Contacto de referencia 2</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+                Nombre completo <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={contact2Name}
                 onChange={(e) => setContact2Name(e.target.value)}
-                placeholder={t('loanWizard.step4.contactNamePlaceholder')}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                style={{ maxWidth: "100%" }}
+                placeholder="Nombre del contacto"
+                className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t('loanWizard.step4.contactPhoneLabel')}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+                Número de teléfono <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 value={contact2Phone}
                 onChange={(e) => setContact2Phone(e.target.value)}
-                placeholder={t('loanWizard.step4.contactPhonePlaceholder')}
-                className="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Teléfono del contacto"
+                className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
                 maxLength={11}
-                style={{ maxWidth: "100%" }}
               />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.backButton')}
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>Anterior</span>
         </button>
+        
         <button
           onClick={handleNext}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
         >
-          {t('loanWizard.step2.nextButton')}
+          <span>Siguiente</span>
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
       </div>
     </div>
