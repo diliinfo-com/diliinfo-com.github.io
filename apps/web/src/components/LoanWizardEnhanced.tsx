@@ -249,19 +249,19 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
           {/* 表单卡片 */}
           <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
-            <div className="p-6 lg:p-8">
+            <div className="p-3 sm:p-6 lg:p-8">
               {!showApprovedAmount ? (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* 手机号输入 */}
                   <div>
-                    <label className="block text-base font-semibold text-slate-800 mb-3">
+                    <label className="block text-sm sm:text-base font-semibold text-slate-800 mb-2 sm:mb-3">
                       {t('loanWizard.step1.phoneLabel')}
                     </label>
-                    <div className="flex">
+                    <div className="flex w-full">
                       <select
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-20 sm:w-24 lg:w-28 px-2 sm:px-3 py-3 sm:py-4 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm"
+                        className="w-16 sm:w-20 lg:w-24 px-1 sm:px-2 py-2 sm:py-3 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-xs sm:text-sm flex-shrink-0"
                         disabled={showApprovedAmount}
                       >
                         {countryCodes.map((country) => (
@@ -275,11 +275,11 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder={t('loanWizard.step1.phonePlaceholder')}
-                        className="flex-1 px-3 sm:px-4 py-3 sm:py-4 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm sm:text-base"
+                        className="flex-1 min-w-0 px-2 sm:px-3 py-2 sm:py-3 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm sm:text-base"
                         disabled={showApprovedAmount}
                       />
                     </div>
-                    <div className="mt-2 text-sm text-slate-500">
+                    <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500">
                       Verificaremos su número para procesar su solicitud
                     </div>
                   </div>
@@ -288,7 +288,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                   <button
                     onClick={handleCheckEligibility}
                     disabled={!phone || isRegistering}
-                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
+                    className="w-full py-3 sm:py-4 bg-slate-800 text-white font-semibold text-base sm:text-lg rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
                   >
                     {isRegistering ? (
                       <div className="flex items-center justify-center">
@@ -428,11 +428,11 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="p-3 sm:p-6 lg:p-8 w-full max-w-none sm:max-w-2xl mx-auto">
-      <div className="mb-6 sm:mb-8">
-        <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+    <div className="p-2 sm:p-6 lg:p-8 w-full max-w-none sm:max-w-2xl mx-auto">
+      <div className="mb-4 sm:mb-8">
+        <div className="flex items-center space-x-2 sm:space-x-4 mb-3 sm:mb-6">
+          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
           </div>
@@ -448,8 +448,8 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
       </div>
 
       <div className="space-y-4 sm:space-y-6">
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+        <div className="space-y-1 sm:space-y-2">
+          <label className="block text-xs sm:text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
             Nombre completo <span className="text-red-500">*</span>
           </label>
           <input
@@ -457,12 +457,12 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={realName}
             onChange={(e) => setRealName(e.target.value)}
             placeholder="Ingresa tu nombre completo"
-            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+            className="w-full px-2 sm:px-3 py-2 sm:py-2.5 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
+        <div className="space-y-1 sm:space-y-2">
+          <label className="block text-xs sm:text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
             Número de identificación <span className="text-red-500">*</span>
           </label>
           <input
@@ -470,16 +470,16 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
             placeholder="Ingresa tu número de identificación"
-            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+            className="w-full px-2 sm:px-3 py-2 sm:py-2.5 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
             maxLength={18}
           />
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-200 space-y-3 sm:space-y-0 sm:space-x-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-slate-200 space-y-2 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm sm:text-base"
+          className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -489,7 +489,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm sm:text-base"
+          className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm"
         >
           <span>Siguiente</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1968,10 +1968,10 @@ const LoanWizardEnhanced: React.FC = () => {
       <div className="w-full">
         {/* 进度条 - 固定在顶部 */}
         <div className="bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-3">
-                <h2 className="text-lg lg:text-xl font-bold text-slate-800">
+          <div className="max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-3 lg:py-4">
+            <div className="flex items-center justify-between mb-2 sm:mb-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-800">
                   Solicitud de Préstamo
                 </h2>
                 <div className="hidden lg:flex items-center space-x-2 text-sm text-slate-600">
@@ -1982,7 +1982,7 @@ const LoanWizardEnhanced: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-slate-800">
+                <div className="text-xs sm:text-sm font-semibold text-slate-800">
                   Paso {currentStep} de {totalSteps}
                 </div>
                 <div className="text-xs text-slate-500">
@@ -2004,10 +2004,10 @@ const LoanWizardEnhanced: React.FC = () => {
         {/* 主内容区域 */}
         <div className="w-full">
           {/* 桌面端：Full-width容器，移动端：适配容器 */}
-          <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
+          <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-6 lg:py-8">
             <div className="flex flex-col lg:flex-row lg:space-x-8">
               {/* 左侧：步骤内容 (桌面端占2/3，移动端全宽) */}
-              <div className="flex-1 lg:max-w-3xl">
+              <div className="flex-1 lg:max-w-3xl min-w-0">
                 <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
                   {renderStep()}
                 </div>
