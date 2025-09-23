@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 import { safeStorage, safeDateParse, arrayCompat, smoothScroll } from '../utils/browserCompat';
-import MobileFix from './MobileFix';
 
 import { 
   trackLoanApplicationStart, 
