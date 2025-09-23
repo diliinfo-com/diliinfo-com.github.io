@@ -261,7 +261,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                       <select
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-24 lg:w-28 px-3 py-4 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        className="w-20 sm:w-24 lg:w-28 px-2 sm:px-3 py-3 sm:py-4 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm"
                         disabled={showApprovedAmount}
                       >
                         {countryCodes.map((country) => (
@@ -275,7 +275,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder={t('loanWizard.step1.phonePlaceholder')}
-                        className="flex-1 px-4 py-4 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors"
+                        className="flex-1 px-3 sm:px-4 py-3 sm:py-4 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm sm:text-base"
                         disabled={showApprovedAmount}
                       />
                     </div>
@@ -428,26 +428,26 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+    <div className="p-3 sm:p-6 lg:p-8 w-full max-w-none sm:max-w-2xl mx-auto">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
               Información de Identidad
             </h2>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Completa tu información personal para continuar
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="space-y-2">
           <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
             Nombre completo <span className="text-red-500">*</span>
@@ -457,7 +457,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={realName}
             onChange={(e) => setRealName(e.target.value)}
             placeholder="Ingresa tu nombre completo"
-            className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
           />
         </div>
 
@@ -470,16 +470,16 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
             placeholder="Ingresa tu número de identificación"
-            className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
             maxLength={18}
           />
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center pt-8 mt-8 border-t border-slate-200 space-y-4 sm:space-y-0 sm:space-x-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center pt-6 sm:pt-8 mt-6 sm:mt-8 border-t border-slate-200 space-y-3 sm:space-y-0 sm:space-x-4">
         <button
           onClick={onBack}
-          className="w-full sm:w-auto px-6 py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-slate-300 text-slate-700 font-semibold rounded-sm hover:bg-slate-50 transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm sm:text-base"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -489,7 +489,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm sm:text-base"
         >
           <span>Siguiente</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -561,19 +561,19 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+    <div className="p-3 sm:p-6 lg:p-8 w-full max-w-none sm:max-w-2xl mx-auto">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex items-center space-x-3 sm:space-x-4 mb-4 sm:mb-6">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
               Subir Identificación
             </h2>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Sube fotos claras de tu identificación oficial
             </p>
           </div>
@@ -689,7 +689,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto">
+    <div className="p-3 sm:p-6 lg:p-8 w-full max-w-none sm:max-w-2xl mx-auto">
       <div className="mb-8">
         <div className="flex items-center space-x-4 mb-6">
           <div className="w-12 h-12 bg-slate-800 rounded-lg flex items-center justify-center shadow-sm">
@@ -699,10 +699,10 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             </svg>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
               Contactos de Referencia
             </h2>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Proporciona dos contactos de referencia
             </p>
           </div>
@@ -1868,15 +1868,15 @@ const LoanWizardEnhanced: React.FC = () => {
     <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen">
       {/* Hero Section - 完整的原版介绍内容 */}
       <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
             {/* 左侧文字内容 */}
             <div className="space-y-6">
               <div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-3 sm:mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
                   Préstamos Personales Seguros
                 </h1>
-                <p className="text-lg text-slate-600 leading-relaxed">
+                <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
                   Obtén el financiamiento que necesitas con tasas competitivas y proceso 100% digital. 
                   Regulados por CNBV y con la máxima seguridad en el manejo de tus datos.
                 </p>
@@ -1968,7 +1968,7 @@ const LoanWizardEnhanced: React.FC = () => {
       <div className="w-full">
         {/* 进度条 - 固定在顶部 */}
         <div className="bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-6xl mx-auto px-4 py-4 lg:py-6">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 lg:py-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-3">
                 <h2 className="text-lg lg:text-xl font-bold text-slate-800">
@@ -2004,7 +2004,7 @@ const LoanWizardEnhanced: React.FC = () => {
         {/* 主内容区域 */}
         <div className="w-full">
           {/* 桌面端：Full-width容器，移动端：适配容器 */}
-          <div className="max-w-6xl mx-auto px-4 py-6 lg:py-8">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8">
             <div className="flex flex-col lg:flex-row lg:space-x-8">
               {/* 左侧：步骤内容 (桌面端占2/3，移动端全宽) */}
               <div className="flex-1 lg:max-w-3xl">
@@ -2013,13 +2013,13 @@ const LoanWizardEnhanced: React.FC = () => {
                 </div>
 
                 {/* 下方额外信息内容 - 包含所有原版的丰富内容 */}
-                <div className="mt-8 space-y-8">
+                <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8 lg:hidden">
                   {/* 简单流程介绍 */}
-                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
+                  <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4 sm:p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
                       Proceso Simple en 3 Pasos
                     </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                       <div className="text-center">
                         <div className="relative mb-4">
                           <img 
@@ -2204,7 +2204,7 @@ const LoanWizardEnhanced: React.FC = () => {
               </div>
 
               {/* 右侧：信息面板 (桌面端显示，移动端隐藏) */}
-              <div className="hidden lg:block lg:w-80 xl:w-96">
+              <div className="hidden lg:block lg:w-80 xl:w-96 lg:flex-shrink-0">
                 <div className="sticky top-24 space-y-6">
                   {/* 安全保障 */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
