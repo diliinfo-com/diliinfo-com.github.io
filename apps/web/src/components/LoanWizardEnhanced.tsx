@@ -2013,7 +2013,7 @@ const LoanWizardEnhanced: React.FC = () => {
                 </div>
 
                 {/* 下方额外信息内容 - 包含所有原版的丰富内容 */}
-                <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8 lg:hidden">
+                <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
                   {/* 简单流程介绍 */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4 sm:p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
