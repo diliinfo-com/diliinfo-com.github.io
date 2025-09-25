@@ -426,7 +426,8 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       FROM loan_applications la
       LEFT JOIN users u ON la.user_id = u.id
       LEFT JOIN uploads up ON la.id = up.application_id
-      LEFT JOIN application_steps aps ON la.id = aps.application_id${whereClause}
+      LEFT JOIN application_steps aps ON la.id = aps.application_id
+      ${whereClause}
       GROUP BY la.id ORDER BY la.started_at DESC`;
     
     console.log('最终查询SQL:', query);
