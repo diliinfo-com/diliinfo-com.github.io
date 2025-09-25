@@ -159,9 +159,9 @@ const Admin: React.FC = () => {
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [applicationSteps, setApplicationSteps] = useState<any[]>([]);
   const [exportDateRange, setExportDateRange] = useState(() => {
-    // 设置更合理的默认日期范围：从2024年1月1日到今天
+    // 设置默认日期范围：从2025年1月1日到今天
     const endDate = new Date();
-    const startDate = new Date('2024-01-01');
+    const startDate = new Date('2025-01-01');
     return {
       startDate: formatDateForInput(startDate),
       endDate: formatDateForInput(endDate)
