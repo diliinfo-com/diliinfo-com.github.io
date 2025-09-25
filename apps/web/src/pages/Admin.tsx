@@ -336,6 +336,11 @@ const Admin: React.FC = () => {
       if (data.debug) {
         console.log('%c--- BACKEND DEBUG INFO ---', 'color: #1d4ed8; font-weight: bold;');
         console.log(data.debug);
+        if (data.debug.version) {
+          console.log(`%cBackend Version Detected: ${data.debug.version}`, 'color: #059669; font-size: 1.1em; font-weight: bold;');
+        } else {
+          console.error('%cBackend Version NOT Detected. The worker is running stale code.', 'color: #dc2626; font-size: 1.1em; font-weight: bold;');
+        }
         console.log('--------------------------');
       }
       

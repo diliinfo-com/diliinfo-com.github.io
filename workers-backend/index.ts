@@ -390,6 +390,7 @@ app.get('/api/admin/users', adminAuth, async (c) => {
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   const debugInfo: any = {
+    version: 'v1.6-final-debug',
     timestamp: new Date().toISOString(),
     receivedParams: null,
     paramTypes: null,
