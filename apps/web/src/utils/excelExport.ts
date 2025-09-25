@@ -33,7 +33,7 @@ export const exportToExcel = (data: ExportData[], filename: string = 'loan_appli
     '银行卡号',
     '提现金额',
     '分期期数',
-    '当前步骤',
+    '完成步骤',
     '状态',
     '创建时间',
     '更新时间'
