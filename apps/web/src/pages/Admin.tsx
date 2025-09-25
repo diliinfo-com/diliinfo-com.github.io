@@ -363,7 +363,7 @@ const Admin: React.FC = () => {
         bank_card_number: app.bank_card_number || '',
         withdrawal_amount: app.withdrawal_amount || 0,
         installment_period: app.installment_period || 0,
-        current_step: app.current_step || 0,
+        current_step: `${app.completed_steps || 0}/12`,
         status: app.status || 'pending',
         created_at: app.created_at,
         updated_at: app.updated_at

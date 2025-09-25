@@ -390,7 +390,7 @@ app.get('/api/admin/users', adminAuth, async (c) => {
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   const debugInfo: any = {
-    version: 'v1.6-final-debug',
+    version: 'v1.7-simplified-query', // Update version for debugging
     timestamp: new Date().toISOString(),
     receivedParams: null,
     paramTypes: null,
@@ -418,7 +418,8 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       debugInfo.timestamps = { startTimestamp, endTimestamp, startValid: !isNaN(startTimestamp), endValid: !isNaN(endTimestamp) };
       
       if (!isNaN(startTimestamp) && !isNaN(endTimestamp)) {
-        whereClause = ' WHERE created_at >= ? AND created_at <= ?';
+        // Use the table alias `la` for clarity in the WHERE clause
+        whereClause = ' WHERE la.created_at >= ? AND la.created_at <= ?';
         params = [startTimestamp, endTimestamp];
       }
     }
@@ -426,24 +427,26 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     debugInfo.whereClause = whereClause;
     debugInfo.boundParams = params;
 
+    // Re-engineered query using LEFT JOIN and GROUP BY for better performance and accuracy
     let query = `
-      WITH filtered_applications AS (
-        SELECT * FROM loan_applications
-        ${whereClause}
-      )
       SELECT 
-        fa.*,
+        la.*,
         u.email,
         u.first_name,
         u.last_name,
-        (SELECT COUNT(*) FROM uploads WHERE application_id = fa.id) as upload_count,
-        (SELECT COALESCE(MAX(step_number), 0) FROM application_steps WHERE application_id = fa.id) as completed_steps
+        (SELECT COUNT(*) FROM uploads WHERE application_id = la.id) as upload_count,
+        COALESCE(MAX(aps.step_number), 0) as completed_steps
       FROM 
-        filtered_applications fa
+        loan_applications la
       LEFT JOIN 
-        users u ON fa.user_id = u.id
+        users u ON la.user_id = u.id
+      LEFT JOIN
+        application_steps aps ON la.id = aps.application_id
+      ${whereClause}
+      GROUP BY
+        la.id
       ORDER BY 
-        fa.started_at DESC`;
+        la.started_at DESC`;
     
     debugInfo.query = query.trim().replace(/\s+/g, ' ');
     
