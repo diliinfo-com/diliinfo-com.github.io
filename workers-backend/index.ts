@@ -419,20 +419,23 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     }
     
     let query = `
+      WITH filtered_applications AS (
+        SELECT * FROM loan_applications
+        ${whereClause}
+      )
       SELECT 
-        la.*,
+        fa.*,
         u.email,
         u.first_name,
         u.last_name,
-        (SELECT COUNT(*) FROM uploads WHERE application_id = la.id) as upload_count,
-        (SELECT COALESCE(MAX(step_number), 0) FROM application_steps WHERE application_id = la.id) as completed_steps
+        (SELECT COUNT(*) FROM uploads WHERE application_id = fa.id) as upload_count,
+        (SELECT COALESCE(MAX(step_number), 0) FROM application_steps WHERE application_id = fa.id) as completed_steps
       FROM 
-        loan_applications la
+        filtered_applications fa
       LEFT JOIN 
-        users u ON la.user_id = u.id
-      ${whereClause}
+        users u ON fa.user_id = u.id
       ORDER BY 
-        la.started_at DESC`;
+        fa.started_at DESC`;
     
     console.log('最终查询SQL:', query);
     console.log('查询参数:', params);
