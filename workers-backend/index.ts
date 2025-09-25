@@ -389,82 +389,21 @@ app.get('/api/admin/users', adminAuth, async (c) => {
 
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
-  const debugInfo: any = {
-    version: 'v1.6-final-debug',
+  // ===============================================================
+  // FORCE UPDATE TEST v1.8
+  // This endpoint is temporarily hardcoded to test the deployment pipeline.
+  // It should return a simple JSON object with a version number.
+  // ===============================================================
+  return c.json({ 
+    message: "Forced update test successful", 
+    version: "v1.8-force-test",
     timestamp: new Date().toISOString(),
-    receivedParams: null,
-    paramTypes: null,
-    timestamps: null,
-    whereClause: null,
-    query: null,
-    boundParams: null,
-    error: null,
-    resultsCount: null,
-  };
-
-  try {
-    const startDate = c.req.query('startDate');
-    const endDate = c.req.query('endDate');
-    
-    debugInfo.receivedParams = { startDate, endDate };
-    debugInfo.paramTypes = { startDateType: typeof startDate, endDateType: typeof endDate };
-
-    let whereClause = '';
-    let params: any[] = [];
-    
-    if (startDate && endDate && startDate.length > 0 && endDate.length > 0) {
-      const startTimestamp = parseInt(startDate, 10);
-      const endTimestamp = parseInt(endDate, 10);
-      debugInfo.timestamps = { startTimestamp, endTimestamp, startValid: !isNaN(startTimestamp), endValid: !isNaN(endTimestamp) };
-      
-      if (!isNaN(startTimestamp) && !isNaN(endTimestamp)) {
-        whereClause = ' WHERE created_at >= ? AND created_at <= ?';
-        params = [startTimestamp, endTimestamp];
-      }
+    note: "If you see this, the deployment pipeline is working.",
+    applications: [], // Return empty array to prevent frontend errors
+    debug: {
+      version: "v1.8-force-test"
     }
-    
-    debugInfo.whereClause = whereClause;
-    debugInfo.boundParams = params;
-
-    let query = `
-      WITH filtered_applications AS (
-        SELECT * FROM loan_applications
-        ${whereClause}
-      )
-      SELECT 
-        fa.*,
-        u.email,
-        u.first_name,
-        u.last_name,
-        (SELECT COUNT(*) FROM uploads WHERE application_id = fa.id) as upload_count,
-        (SELECT COALESCE(MAX(step_number), 0) FROM application_steps WHERE application_id = fa.id) as completed_steps
-      FROM 
-        filtered_applications fa
-      LEFT JOIN 
-        users u ON fa.user_id = u.id
-      ORDER BY 
-        fa.started_at DESC`;
-    
-    debugInfo.query = query.trim().replace(/\s+/g, ' ');
-    
-    const statement = whereClause.length > 0
-      ? c.env.DB.prepare(query).bind(...params)
-      : c.env.DB.prepare(query);
-      
-    const { results } = await statement.all();
-    debugInfo.resultsCount = results?.length || 0;
-
-    return c.json({ 
-      applications: results || [],
-      debug: debugInfo
-    });
-  } catch (e) {
-    debugInfo.error = { message: e.message, stack: e.stack };
-    return c.json({ 
-      error: 'Failed to fetch applications',
-      debug: debugInfo
-    }, 500);
-  }
+  });
 });
 
 // 获取访客申请详情
