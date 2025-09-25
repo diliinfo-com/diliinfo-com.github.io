@@ -396,16 +396,7 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     
     console.log('后端接收到的日期参数:', { startDate, endDate });
     
-    let query = `
-      SELECT la.*, 
-             u.email, u.first_name, u.last_name,
-             COUNT(up.id) as upload_count,
-             COALESCE(MAX(aps.step_number), 0) as completed_steps
-      FROM loan_applications la
-      LEFT JOIN users u ON la.user_id = u.id
-      LEFT JOIN uploads up ON la.id = up.application_id
-      LEFT JOIN application_steps aps ON la.id = aps.application_id`;
-    
+    let whereClause = '';
     let params: any[] = [];
     
     // 如果提供了日期范围，添加WHERE条件
@@ -414,11 +405,20 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       const endTimestamp = parseInt(endDate);
       console.log('转换后的时间戳:', { startTimestamp, endTimestamp });
       
-      query += ' WHERE la.created_at >= ? AND la.created_at <= ?';
+      whereClause = ' WHERE la.created_at >= ? AND la.created_at <= ?';
       params = [startTimestamp, endTimestamp];
     }
     
-    query += ' GROUP BY la.id ORDER BY la.started_at DESC';
+    let query = `
+      SELECT la.*, 
+             u.email, u.first_name, u.last_name,
+             COUNT(up.id) as upload_count,
+             COALESCE(MAX(aps.step_number), 0) as completed_steps
+      FROM loan_applications la
+      LEFT JOIN users u ON la.user_id = u.id
+      LEFT JOIN uploads up ON la.id = up.application_id
+      LEFT JOIN application_steps aps ON la.id = aps.application_id${whereClause}
+      GROUP BY la.id ORDER BY la.started_at DESC`;
     
     console.log('最终查询SQL:', query);
     console.log('查询参数:', params);
