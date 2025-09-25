@@ -303,10 +303,17 @@ const Admin: React.FC = () => {
       const startTimestamp = Math.floor(new Date(exportDateRange.startDate).getTime() / 1000);
       const endTimestamp = Math.floor(new Date(exportDateRange.endDate + 'T23:59:59').getTime() / 1000);
       
-      const response = await enhancedFetch(
-        getApiUrl(`/api/admin/applications?startDate=${startTimestamp}&endDate=${endTimestamp}`), 
-        { headers }
-      );
+      console.log('导出日期范围:', {
+        startDate: exportDateRange.startDate,
+        endDate: exportDateRange.endDate,
+        startTimestamp,
+        endTimestamp
+      });
+      
+      const url = getApiUrl(`/api/admin/applications?startDate=${startTimestamp}&endDate=${endTimestamp}`);
+      console.log('请求URL:', url);
+      
+      const response = await enhancedFetch(url, { headers });
       
       if (!response.ok) {
         throw new Error('获取数据失败');

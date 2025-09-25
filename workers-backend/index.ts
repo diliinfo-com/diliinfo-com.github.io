@@ -394,6 +394,8 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     const startDate = c.req.query('startDate');
     const endDate = c.req.query('endDate');
     
+    console.log('后端接收到的日期参数:', { startDate, endDate });
+    
     let query = `
       SELECT la.*, 
              u.email, u.first_name, u.last_name,
@@ -408,8 +410,12 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     
     // 如果提供了日期范围，添加WHERE条件
     if (startDate && endDate) {
+      const startTimestamp = parseInt(startDate);
+      const endTimestamp = parseInt(endDate);
+      console.log('转换后的时间戳:', { startTimestamp, endTimestamp });
+      
       query += ' WHERE la.created_at >= ? AND la.created_at <= ?';
-      params = [parseInt(startDate), parseInt(endDate)];
+      params = [startTimestamp, endTimestamp];
     }
     
     query += ' GROUP BY la.id ORDER BY la.started_at DESC';
