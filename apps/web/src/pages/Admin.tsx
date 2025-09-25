@@ -158,7 +158,15 @@ const Admin: React.FC = () => {
   const [guestApplications, setGuestApplications] = useState<GuestApplication[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [applicationSteps, setApplicationSteps] = useState<any[]>([]);
-  const [exportDateRange, setExportDateRange] = useState(() => getDateRange(30)); // 默认最近30天
+  const [exportDateRange, setExportDateRange] = useState(() => {
+    // 设置更合理的默认日期范围：从2024年1月1日到今天
+    const endDate = new Date();
+    const startDate = new Date('2024-01-01');
+    return {
+      startDate: formatDateForInput(startDate),
+      endDate: formatDateForInput(endDate)
+    };
+  });
   const [isExporting, setIsExporting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -321,6 +329,9 @@ const Admin: React.FC = () => {
       
       const data = await response.json();
       const applications = data.applications || [];
+      
+      console.log('接收到的申请数据:', applications.length, '条记录');
+      console.log('前3条数据示例:', applications.slice(0, 3));
       
       if (applications.length === 0) {
         alert('选择的日期范围内没有申请数据');

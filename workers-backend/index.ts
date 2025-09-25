@@ -420,10 +420,15 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     
     query += ' GROUP BY la.id ORDER BY la.started_at DESC';
     
+    console.log('最终查询SQL:', query);
+    console.log('查询参数:', params);
+    
     const applications = params.length > 0 
       ? await c.env.DB.prepare(query).bind(...params).all()
       : await c.env.DB.prepare(query).all();
 
+    console.log('查询结果数量:', applications.results?.length || 0);
+    
     return c.json({ applications: applications.results || [] });
   } catch (error) {
     return c.json({ error: 'Failed to fetch applications' }, 500);
