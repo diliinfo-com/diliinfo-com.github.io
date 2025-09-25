@@ -332,6 +332,12 @@ const Admin: React.FC = () => {
       
       console.log('接收到的申请数据:', applications.length, '条记录');
       console.log('前3条数据示例:', applications.slice(0, 3));
+
+      if (data.debug) {
+        console.log('%c--- BACKEND DEBUG INFO ---', 'color: #1d4ed8; font-weight: bold;');
+        console.log(data.debug);
+        console.log('--------------------------');
+      }
       
       if (applications.length === 0) {
         alert('选择的日期范围内没有申请数据');

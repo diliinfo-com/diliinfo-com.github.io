@@ -389,35 +389,42 @@ app.get('/api/admin/users', adminAuth, async (c) => {
 
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
+  const debugInfo: any = {
+    timestamp: new Date().toISOString(),
+    receivedParams: null,
+    paramTypes: null,
+    timestamps: null,
+    whereClause: null,
+    query: null,
+    boundParams: null,
+    error: null,
+    resultsCount: null,
+  };
+
   try {
-    // 获取查询参数
     const startDate = c.req.query('startDate');
     const endDate = c.req.query('endDate');
     
-    console.log('后端接收到的日期参数:', { startDate, endDate });
-    console.log('参数类型:', { startDateType: typeof startDate, endDateType: typeof endDate });
-    
+    debugInfo.receivedParams = { startDate, endDate };
+    debugInfo.paramTypes = { startDateType: typeof startDate, endDateType: typeof endDate };
+
     let whereClause = '';
     let params: any[] = [];
     
-    // 如果提供了日期范围，添加WHERE条件
-    if (startDate && endDate) {
-      const startTimestamp = parseInt(startDate);
-      const endTimestamp = parseInt(endDate);
-      console.log('转换后的时间戳:', { startTimestamp, endTimestamp });
-      console.log('时间戳是否有效:', { 
-        startValid: !isNaN(startTimestamp), 
-        endValid: !isNaN(endTimestamp),
-        startDate: new Date(startTimestamp * 1000).toISOString(),
-        endDate: new Date(endTimestamp * 1000).toISOString()
-      });
+    if (startDate && endDate && startDate.length > 0 && endDate.length > 0) {
+      const startTimestamp = parseInt(startDate, 10);
+      const endTimestamp = parseInt(endDate, 10);
+      debugInfo.timestamps = { startTimestamp, endTimestamp, startValid: !isNaN(startTimestamp), endValid: !isNaN(endTimestamp) };
       
-      whereClause = ' WHERE created_at >= ? AND created_at <= ?';
-      params = [startTimestamp, endTimestamp];
-    } else {
-      console.log('没有提供日期参数，返回所有数据');
+      if (!isNaN(startTimestamp) && !isNaN(endTimestamp)) {
+        whereClause = ' WHERE created_at >= ? AND created_at <= ?';
+        params = [startTimestamp, endTimestamp];
+      }
     }
     
+    debugInfo.whereClause = whereClause;
+    debugInfo.boundParams = params;
+
     let query = `
       WITH filtered_applications AS (
         SELECT * FROM loan_applications
@@ -437,27 +444,25 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       ORDER BY 
         fa.started_at DESC`;
     
-    console.log('最终查询SQL:', query);
-    console.log('查询参数:', params);
+    debugInfo.query = query.trim().replace(/\s+/g, ' ');
     
-    const applications = params.length > 0 
-      ? await c.env.DB.prepare(query).bind(...params).all()
-      : await c.env.DB.prepare(query).all();
+    const statement = whereClause.length > 0
+      ? c.env.DB.prepare(query).bind(...params)
+      : c.env.DB.prepare(query);
+      
+    const { results } = await statement.all();
+    debugInfo.resultsCount = results?.length || 0;
 
-    console.log('查询结果数量:', applications.results?.length || 0);
-    
-    // 如果有过滤条件，显示前几条数据的时间戳用于调试
-    if (params.length > 0 && applications.results && applications.results.length > 0) {
-      console.log('前3条数据的时间戳:', applications.results.slice(0, 3).map((app: any) => ({
-        id: app.id,
-        created_at: app.created_at,
-        created_at_date: new Date(app.created_at * 1000).toISOString()
-      })));
-    }
-    
-    return c.json({ applications: applications.results || [] });
-  } catch (error) {
-    return c.json({ error: 'Failed to fetch applications' }, 500);
+    return c.json({ 
+      applications: results || [],
+      debug: debugInfo
+    });
+  } catch (e) {
+    debugInfo.error = { message: e.message, stack: e.stack };
+    return c.json({ 
+      error: 'Failed to fetch applications',
+      debug: debugInfo
+    }, 500);
   }
 });
 
