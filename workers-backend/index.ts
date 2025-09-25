@@ -395,6 +395,7 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     const endDate = c.req.query('endDate');
     
     console.log('后端接收到的日期参数:', { startDate, endDate });
+    console.log('参数类型:', { startDateType: typeof startDate, endDateType: typeof endDate });
     
     let whereClause = '';
     let params: any[] = [];
@@ -404,9 +405,17 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       const startTimestamp = parseInt(startDate);
       const endTimestamp = parseInt(endDate);
       console.log('转换后的时间戳:', { startTimestamp, endTimestamp });
+      console.log('时间戳是否有效:', { 
+        startValid: !isNaN(startTimestamp), 
+        endValid: !isNaN(endTimestamp),
+        startDate: new Date(startTimestamp * 1000).toISOString(),
+        endDate: new Date(endTimestamp * 1000).toISOString()
+      });
       
       whereClause = ' WHERE la.created_at >= ? AND la.created_at <= ?';
       params = [startTimestamp, endTimestamp];
+    } else {
+      console.log('没有提供日期参数，返回所有数据');
     }
     
     let query = `
@@ -428,6 +437,15 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       : await c.env.DB.prepare(query).all();
 
     console.log('查询结果数量:', applications.results?.length || 0);
+    
+    // 如果有过滤条件，显示前几条数据的时间戳用于调试
+    if (params.length > 0 && applications.results && applications.results.length > 0) {
+      console.log('前3条数据的时间戳:', applications.results.slice(0, 3).map((app: any) => ({
+        id: app.id,
+        created_at: app.created_at,
+        created_at_date: new Date(app.created_at * 1000).toISOString()
+      })));
+    }
     
     return c.json({ applications: applications.results || [] });
   } catch (error) {
