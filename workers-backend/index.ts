@@ -412,7 +412,7 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
         endDate: new Date(endTimestamp * 1000).toISOString()
       });
       
-      whereClause = ' WHERE la.created_at >= ? AND la.created_at <= ?';
+      whereClause = ' WHERE created_at >= ? AND created_at <= ?';
       params = [startTimestamp, endTimestamp];
     } else {
       console.log('没有提供日期参数，返回所有数据');
