@@ -387,6 +387,24 @@ app.get('/api/admin/users', adminAuth, async (c) => {
   }
 });
 
+  // ===============================================================
+  // FORCE UPDATE TEST v1.8
+  // This endpoint is temporarily hardcoded to test the deployment pipeline.
+  // It should return a simple JSON object with a version number.
+  // ===============================================================
+  return c.json({ 
+    message: "Forced update test successful", 
+    version: "v1.8-force-test",
+    timestamp: new Date().toISOString(),
+    note: "If you see this, the deployment pipeline is working.",
+    applications: [], // Return empty array to prevent frontend errors
+    debug: {
+      version: "v1.8-force-test"
+    }
+  });
+>>>>>>> 6b525f8f9e6a138b30c2cfb0003ccc0f7cdff9cc
+});
+=======
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   const debugInfo: any = {
@@ -468,6 +486,24 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       debug: debugInfo
     }, 500);
   }
+});
+=======
+  // ===============================================================
+  // FORCE UPDATE TEST v1.8
+  // This endpoint is temporarily hardcoded to test the deployment pipeline.
+  // It should return a simple JSON object with a version number.
+  // ===============================================================
+  return c.json({ 
+    message: "Forced update test successful", 
+    version: "v1.8-force-test",
+    timestamp: new Date().toISOString(),
+    note: "If you see this, the deployment pipeline is working.",
+    applications: [], // Return empty array to prevent frontend errors
+    debug: {
+      version: "v1.8-force-test"
+    }
+  });
+>>>>>>> 6b525f8f9e6a138b30c2cfb0003ccc0f7cdff9cc
 });
 
 // 获取访客申请详情
