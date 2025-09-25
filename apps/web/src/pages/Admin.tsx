@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../config/api';
 import { enhancedFetch, safeLocalStorage } from '../utils/enhancedBrowserCompat';
+import { exportToExcel, getDateRange, formatDateForInput, type ExportData } from '../utils/excelExport';
 
 // 管理员登录表单组件
 interface AdminLoginFormProps {
@@ -157,6 +158,8 @@ const Admin: React.FC = () => {
   const [guestApplications, setGuestApplications] = useState<GuestApplication[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [applicationSteps, setApplicationSteps] = useState<any[]>([]);
+  const [exportDateRange, setExportDateRange] = useState(() => getDateRange(30)); // 默认最近30天
+  const [isExporting, setIsExporting] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -282,6 +285,73 @@ const Admin: React.FC = () => {
       'rejected': 'bg-red-100 text-red-800'
     };
     return colorMap[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  // 导出申请数据
+  const handleExportApplications = async () => {
+    setIsExporting(true);
+    try {
+      const token = safeLocalStorage.get('token');
+      if (!token) {
+        alert('请先登录');
+        return;
+      }
+
+      const headers = { 'Authorization': `Bearer ${token}` };
+      
+      // 获取指定日期范围的申请数据
+      const startTimestamp = Math.floor(new Date(exportDateRange.startDate).getTime() / 1000);
+      const endTimestamp = Math.floor(new Date(exportDateRange.endDate + 'T23:59:59').getTime() / 1000);
+      
+      const response = await enhancedFetch(
+        getApiUrl(`/api/admin/applications?startDate=${startTimestamp}&endDate=${endTimestamp}`), 
+        { headers }
+      );
+      
+      if (!response.ok) {
+        throw new Error('获取数据失败');
+      }
+      
+      const data = await response.json();
+      const applications = data.applications || [];
+      
+      if (applications.length === 0) {
+        alert('选择的日期范围内没有申请数据');
+        return;
+      }
+
+      // 转换数据格式用于导出
+      const exportData: ExportData[] = applications.map((app: any) => ({
+        id: app.id,
+        user_id: app.user_id || '',
+        phone: app.phone || '',
+        real_name: app.real_name || '',
+        id_number: app.id_number || '',
+        contact1_name: app.contact1_name || '',
+        contact1_phone: app.contact1_phone || '',
+        contact2_name: app.contact2_name || '',
+        contact2_phone: app.contact2_phone || '',
+        bank_card_number: app.bank_card_number || '',
+        withdrawal_amount: app.withdrawal_amount || 0,
+        installment_period: app.installment_period || 0,
+        current_step: app.current_step || 0,
+        status: app.status || 'pending',
+        created_at: app.created_at,
+        updated_at: app.updated_at
+      }));
+
+      // 导出Excel文件
+      const filename = `loan_applications_${exportDateRange.startDate}_to_${exportDateRange.endDate}`;
+      exportToExcel(exportData, filename);
+      
+      alert(`成功导出 ${applications.length} 条申请记录`);
+      
+    } catch (error) {
+      console.error('导出失败:', error);
+      alert('导出失败，请稍后重试');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // 登录处理函数
@@ -498,8 +568,53 @@ const Admin: React.FC = () => {
         {activeTab === 'applications' && (
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-bold text-trust-dark">贷款申请列表</h3>
-              <p className="text-sm text-gray-600 mt-1">包含所有用户申请（含访客申请）</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-bold text-trust-dark">贷款申请列表</h3>
+                  <p className="text-sm text-gray-600 mt-1">包含所有用户申请（含访客申请）</p>
+                </div>
+                
+                {/* 导出功能 */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-gray-600">开始日期:</label>
+                    <input
+                      type="date"
+                      value={exportDateRange.startDate}
+                      onChange={(e) => setExportDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                      className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <label className="text-sm text-gray-600">结束日期:</label>
+                    <input
+                      type="date"
+                      value={exportDateRange.endDate}
+                      onChange={(e) => setExportDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                      className="px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <button
+                    onClick={handleExportApplications}
+                    disabled={isExporting}
+                    className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  >
+                    {isExporting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>导出中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>导出Excel</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">

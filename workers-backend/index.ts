@@ -11,7 +11,7 @@ const app = new Hono<{ Bindings: Env; Variables: { user: any; admin: any } }>();
 
 // CORS设置 - 针对Safari和移动端浏览器严格优化
 app.use('*', cors({
-  origin: (origin) => {
+  origin: (origin, c) => {
     // Safari需要明确的origin匹配，不支持通配符
     const allowedOrigins = [
       'http://localhost:5173', 
@@ -30,7 +30,7 @@ app.use('*', cors({
       return origin;
     }
     
-    return false;
+    return null;
   },
   allowHeaders: [
     'Content-Type', 
@@ -390,7 +390,11 @@ app.get('/api/admin/users', adminAuth, async (c) => {
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   try {
-    const applications = await c.env.DB.prepare(`
+    // 获取查询参数
+    const startDate = c.req.query('startDate');
+    const endDate = c.req.query('endDate');
+    
+    let query = `
       SELECT la.*, 
              u.email, u.first_name, u.last_name,
              COUNT(up.id) as upload_count,
@@ -398,10 +402,21 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       FROM loan_applications la
       LEFT JOIN users u ON la.user_id = u.id
       LEFT JOIN uploads up ON la.id = up.application_id
-      LEFT JOIN application_steps aps ON la.id = aps.application_id
-      GROUP BY la.id
-      ORDER BY la.started_at DESC
-    `).all();
+      LEFT JOIN application_steps aps ON la.id = aps.application_id`;
+    
+    let params: any[] = [];
+    
+    // 如果提供了日期范围，添加WHERE条件
+    if (startDate && endDate) {
+      query += ' WHERE la.created_at >= ? AND la.created_at <= ?';
+      params = [parseInt(startDate), parseInt(endDate)];
+    }
+    
+    query += ' GROUP BY la.id ORDER BY la.started_at DESC';
+    
+    const applications = params.length > 0 
+      ? await c.env.DB.prepare(query).bind(...params).all()
+      : await c.env.DB.prepare(query).all();
 
     return c.json({ applications: applications.results || [] });
   } catch (error) {
