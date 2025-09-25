@@ -58,7 +58,7 @@ export const exportToExcel = (data: ExportData[], filename: string = 'loan_appli
       row.status,
       new Date(row.created_at * 1000).toLocaleString('zh-CN'),
       new Date(row.updated_at * 1000).toLocaleString('zh-CN')
-    ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(','))
+    ].map(field => `"'${String(field).replace(/"/g, '""')}"`).join(','))
   ].join('\n');
 
   // 添加BOM以支持中文
