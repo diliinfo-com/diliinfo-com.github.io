@@ -419,16 +419,20 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
     }
     
     let query = `
-      SELECT la.*, 
-             u.email, u.first_name, u.last_name,
-             COUNT(up.id) as upload_count,
-             COALESCE(MAX(aps.step_number), 0) as completed_steps
-      FROM loan_applications la
-      LEFT JOIN users u ON la.user_id = u.id
-      LEFT JOIN uploads up ON la.id = up.application_id
-      LEFT JOIN application_steps aps ON la.id = aps.application_id
+      SELECT 
+        la.*,
+        u.email,
+        u.first_name,
+        u.last_name,
+        (SELECT COUNT(*) FROM uploads WHERE application_id = la.id) as upload_count,
+        (SELECT COALESCE(MAX(step_number), 0) FROM application_steps WHERE application_id = la.id) as completed_steps
+      FROM 
+        loan_applications la
+      LEFT JOIN 
+        users u ON la.user_id = u.id
       ${whereClause}
-      GROUP BY la.id ORDER BY la.started_at DESC`;
+      ORDER BY 
+        la.started_at DESC`;
     
     console.log('最终查询SQL:', query);
     console.log('查询参数:', params);
