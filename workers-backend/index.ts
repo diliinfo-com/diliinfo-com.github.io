@@ -36,7 +36,8 @@ app.use('*', cors({
     'Content-Type', 
     'Authorization', 
     'Accept',
-    'X-Session-ID'
+    'X-Session-ID',
+    'Cache-Control'
   ],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: false, // Safari严格要求：避免Cookie问题
@@ -57,7 +58,7 @@ app.use('*', async (c, next) => {
   if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.github.io')) {
     c.header('Access-Control-Allow-Origin', origin || '*');
     c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Session-ID');
+    c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Session-ID, Cache-Control');
     c.header('Access-Control-Max-Age', '3600');
   }
   
@@ -387,24 +388,6 @@ app.get('/api/admin/users', adminAuth, async (c) => {
   }
 });
 
-  // ===============================================================
-  // FORCE UPDATE TEST v1.8
-  // This endpoint is temporarily hardcoded to test the deployment pipeline.
-  // It should return a simple JSON object with a version number.
-  // ===============================================================
-  return c.json({ 
-    message: "Forced update test successful", 
-    version: "v1.8-force-test",
-    timestamp: new Date().toISOString(),
-    note: "If you see this, the deployment pipeline is working.",
-    applications: [], // Return empty array to prevent frontend errors
-    debug: {
-      version: "v1.8-force-test"
-    }
-  });
->>>>>>> 6b525f8f9e6a138b30c2cfb0003ccc0f7cdff9cc
-});
-=======
 // 获取所有申请详情（包括访客申请）
 app.get('/api/admin/applications', adminAuth, async (c) => {
   const debugInfo: any = {
@@ -486,24 +469,6 @@ app.get('/api/admin/applications', adminAuth, async (c) => {
       debug: debugInfo
     }, 500);
   }
-});
-=======
-  // ===============================================================
-  // FORCE UPDATE TEST v1.8
-  // This endpoint is temporarily hardcoded to test the deployment pipeline.
-  // It should return a simple JSON object with a version number.
-  // ===============================================================
-  return c.json({ 
-    message: "Forced update test successful", 
-    version: "v1.8-force-test",
-    timestamp: new Date().toISOString(),
-    note: "If you see this, the deployment pipeline is working.",
-    applications: [], // Return empty array to prevent frontend errors
-    debug: {
-      version: "v1.8-force-test"
-    }
-  });
->>>>>>> 6b525f8f9e6a138b30c2cfb0003ccc0f7cdff9cc
 });
 
 // 获取访客申请详情
