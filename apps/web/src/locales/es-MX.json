@@ -484,6 +484,7 @@
     "invalid": "Información inválida",
     "phoneRequired": "Por favor, ingresa tu número de teléfono",
     "passwordMin": "La contraseña debe tener al menos 6 caracteres",
-    "passwordMismatch": "Las contraseñas no coinciden"
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "networkOffline": "Error de conexión. Verifica tu red e inténtalo de nuevo."
   }
-} 
+}

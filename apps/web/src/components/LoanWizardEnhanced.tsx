@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
@@ -36,13 +36,14 @@ interface LoanApplication {
 interface StepProps {
   data: LoanApplication;
   onUpdate: (data: Partial<LoanApplication>) => void;
-  onNext: () => void;
+  onNext: () => Promise<void>;
   onBack: () => void;
   updateApplicationStep?: (step: number, stepData: any) => Promise<void>;
+  isSavingStep: boolean;
 }
 
 // 第1步：用户注册
-const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep }) => {
+const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [phone, setPhone] = useState(data.phone || '');
   const [countryCode, setCountryCode] = useState('+52');
@@ -109,6 +110,21 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
     { code: '+7', name: 'Rusia', flag: '🇷🇺' }
   ];
 
+  const persistRegistrationStep = async (payload: any) => {
+    if (!updateApplicationStep) {
+      return true;
+    }
+
+    try {
+      await updateApplicationStep(1, payload);
+      return true;
+    } catch (error) {
+      console.error('Failed to persist registration step:', error);
+      alert(t('errors.networkOffline'));
+      return false;
+    }
+  };
+
   const handleCheckEligibility = async () => {
     if (!phone) {
       alert(t('errors.phoneRequired'));
@@ -150,14 +166,12 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         };
         onUpdate(updatedData);
 
-        if (updateApplicationStep) {
-          await updateApplicationStep(1, { 
-            phone: fullPhone, 
-            registered: true,
-            verified: true,
-            userId: result.user?.id
-          });
-        }
+        await persistRegistrationStep({ 
+          phone: fullPhone, 
+          registered: true,
+          verified: true,
+          userId: result.user?.id
+        });
 
         console.log('✅ User registered successfully');
       } else {
@@ -170,13 +184,11 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         };
         onUpdate(updatedData);
         
-        if (updateApplicationStep) {
-          await updateApplicationStep(1, { 
-            phone: fullPhone, 
-            registered: false,
-            verified: false
-          });
-        }
+        await persistRegistrationStep({ 
+          phone: fullPhone, 
+          registered: false,
+          verified: false
+        });
       }
     } catch (error) {
       console.error('❌ Failed to register user:', error);
@@ -189,20 +201,23 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
       };
       onUpdate(updatedData);
       
-      if (updateApplicationStep) {
-        await updateApplicationStep(1, { 
-          phone: fullPhone, 
-          registered: false,
-          verified: false
-        });
-      }
+      await persistRegistrationStep({ 
+        phone: fullPhone, 
+        registered: false,
+        verified: false
+      });
     } finally {
       setIsRegistering(false);
     }
+
   };
 
-  const handleContinue = () => {
-    onNext();
+  const handleContinue = async () => {
+    try {
+      await onNext();
+    } catch (error) {
+      console.error('Failed to continue to next step:', error);
+    }
   };
 
   return (
@@ -371,9 +386,10 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
                   {/* 继续按钮 */}
                   <button
                     onClick={handleContinue}
-                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg"
+                    disabled={isSavingStep}
+                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Continuar con mi Solicitud
+                    {isSavingStep ? t('common.loading') : 'Continuar con mi Solicitud'}
                   </button>
                 </div>
               )}
@@ -410,22 +426,27 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 };
 
 // 第2步：身份信息
-const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [idNumber, setIdNumber] = useState(data.idNumber || '');
   const [realName, setRealName] = useState(data.realName || '');
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!idNumber || !realName) {
       alert(t('errors.required'));
       return;
     }
     const stepData = { idNumber, realName };
     onUpdate(stepData);
-    if (updateApplicationStep) {
-      updateApplicationStep(2, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(2, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save identity step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -490,9 +511,10 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -503,7 +525,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
 };
 
 // 第3步：身份证上传
-const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [frontUploaded, setFrontUploaded] = useState(false);
   const [backUploaded, setBackUploaded] = useState(false);
@@ -549,16 +571,21 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
     input.click();
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!frontUploaded || !backUploaded) {
       alert(t('errors.required'));
       return;
     }
     const stepData = { frontUploaded, backUploaded };
-    if (updateApplicationStep) {
-      updateApplicationStep(3, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(3, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save ID upload step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -656,9 +683,10 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -669,24 +697,29 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
 };
 
 // 第4步：联系人信息
-const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [contact1Name, setContact1Name] = useState(data.contact1Name || '');
   const [contact1Phone, setContact1Phone] = useState(data.contact1Phone || '');
   const [contact2Name, setContact2Name] = useState(data.contact2Name || '');
   const [contact2Phone, setContact2Phone] = useState(data.contact2Phone || '');
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!contact1Name || !contact1Phone || !contact2Name || !contact2Phone) {
       alert(t('errors.required'));
       return;
     }
     const stepData = { contact1Name, contact1Phone, contact2Name, contact2Phone };
     onUpdate(stepData);
-    if (updateApplicationStep) {
-      updateApplicationStep(4, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(4, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save contacts step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -787,9 +820,10 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -800,7 +834,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
 };
 
 // 第5步：活体识别
-const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [videoUploaded, setVideoUploaded] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -841,16 +875,21 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
     input.click();
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!videoUploaded) {
       alert(t('errors.required'));
       return;
     }
     const stepData = { videoUploaded, videoFileName };
-    if (updateApplicationStep) {
-      updateApplicationStep(5, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(5, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save liveness step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -954,9 +993,10 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -967,7 +1007,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
 };
 
 // 第6步：征信授权
-const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [hasRead, setHasRead] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -981,16 +1021,21 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!agreed) {
       alert(t('errors.required'));
       return;
     }
     const stepData = { agreed, hasRead };
-    if (updateApplicationStep) {
-      updateApplicationStep(6, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(6, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save credit authorization step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -1090,10 +1135,10 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
         
         <button
           onClick={handleNext}
-          disabled={!agreed}
+          disabled={!agreed || isSavingStep}
           className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>Aceptar y Continuar</span>
+          <span>{isSavingStep ? t('common.loading') : 'Aceptar y Continuar'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -1104,7 +1149,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
 };
 
 // 第7步：银行卡信息
-const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [bankCardNumber, setBankCardNumber] = useState(data.bankCardNumber || '');
 
@@ -1120,7 +1165,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
     setBankCardNumber(formatted);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const cleanCardNumber = bankCardNumber.replace(/\s/g, '');
     if (!cleanCardNumber || cleanCardNumber.length < 16) {
       alert(t('errors.invalid'));
@@ -1128,10 +1173,15 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
     }
     const stepData = { bankCardNumber: cleanCardNumber };
     onUpdate(stepData);
-    if (updateApplicationStep) {
-      updateApplicationStep(7, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(7, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save bank card step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   return (
@@ -1192,9 +1242,10 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -1205,22 +1256,32 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
 };
 
 // 第8步：提交贷款申请
-const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, updateApplicationStep }) => {
+const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
+    if (isSavingStep || isSubmitting) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        alert(t('errors.networkOffline'));
+        return;
+      }
+
       // 模拟提交过程
       await new Promise(resolve => setTimeout(resolve, 2000));
       const stepData = { submitted: true, submittedAt: Date.now() };
       if (updateApplicationStep) {
         await updateApplicationStep(8, stepData);
       }
-      onNext();
+      await onNext();
     } catch (error) {
       console.error('Submit failed:', error);
+      alert(t('errors.networkOffline'));
     } finally {
       setIsSubmitting(false);
     }
@@ -1300,11 +1361,11 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
         
         <button
           onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50"
+          disabled={isSubmitting || isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span>{isSubmitting ? 'Enviando...' : 'Enviar Solicitud'}</span>
-          {!isSubmitting && (
+          <span>{(isSubmitting || isSavingStep) ? t('common.loading') : 'Enviar Solicitud'}</span>
+          {!(isSubmitting || isSavingStep) && (
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
             </svg>
@@ -1319,25 +1380,44 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
 const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(10);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
-          const stepData = { processed: true, processedAt: Date.now() };
-          if (updateApplicationStep) {
-            updateApplicationStep(9, stepData);
+          if (isProcessingRef.current) {
+            return prev;
           }
-          onNext();
-          return 0;
+
+          isProcessingRef.current = true;
+          const stepData = { processed: true, processedAt: Date.now() };
+          (async () => {
+            try {
+              if (updateApplicationStep) {
+                await updateApplicationStep(9, stepData);
+              }
+              await onNext();
+              clearInterval(timer);
+              setTimeLeft(0);
+            } catch (error) {
+              console.error('Failed to advance processing step:', error);
+              alert(t('errors.networkOffline'));
+              setTimeLeft(3);
+              isProcessingRef.current = false;
+            }
+          })();
+          return prev;
         }
         return prev - 1;
       });
     }, 1000);
 
-    return () => clearInterval(timer);
-  }, [onNext, updateApplicationStep]);
+    return () => {
+      isProcessingRef.current = false;
+      clearInterval(timer);
+    };
+  }, [onNext, updateApplicationStep, t]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
@@ -1406,7 +1486,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
 };
 
 // 第10步：审批通过
-const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep }) => {
+const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const approvedAmount = 100000; // 模拟审批金额
 
@@ -1444,16 +1524,22 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
         </div>
 
         <button
-          onClick={() => {
+          disabled={isSavingStep}
+          onClick={async () => {
             const stepData = { approved: true, approvedAmount, approvedAt: Date.now() };
-            if (updateApplicationStep) {
-              updateApplicationStep(10, stepData);
+            try {
+              if (updateApplicationStep) {
+                await updateApplicationStep(10, stepData);
+              }
+              await onNext();
+            } catch (error) {
+              console.error('Failed to proceed from approval step:', error);
+              alert(t('errors.networkOffline'));
             }
-            onNext();
           }}
-          className="w-full px-6 py-4 bg-green-600 text-white rounded-sm hover:bg-green-700 font-medium text-lg font-['Roboto','Helvetica_Neue',Arial,sans-serif] transition-colors duration-200"
+          className="w-full px-6 py-4 bg-green-600 text-white rounded-sm hover:bg-green-700 font-medium text-lg font-['Roboto','Helvetica_Neue',Arial,sans-serif] transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Retirar Ahora
+          {isSavingStep ? t('common.loading') : 'Retirar Ahora'}
         </button>
       </div>
     </div>
@@ -1461,7 +1547,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
 };
 
 // 第11步：提现设置
-const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep }) => {
+const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
   const [installmentPeriod, setInstallmentPeriod] = useState(data.installmentPeriod || 30);
@@ -1484,7 +1570,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
     });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const amount = parseFloat(withdrawalAmount.toString());
     if (!amount || amount <= 0 || amount > maxAmount) {
       alert(t('errors.invalid'));
@@ -1492,10 +1578,15 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
     }
     const stepData = { withdrawalAmount: amount, installmentPeriod };
     onUpdate(stepData);
-    if (updateApplicationStep) {
-      updateApplicationStep(11, stepData);
+    try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(11, stepData);
+      }
+      await onNext();
+    } catch (error) {
+      console.error('Failed to save withdrawal step:', error);
+      alert(t('errors.networkOffline'));
     }
-    onNext();
   };
 
   const totalRepayment = withdrawalAmount ? calculateTotalRepayment(parseFloat(withdrawalAmount.toString()), installmentPeriod) : 0;
@@ -1605,9 +1696,10 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
         
         <button
           onClick={handleNext}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2"
+          disabled={isSavingStep}
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-sm transition-colors duration-200 font-['Roboto','Helvetica_Neue',Arial,sans-serif] flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          <span>Siguiente</span>
+          <span>{isSavingStep ? t('common.loading') : 'Siguiente'}</span>
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -1630,14 +1722,17 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
       installmentPeriod: data.installmentPeriod
     };
     if (updateApplicationStep) {
-      updateApplicationStep(12, stepData);
+      updateApplicationStep(12, stepData).catch(error => {
+        console.error('Failed to record completion step:', error);
+        alert(t('errors.networkOffline'));
+      });
     }
     
     // 追踪贷款申请完成事件
     if (data.withdrawalAmount) {
       trackLoanApplicationComplete(data.withdrawalAmount, 'personal');
     }
-  }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod]);
+  }, [updateApplicationStep, data.withdrawalAmount, data.installmentPeriod, t]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
@@ -1710,6 +1805,7 @@ const LoanWizardEnhanced: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [applicationData, setApplicationData] = useState<LoanApplication>({ step: 1 });
   const totalSteps = 12;
+  const [isSavingStep, setIsSavingStep] = useState(false);
 
   // 初始化访客申请
   useEffect(() => {
@@ -1780,8 +1876,8 @@ const LoanWizardEnhanced: React.FC = () => {
     console.log('ApplicationData.isGuest:', applicationData.isGuest);
 
     if (!applicationData.id) {
-      console.error('❌ No application ID found!');
-      return;
+      console.error('No application ID found.');
+      throw new Error('Application ID is missing, cannot persist step.');
     }
 
     try {
@@ -1790,13 +1886,17 @@ const LoanWizardEnhanced: React.FC = () => {
         data: stepData,
         phone: applicationData.phone
       };
-      console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
+      console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
-      const result = await httpClient.putJson(`/api/applications/${applicationData.id}/step`, requestBody);
-      console.log('✅ Step update result:', result);
+      const result = await httpClient.putJson(
+        `/api/applications/${applicationData.id}/step`,
+        requestBody
+      );
+      console.log('Step update result:', result);
+      return result;
     } catch (error) {
-      console.error('❌ Failed to update application step:', error);
-      // 不阻断用户流程，允许继续下一步
+      console.error('Failed to update application step:', error);
+      throw error;
     }
   };
 
@@ -1812,15 +1912,37 @@ const LoanWizardEnhanced: React.FC = () => {
     });
   };
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-      // 更新申请步骤
-      updateApplicationStep(currentStep + 1, applicationData);
+  const nextStep = async () => {
+    if (isSavingStep) {
+      return;
+    }
+
+    if (currentStep >= totalSteps) {
+      return;
+    }
+
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      alert(t('errors.networkOffline'));
+      return;
+    }
+
+    const targetStep = currentStep + 1;
+    setIsSavingStep(true);
+    try {
+      await updateApplicationStep(targetStep, applicationData);
+      setCurrentStep(targetStep);
+    } catch (error) {
+      console.error('Failed to persist step progress:', error);
+      alert(t('errors.networkOffline'));
+    } finally {
+      setIsSavingStep(false);
     }
   };
 
   const prevStep = () => {
+    if (isSavingStep) {
+      return;
+    }
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
@@ -1832,7 +1954,8 @@ const LoanWizardEnhanced: React.FC = () => {
       onUpdate: updateData,
       onNext: nextStep,
       onBack: prevStep,
-      updateApplicationStep
+      updateApplicationStep,
+      isSavingStep
     };
 
     switch (currentStep) {

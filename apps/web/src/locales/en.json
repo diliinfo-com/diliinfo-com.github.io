@@ -414,6 +414,7 @@
     "invalid": "Invalid information",
     "phoneRequired": "Please enter your phone number",
     "passwordMin": "Password must be at least 6 characters",
-    "passwordMismatch": "Passwords do not match"
+    "passwordMismatch": "Passwords do not match",
+    "networkOffline": "Connection error. Please check your network and try again."
   }
-} 
+}
