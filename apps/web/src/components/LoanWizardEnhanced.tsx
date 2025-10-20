@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 import { safeStorage, safeDateParse, arrayCompat, smoothScroll } from '../utils/browserCompat';
@@ -1204,19 +1204,19 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">鉁?/span>
+              <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm text-slate-700">Verificaci贸n de Identidad</span>
+            <span className="text-sm text-slate-700">Verificacion de Identidad</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">鉁?/span>
+              <span className="text-white text-xs">✓</span>
             </div>
-            <span className="text-sm text-slate-700">Autorizaci贸n Crediticia</span>
+            <span className="text-sm text-slate-700">Autorizacion Crediticia</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center animate-pulse">
-              <span className="text-white text-xs">?</span>
+              <span className="text-white text-xs">•</span>
             </div>
             <span className="text-sm text-slate-700">Control de Riesgo</span>
           </div>
@@ -1224,18 +1224,18 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
             <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">-</span>
             </div>
-            <span className="text-sm text-gray-400">Aprobaci贸n Final</span>
+            <span className="text-sm text-gray-400">Aprobacion Final</span>
           </div>
         </div>
       </div>
     </div>
   );
 };
+// Step 10: Approved state
 
-// 绗?0姝ワ細瀹℃壒閫氳繃
 const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
-  const approvedAmount = 100000; // 妯℃嫙瀹℃壒閲戦
+  const approvedAmount = 100000; // Simulated approval amount
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
@@ -2216,25 +2216,4 @@ const LoanWizardEnhanced: React.FC = () => {
   );
 };
 
-export default LoanWizardEnhanced; 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default LoanWizardEnhanced;
