@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getApiUrl } from '../config/api';
 import { httpClient, checkBrowserCompatibility } from '../utils/httpClient';
 import { safeStorage, safeDateParse, arrayCompat, smoothScroll } from '../utils/browserCompat';
 import MobileFix from './MobileFix';
@@ -18,17 +17,17 @@ interface LoanApplication {
   phone?: string;
   isGuest?: boolean;
   userId?: string;
-  // 第2步：身份信息
+  // 绗?姝ワ細韬唤淇℃伅
   idNumber?: string;
   realName?: string;
-  // 第4步：联系人信息
+  // 绗?姝ワ細鑱旂郴浜轰俊鎭?
   contact1Name?: string;
   contact1Phone?: string;
   contact2Name?: string;
   contact2Phone?: string;
-  // 第7步：银行卡
+  // 绗?姝ワ細閾惰鍗?
   bankCardNumber?: string;
-  // 第11步：提现信息
+  // 绗?1姝ワ細鎻愮幇淇℃伅
   withdrawalAmount?: number;
   installmentPeriod?: number;
 }
@@ -42,178 +41,16 @@ interface StepProps {
   isSavingStep: boolean;
 }
 
-// 第1步：用户注册
-const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, updateApplicationStep, isSavingStep }) => {
+// 绗?姝ワ細鐢ㄦ埛娉ㄥ唽
+// Step 1: Credit offer view
+const Step1CreditOffer: React.FC<StepProps> = ({ onNext, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
-  const [phone, setPhone] = useState(data.phone || '');
-  const [countryCode, setCountryCode] = useState('+52');
-  const [showApprovedAmount, setShowApprovedAmount] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
-
-  const countryCodes = [
-    // 拉丁美洲国家（优先显示）
-    { code: '+52', name: 'México', flag: '🇲🇽' },
-    { code: '+1', name: 'Estados Unidos', flag: '🇺🇸' },
-    { code: '+1', name: 'Canadá', flag: '🇨🇦' },
-    { code: '+54', name: 'Argentina', flag: '🇦🇷' },
-    { code: '+55', name: 'Brasil', flag: '🇧🇷' },
-    { code: '+56', name: 'Chile', flag: '🇨🇱' },
-    { code: '+57', name: 'Colombia', flag: '🇨🇴' },
-    { code: '+58', name: 'Venezuela', flag: '🇻🇪' },
-    { code: '+51', name: 'Perú', flag: '🇵🇪' },
-    { code: '+593', name: 'Ecuador', flag: '🇪🇨' },
-    { code: '+591', name: 'Bolivia', flag: '🇧🇴' },
-    { code: '+595', name: 'Paraguay', flag: '🇵🇾' },
-    { code: '+598', name: 'Uruguay', flag: '🇺🇾' },
-    { code: '+506', name: 'Costa Rica', flag: '🇨🇷' },
-    { code: '+507', name: 'Panamá', flag: '🇵🇦' },
-    { code: '+503', name: 'El Salvador', flag: '🇸🇻' },
-    { code: '+502', name: 'Guatemala', flag: '🇬🇹' },
-    { code: '+504', name: 'Honduras', flag: '🇭🇳' },
-    { code: '+505', name: 'Nicaragua', flag: '🇳🇮' },
-    { code: '+53', name: 'Cuba', flag: '🇨🇺' },
-    { code: '+1', name: 'República Dominicana', flag: '🇩🇴' },
-
-    // 欧洲国家
-    { code: '+34', name: 'España', flag: '🇪🇸' },
-    { code: '+44', name: 'Reino Unido', flag: '🇬🇧' },
-    { code: '+33', name: 'Francia', flag: '🇫🇷' },
-    { code: '+49', name: 'Alemania', flag: '🇩🇪' },
-    { code: '+39', name: 'Italia', flag: '🇮🇹' },
-    { code: '+351', name: 'Portugal', flag: '🇵🇹' },
-    { code: '+31', name: 'Países Bajos', flag: '🇳🇱' },
-    { code: '+41', name: 'Suiza', flag: '🇨🇭' },
-    { code: '+43', name: 'Austria', flag: '🇦🇹' },
-    { code: '+32', name: 'Bélgica', flag: '🇧🇪' },
-
-    // 亚洲国家
-    { code: '+86', name: 'China', flag: '🇨🇳' },
-    { code: '+81', name: 'Japón', flag: '🇯🇵' },
-    { code: '+82', name: 'Corea del Sur', flag: '🇰🇷' },
-    { code: '+91', name: 'India', flag: '🇮🇳' },
-    { code: '+65', name: 'Singapur', flag: '🇸🇬' },
-    { code: '+60', name: 'Malasia', flag: '🇲🇾' },
-    { code: '+66', name: 'Tailandia', flag: '🇹🇭' },
-    { code: '+84', name: 'Vietnam', flag: '🇻🇳' },
-    { code: '+63', name: 'Filipinas', flag: '🇵🇭' },
-    { code: '+62', name: 'Indonesia', flag: '🇮🇩' },
-
-    // 其他重要国家
-    { code: '+61', name: 'Australia', flag: '🇦🇺' },
-    { code: '+64', name: 'Nueva Zelanda', flag: '🇳🇿' },
-    { code: '+27', name: 'Sudáfrica', flag: '🇿🇦' },
-    { code: '+20', name: 'Egipto', flag: '🇪🇬' },
-    { code: '+971', name: 'Emiratos Árabes Unidos', flag: '🇦🇪' },
-    { code: '+966', name: 'Arabia Saudí', flag: '🇸🇦' },
-    { code: '+972', name: 'Israel', flag: '🇮🇱' },
-    { code: '+90', name: 'Turquía', flag: '🇹🇷' },
-    { code: '+7', name: 'Rusia', flag: '🇷🇺' }
-  ];
-
-  const persistRegistrationStep = async (payload: any) => {
-    if (!updateApplicationStep) {
-      return true;
-    }
-
-    try {
-      await updateApplicationStep(1, payload);
-      return true;
-    } catch (error) {
-      console.error('Failed to persist registration step:', error);
-      alert(t('errors.networkOffline'));
-      return false;
-    }
-  };
-
-  const handleCheckEligibility = async () => {
-    if (!phone) {
-      alert(t('errors.phoneRequired'));
-      return;
-    }
-
-    const fullPhone = countryCode + phone;
-    setIsRegistering(true);
-
-    try {
-      // 直接进行用户注册（无需验证码）
-      console.log('📱 Registering user with phone:', fullPhone);
-      
-      // 调用verify-sms接口进行用户注册，使用固定验证码
-      const result = await httpClient.postJson('/api/auth/verify-sms', {
-        phone: fullPhone,
-        code: '123456', // 使用固定验证码
-        applicationId: data.id
-      }) as { 
-        success: boolean; 
-        error?: string; 
-        user?: { id: string; phone: string; phone_verified: boolean };
-        token?: string;
-        applicationId?: string;
-      };
-
-      console.log('✅ User registration result:', result);
-
-      if (result.success) {
-        // 显示审批金额
-        setShowApprovedAmount(true);
-        
-        // 用户已注册，申请已转换
-        const updatedData = {
-          phone: fullPhone,
-          isGuest: false, // 现在是注册用户
-          id: data.id,
-          userId: result.user?.id
-        };
-        onUpdate(updatedData);
-
-        await persistRegistrationStep({ 
-          phone: fullPhone, 
-          registered: true,
-          verified: true,
-          userId: result.user?.id
-        });
-
-        console.log('✅ User registered successfully');
-      } else {
-        // 如果注册失败，仍然显示审批金额，但保持访客状态
-        setShowApprovedAmount(true);
-        const updatedData = {
-          phone: fullPhone,
-          isGuest: true,
-          id: data.id
-        };
-        onUpdate(updatedData);
-        
-        await persistRegistrationStep({ 
-          phone: fullPhone, 
-          registered: false,
-          verified: false
-        });
-      }
-    } catch (error) {
-      console.error('❌ Failed to register user:', error);
-      // 如果注册失败，仍然显示审批金额，但保持访客状态
-      setShowApprovedAmount(true);
-      const updatedData = {
-        phone: fullPhone,
-        isGuest: true,
-        id: data.id
-      };
-      onUpdate(updatedData);
-      
-      await persistRegistrationStep({ 
-        phone: fullPhone, 
-        registered: false,
-        verified: false
-      });
-    } finally {
-      setIsRegistering(false);
-    }
-
-  };
 
   const handleContinue = async () => {
     try {
+      if (updateApplicationStep) {
+        await updateApplicationStep(1, { limitViewed: true });
+      }
       await onNext();
     } catch (error) {
       console.error('Failed to continue to next step:', error);
@@ -222,7 +59,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 overflow-x-hidden">
-      {/* 安全认证条 */}
+      {/* 安全认证栏 */}
       <div className="bg-slate-800 text-white py-2 px-4">
         <div className="max-w-4xl mx-auto flex items-center justify-center text-sm">
           <div className="flex items-center space-x-6">
@@ -252,147 +89,63 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
         <div className="max-w-2xl mx-auto w-full">
           {/* 主标题区域 */}
           <div className="text-center mb-8 lg:mb-12">
-            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">
-              ¡Préstamos con Interés Bajo!
-            </h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">Prestamos con interes bajo!</h1>
             <p className="text-slate-600 text-base lg:text-lg leading-relaxed">
-              Ingresa tu número de teléfono para ver tu límite de crédito aprobado
+              Tu evaluacion inicial esta lista. Continua para confirmar tus datos y recibir tu prestamo.
             </p>
             <div className="mt-4 text-sm text-slate-500">
-              Su información será protegida con encriptación de grado bancario
+              Su informacion sera protegida con encriptacion de grado bancario
             </div>
           </div>
 
-          {/* 表单卡片 */}
           <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
             <div className="p-2 sm:p-4 md:p-6 lg:p-8">
-              {!showApprovedAmount ? (
-                <div className="space-y-4 sm:space-y-6">
-                  {/* 手机号输入 */}
-                  <div>
-                    <label className="block text-sm sm:text-base font-semibold text-slate-800 mb-2 sm:mb-3">
-                      {t('loanWizard.step1.phoneLabel')}
-                    </label>
-                    <div className="flex w-full max-w-full overflow-hidden">
-                      <select
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-14 sm:w-16 md:w-20 lg:w-24 px-1 sm:px-2 py-2 sm:py-3 border border-slate-300 border-r-0 bg-slate-50 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-xs sm:text-sm flex-shrink-0 rounded-l-lg"
-                        disabled={showApprovedAmount}
-                      >
-                        {countryCodes.map((country) => (
-                          <option key={country.code} value={country.code}>
-                            {country.flag} {country.code}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder={t('loanWizard.step1.phonePlaceholder')}
-                        className="flex-1 min-w-0 w-0 px-2 sm:px-3 py-2 sm:py-3 border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-slate-800 transition-colors text-sm sm:text-base rounded-r-lg"
-                        disabled={showApprovedAmount}
-                      />
-                    </div>
-                    <div className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-500">
-                      Verificaremos su número para procesar su solicitud
-                    </div>
+              <div className="space-y-6">
+                <div className="text-center py-6">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
+                    <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
                   </div>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">Felicidades! Tu limite de credito preaprobado es:</h3>
+                  <div className="text-4xl lg:text-5xl font-bold text-emerald-600 mb-2">
+                    Hasta $50,000 <span className="text-2xl lg:text-3xl text-slate-600">MXN</span>
+                  </div>
+                  <p className="text-slate-600">
+                    Completa la solicitud para liberar tu credito en minutos.
+                  </p>
+                </div>
 
-                  {/* 提交按钮 */}
-                  <button
-                    onClick={handleCheckEligibility}
-                    disabled={!phone || isRegistering}
-                    className="w-full py-3 sm:py-4 bg-slate-800 text-white font-semibold text-base sm:text-lg rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg"
-                  >
-                    {isRegistering ? (
-                      <div className="flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                        Procesando solicitud...
-                      </div>
-                    ) : (
-                      'Ver Mi Límite de Crédito'
-                    )}
-                  </button>
-
-                  {/* 安全提示 */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <svg className="w-5 h-5 text-slate-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <h4 className="font-semibold text-slate-800 text-sm mb-1">Información Segura</h4>
-                        <p className="text-slate-600 text-sm leading-relaxed">
-                          Sus datos personales están protegidos con tecnología de encriptación SSL de 256 bits, 
-                          el mismo estándar utilizado por los bancos más importantes.
-                        </p>
-                      </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                  <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu prestamo:</h4>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                      <span className="text-slate-700">Tasa de interes baja: 15% OFF</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                      <span className="text-slate-700">Hasta 50,000 pesos de credito</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                      <span className="text-slate-700">Sin comision de procesamiento</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
+                      <span className="text-slate-700">Pago anticipado sin penalizacion</span>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* 结果展示 */}
-                  <div className="text-center py-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
-                      <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-800 mb-2">
-                      ¡Felicidades! Tu límite de crédito es:
-                    </h3>
-                    <div className="text-4xl lg:text-5xl font-bold text-emerald-600 mb-2">
-                      $50,000 <span className="text-2xl lg:text-3xl text-slate-600">MXN</span>
-                    </div>
-                    <p className="text-slate-600">
-                      Préstamo con interés bajo disponible ahora
-                    </p>
-                    {!data.isGuest && data.userId && (
-                      <div className="mt-3 inline-flex items-center px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-medium rounded-full">
-                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        Usuario registrado exitosamente
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* 优势展示 */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-                    <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu préstamo:</h4>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-700">Tasa de interés baja: 15% OFF</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-700">Hasta 100,000 pesos de crédito</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-700">Sin comisión de procesamiento</span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-700">Pago anticipado sin penalización</span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* 继续按钮 */}
-                  <button
-                    onClick={handleContinue}
-                    disabled={isSavingStep}
-                    className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {isSavingStep ? t('common.loading') : 'Continuar con mi Solicitud'}
-                  </button>
-                </div>
-              )}
+                <button
+                  onClick={handleContinue}
+                  disabled={isSavingStep}
+                  className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isSavingStep ? t('common.loading') : 'Continuar con mi Solicitud'}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -413,7 +166,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
               </div>
               <div className="flex items-center space-x-1">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812z" clipRule="evenodd" />
                 </svg>
                 <span>Proceso Transparente</span>
               </div>
@@ -423,9 +176,7 @@ const Step1UserRegistration: React.FC<StepProps> = ({ data, onUpdate, onNext, up
       </div>
     </div>
   );
-};
-
-// 第2步：身份信息
+};// 绗?姝ワ細韬唤淇℃伅
 const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [idNumber, setIdNumber] = useState(data.idNumber || '');
@@ -460,10 +211,10 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Información de Identidad
+              Informaci贸n de Identidad
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Completa tu información personal para continuar
+              Completa tu informaci贸n personal para continuar
             </p>
           </div>
         </div>
@@ -485,13 +236,13 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
 
         <div className="space-y-1 sm:space-y-2">
           <label className="block text-xs sm:text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-            Número de identificación <span className="text-red-500">*</span>
+            N煤mero de identificaci贸n <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
-            placeholder="Ingresa tu número de identificación"
+            placeholder="Ingresa tu n煤mero de identificaci贸n"
             className="w-full px-2 sm:px-3 py-2 sm:py-2.5 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
             maxLength={18}
           />
@@ -524,7 +275,7 @@ const Step2Identity: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   );
 };
 
-// 第3步：身份证上传
+// 绗?姝ワ細韬唤璇佷笂浼?
 const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [frontUploaded, setFrontUploaded] = useState(false);
@@ -538,21 +289,21 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
     if (type === 'front') {
       setFrontUploading(true);
       setFrontFileName(file.name);
-      // 模拟上传过程
+      // 妯℃嫙涓婁紶杩囩▼
       setTimeout(() => {
         setFrontUploading(false);
         setFrontUploaded(true);
-        // 追踪文件上传事件
+        // 杩借釜鏂囦欢涓婁紶浜嬩欢
         trackFileUpload('id_front', 1);
       }, 2000);
     } else {
       setBackUploading(true);
       setBackFileName(file.name);
-      // 模拟上传过程
+      // 妯℃嫙涓婁紶杩囩▼
       setTimeout(() => {
         setBackUploading(false);
         setBackUploaded(true);
-        // 追踪文件上传事件
+        // 杩借釜鏂囦欢涓婁紶浜嬩欢
         trackFileUpload('id_back', 1);
       }, 2000);
     }
@@ -599,10 +350,10 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Subir Identificación
+              Subir Identificaci贸n
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Sube fotos claras de tu identificación oficial
+              Sube fotos claras de tu identificaci贸n oficial
             </p>
           </div>
         </div>
@@ -611,14 +362,14 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-4xl text-gray-400">📄</div>
+            <div className="text-4xl text-gray-400">馃搫</div>
             <div>
-              <h4 className="font-medium">Frente de la identificación</h4>
+              <h4 className="font-medium">Frente de la identificaci贸n</h4>
               <p className="text-sm text-gray-500">Foto clara del frente de tu ID</p>
             </div>
             {frontUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">✓ {frontFileName}</div>
+                <div className="text-green-600">鉁?{frontFileName}</div>
                 <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : frontUploading ? (
@@ -641,14 +392,14 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
 
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-4xl text-gray-400">📄</div>
+            <div className="text-4xl text-gray-400">馃搫</div>
             <div>
-              <h4 className="font-medium">Reverso de la identificación</h4>
+              <h4 className="font-medium">Reverso de la identificaci贸n</h4>
               <p className="text-sm text-gray-500">Foto clara del reverso de tu ID</p>
             </div>
             {backUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">✓ {backFileName}</div>
+                <div className="text-green-600">鉁?{backFileName}</div>
                 <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : backUploading ? (
@@ -696,7 +447,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
   );
 };
 
-// 第4步：联系人信息
+// 绗?姝ワ細鑱旂郴浜轰俊鎭?
 const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [contact1Name, setContact1Name] = useState(data.contact1Name || '');
@@ -761,13 +512,13 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-                Número de teléfono <span className="text-red-500">*</span>
+                N煤mero de tel茅fono <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 value={contact1Phone}
                 onChange={(e) => setContact1Phone(e.target.value)}
-                placeholder="Teléfono del contacto"
+                placeholder="Tel茅fono del contacto"
                 className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
                 maxLength={11}
               />
@@ -792,13 +543,13 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-slate-800 font-['Roboto','Helvetica_Neue',Arial,sans-serif]">
-                Número de teléfono <span className="text-red-500">*</span>
+                N煤mero de tel茅fono <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 value={contact2Phone}
                 onChange={(e) => setContact2Phone(e.target.value)}
-                placeholder="Teléfono del contacto"
+                placeholder="Tel茅fono del contacto"
                 className="w-full px-4 py-3 border border-slate-300 rounded-sm text-sm font-['Roboto','Helvetica_Neue',Arial,sans-serif] focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent"
                 maxLength={11}
               />
@@ -833,7 +584,7 @@ const Step4Contacts: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   );
 };
 
-// 第5步：活体识别
+// 绗?姝ワ細娲讳綋璇嗗埆
 const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [videoUploaded, setVideoUploaded] = useState(false);
@@ -844,7 +595,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
 
   const startRecording = () => {
     setIsRecording(true);
-    // 模拟3秒录制
+    // 妯℃嫙3绉掑綍鍒?
     setTimeout(() => {
       setIsRecording(false);
       setVideoUploaded(true);
@@ -855,7 +606,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
   const handleVideoUpload = (file: File) => {
     setIsUploading(true);
     setVideoFileName(file.name);
-    // 模拟上传过程
+    // 妯℃嫙涓婁紶杩囩▼
     setTimeout(() => {
       setIsUploading(false);
       setVideoUploaded(true);
@@ -903,7 +654,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Verificación de Identidad
+              Verificaci贸n de Identidad
             </h2>
             <p className="text-sm text-slate-600 mt-1">
               Graba un video corto para verificar tu identidad
@@ -915,9 +666,9 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
       <div className="text-center">
         <div className="inline-block p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           <div className="space-y-4">
-            <div className="text-6xl">📹</div>
+            <div className="text-6xl">馃摴</div>
             <div>
-              <h4 className="font-medium mb-2">Verificación de Identidad en Vivo</h4>
+              <h4 className="font-medium mb-2">Verificaci贸n de Identidad en Vivo</h4>
               <p className="text-sm text-gray-500 mb-4">
                 Graba un video de 3 segundos mostrando tu rostro
               </p>
@@ -925,8 +676,8 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
 
             {videoUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">✓ {videoFileName}</div>
-                <div className="text-xs text-gray-500">Verificación completada</div>
+                <div className="text-green-600">鉁?{videoFileName}</div>
+                <div className="text-xs text-gray-500">Verificaci贸n completada</div>
               </div>
             ) : isUploading ? (
               <div className="space-y-2">
@@ -937,7 +688,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
               </div>
             ) : isRecording ? (
               <div className="space-y-2">
-                <div className="text-blue-600">Grabando... Mantén tu rostro visible</div>
+                <div className="text-blue-600">Grabando... Mant茅n tu rostro visible</div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{ width: '100%' }}></div>
                 </div>
@@ -947,7 +698,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
                 onClick={() => setShowVideoOptions(true)}
                 className="px-6 py-3 bg-slate-800 text-white rounded-sm hover:bg-slate-700 font-['Roboto','Helvetica_Neue',Arial,sans-serif]"
               >
-                Iniciar Verificación
+                Iniciar Verificaci贸n
               </button>
             ) : (
               <div className="space-y-3">
@@ -971,12 +722,12 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
       </div>
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
-        <h4 className="font-medium text-yellow-800 mb-2">Consejos para la grabación:</h4>
+        <h4 className="font-medium text-yellow-800 mb-2">Consejos para la grabaci贸n:</h4>
         <ul className="text-sm text-yellow-700 space-y-1">
-          <li>• Asegúrate de tener buena iluminación</li>
-          <li>• Mantén tu rostro centrado en la cámara</li>
-          <li>• No uses lentes oscuros o sombreros</li>
-          <li>• El video debe durar al menos 3 segundos</li>
+          <li>鈥?Aseg煤rate de tener buena iluminaci贸n</li>
+          <li>鈥?Mant茅n tu rostro centrado en la c谩mara</li>
+          <li>鈥?No uses lentes oscuros o sombreros</li>
+          <li>鈥?El video debe durar al menos 3 segundos</li>
         </ul>
       </div>
 
@@ -1006,7 +757,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
   );
 };
 
-// 第6步：征信授权
+// 绗?姝ワ細寰佷俊鎺堟潈
 const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [hasRead, setHasRead] = useState(false);
@@ -1014,7 +765,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
-    // 使用更宽松的判断条件，允许1像素的误差
+    // 浣跨敤鏇村鏉剧殑鍒ゆ柇鏉′欢锛屽厑璁?鍍忕礌鐨勮宸?
     const bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 1;
     if (bottom) {
       setHasRead(true);
@@ -1050,10 +801,10 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Autorización de Crédito
+              Autorizaci贸n de Cr茅dito
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Lee y acepta los términos de autorización crediticia
+              Lee y acepta los t茅rminos de autorizaci贸n crediticia
             </p>
           </div>
         </div>
@@ -1061,46 +812,46 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
 
       <div className="border border-slate-200 rounded-lg shadow-sm">
         <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
-          <h4 className="font-semibold text-slate-800">Acuerdo de Autorización Crediticia</h4>
+          <h4 className="font-semibold text-slate-800">Acuerdo de Autorizaci贸n Crediticia</h4>
         </div>
         <div
           className="p-4 h-64 overflow-y-auto text-sm leading-relaxed"
           onScroll={handleScroll}
         >
           <p className="mb-4">
-            <strong>Propósito de la Autorización:</strong><br />
-            Autorizo a DiliInfo Financial Services a consultar mi historial crediticio para evaluar mi solicitud de préstamo.
+            <strong>Prop贸sito de la Autorizaci贸n:</strong><br />
+            Autorizo a DiliInfo Financial Services a consultar mi historial crediticio para evaluar mi solicitud de pr茅stamo.
           </p>
           <p className="mb-4">
             <strong>Alcance de la Consulta:</strong><br />
-            La consulta incluirá mi historial de pagos, deudas actuales, y calificación crediticia general.
+            La consulta incluir谩 mi historial de pagos, deudas actuales, y calificaci贸n crediticia general.
           </p>
           <p className="mb-4">
-            <strong>Protección de Privacidad:</strong><br />
-            Toda la información obtenida será tratada de manera confidencial y utilizada únicamente para fines de evaluación crediticia.
+            <strong>Protecci贸n de Privacidad:</strong><br />
+            Toda la informaci贸n obtenida ser谩 tratada de manera confidencial y utilizada 煤nicamente para fines de evaluaci贸n crediticia.
           </p>
           <p className="mb-4">
-            <strong>Período de Validez:</strong><br />
-            Esta autorización es válida por 30 días a partir de la fecha de firma.
+            <strong>Per铆odo de Validez:</strong><br />
+            Esta autorizaci贸n es v谩lida por 30 d铆as a partir de la fecha de firma.
           </p>
           <p className="mb-4">
-            <strong>Otros Términos:</strong><br />
-            Puedes revocar esta autorización en cualquier momento contactando nuestro servicio al cliente.
+            <strong>Otros T茅rminos:</strong><br />
+            Puedes revocar esta autorizaci贸n en cualquier momento contactando nuestro servicio al cliente.
           </p>
           <p className="mb-4">
-            Al marcar la casilla a continuación, confirmas que has leído y entendido todos los términos de esta autorización.
+            Al marcar la casilla a continuaci贸n, confirmas que has le铆do y entendido todos los t茅rminos de esta autorizaci贸n.
           </p>
           <div className="text-center py-4">
             {hasRead ? (
-              <div className="text-green-600 font-medium">✓ Has leído el acuerdo completo</div>
+              <div className="text-green-600 font-medium">鉁?Has le铆do el acuerdo completo</div>
             ) : (
               <div className="space-y-2">
-                <div className="text-gray-500">Desplázate hasta el final para leer el acuerdo completo</div>
+                <div className="text-gray-500">Despl谩zate hasta el final para leer el acuerdo completo</div>
                 <button
                   onClick={() => setHasRead(true)}
                   className="text-slate-600 hover:text-slate-800 text-sm underline"
                 >
-                  He leído el acuerdo completo
+                  He le铆do el acuerdo completo
                 </button>
               </div>
             )}
@@ -1118,7 +869,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
           className="w-4 h-4 text-slate-600 border-slate-300 rounded focus:ring-slate-500"
         />
         <label htmlFor="credit-agreement" className="text-sm text-slate-700">
-          Acepto los términos de autorización crediticia
+          Acepto los t茅rminos de autorizaci贸n crediticia
         </label>
       </div>
 
@@ -1148,15 +899,15 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
   );
 };
 
-// 第7步：银行卡信息
+// 绗?姝ワ細閾惰鍗′俊鎭?
 const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [bankCardNumber, setBankCardNumber] = useState(data.bankCardNumber || '');
 
   const formatCardNumber = (value: string) => {
-    // 移除所有非数字字符
+    // 绉婚櫎鎵€鏈夐潪鏁板瓧瀛楃
     const numbers = value.replace(/\D/g, '');
-    // 每4位添加一个空格
+    // 姣?浣嶆坊鍔犱竴涓┖鏍?
     return numbers.replace(/(\d{4})/g, '$1 ').trim();
   };
 
@@ -1195,7 +946,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Información Bancaria
+              Informaci贸n Bancaria
             </h2>
             <p className="text-sm text-slate-600 mt-1">
               Ingresa los datos de tu tarjeta bancaria
@@ -1207,7 +958,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Número de Tarjeta Bancaria
+            N煤mero de Tarjeta Bancaria
           </label>
           <input
             type="text"
@@ -1220,11 +971,11 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">Información de Seguridad:</h4>
+          <h4 className="font-medium text-blue-800 mb-2">Informaci贸n de Seguridad:</h4>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>• Tu información bancaria está protegida con encriptación SSL</li>
-            <li>• Solo se utilizará para procesar tu préstamo</li>
-            <li>• Nunca compartimos tus datos con terceros</li>
+            <li>鈥?Tu informaci贸n bancaria est谩 protegida con encriptaci贸n SSL</li>
+            <li>鈥?Solo se utilizar谩 para procesar tu pr茅stamo</li>
+            <li>鈥?Nunca compartimos tus datos con terceros</li>
           </ul>
         </div>
       </div>
@@ -1255,7 +1006,7 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
   );
 };
 
-// 第8步：提交贷款申请
+// 绗?姝ワ細鎻愪氦璐锋鐢宠
 const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1272,7 +1023,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
         return;
       }
 
-      // 模拟提交过程
+      // 妯℃嫙鎻愪氦杩囩▼
       await new Promise(resolve => setTimeout(resolve, 2000));
       const stepData = { submitted: true, submittedAt: Date.now() };
       if (updateApplicationStep) {
@@ -1301,7 +1052,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
               Enviar Solicitud
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Revisa y confirma tu información antes de enviar
+              Revisa y confirma tu informaci贸n antes de enviar
             </p>
           </div>
         </div>
@@ -1311,15 +1062,11 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
         <h4 className="font-semibold mb-4 text-slate-800">Resumen de la Solicitud</h4>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-slate-600">Teléfono:</span>
-            <span className="text-slate-900">{data.phone}</span>
-          </div>
-          <div className="flex justify-between">
             <span className="text-slate-600">Nombre Completo:</span>
             <span className="text-slate-900">{data.realName}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-600">Número de ID:</span>
+            <span className="text-slate-600">N煤mero de ID:</span>
             <span className="text-slate-900">{data.idNumber}</span>
           </div>
           <div className="flex justify-between">
@@ -1338,12 +1085,12 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-        <h4 className="font-medium text-blue-800 mb-2">Información Importante:</h4>
+        <h4 className="font-medium text-blue-800 mb-2">Informaci贸n Importante:</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>• Tu solicitud será procesada en 24-48 horas</li>
-          <li>• Recibirás una notificación por SMS del resultado</li>
-          <li>• Mantén tu teléfono disponible para verificación</li>
-          <li>• Los fondos se depositarán en tu cuenta bancaria</li>
+          <li>鈥?Tu solicitud ser谩 procesada en 24-48 horas</li>
+          <li>鈥?Recibir谩s una notificaci贸n por SMS del resultado</li>
+          <li>鈥?Mant茅n tu tel茅fono disponible para verificaci贸n</li>
+          <li>鈥?Los fondos se depositar谩n en tu cuenta bancaria</li>
         </ul>
       </div>
 
@@ -1376,7 +1123,7 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
   );
 };
 
-// 第9步：审批中
+// 绗?姝ワ細瀹℃壒涓?
 const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep }) => {
   const { t } = useTranslation();
   const [timeLeft, setTimeLeft] = useState(10);
@@ -1433,7 +1180,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
               Procesando Solicitud
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Tu solicitud está siendo evaluada por nuestro sistema
+              Tu solicitud est谩 siendo evaluada por nuestro sistema
             </p>
           </div>
         </div>
@@ -1453,19 +1200,19 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
       </div>
 
       <div className="bg-slate-50 rounded-lg p-6 text-left">
-        <h4 className="font-semibold mb-4 text-slate-800">Proceso de Evaluación</h4>
+        <h4 className="font-semibold mb-4 text-slate-800">Proceso de Evaluaci贸n</h4>
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">✓</span>
+              <span className="text-white text-xs">鉁?/span>
             </div>
-            <span className="text-sm text-slate-700">Verificación de Identidad</span>
+            <span className="text-sm text-slate-700">Verificaci贸n de Identidad</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs">✓</span>
+              <span className="text-white text-xs">鉁?/span>
             </div>
-            <span className="text-sm text-slate-700">Autorización Crediticia</span>
+            <span className="text-sm text-slate-700">Autorizaci贸n Crediticia</span>
           </div>
           <div className="flex items-center space-x-3">
             <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center animate-pulse">
@@ -1477,7 +1224,7 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
             <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
               <span className="text-white text-xs">-</span>
             </div>
-            <span className="text-sm text-gray-400">Aprobación Final</span>
+            <span className="text-sm text-gray-400">Aprobaci贸n Final</span>
           </div>
         </div>
       </div>
@@ -1485,41 +1232,41 @@ const Step9Processing: React.FC<StepProps> = ({ onNext, updateApplicationStep })
   );
 };
 
-// 第10步：审批通过
+// 绗?0姝ワ細瀹℃壒閫氳繃
 const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
-  const approvedAmount = 100000; // 模拟审批金额
+  const approvedAmount = 100000; // 妯℃嫙瀹℃壒閲戦
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
       <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-4xl">🎉</span>
+          <span className="text-4xl">馃帀</span>
         </div>
         <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-          ¡Felicitaciones!
+          隆Felicitaciones!
         </h2>
         <p className="text-slate-600">Tu solicitud ha sido aprobada exitosamente</p>
       </div>
 
       <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-        <h4 className="font-semibold text-green-800 mb-4">Resultado de la Aprobación</h4>
+        <h4 className="font-semibold text-green-800 mb-4">Resultado de la Aprobaci贸n</h4>
         <div className="space-y-2">
           <div className="text-3xl font-bold text-green-600">
             ${approvedAmount.toLocaleString()}
           </div>
-          <div className="text-sm text-green-700">Monto aprobado para tu préstamo</div>
+          <div className="text-sm text-green-700">Monto aprobado para tu pr茅stamo</div>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-800 mb-2">Condiciones del Préstamo:</h4>
+          <h4 className="font-medium text-blue-800 mb-2">Condiciones del Pr茅stamo:</h4>
           <div className="text-sm text-blue-700 space-y-1 text-left">
-            <div>• Tasa de interés competitiva</div>
-            <div>• Opciones de pago flexibles</div>
-            <div>• Sin comisiones por adelantado</div>
-            <div>• Pago anticipado sin penalización</div>
+            <div>鈥?Tasa de inter茅s competitiva</div>
+            <div>鈥?Opciones de pago flexibles</div>
+            <div>鈥?Sin comisiones por adelantado</div>
+            <div>鈥?Pago anticipado sin penalizaci贸n</div>
           </div>
         </div>
 
@@ -1546,7 +1293,7 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
   );
 };
 
-// 第11步：提现设置
+// 绗?1姝ワ細鎻愮幇璁剧疆
 const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
   const [withdrawalAmount, setWithdrawalAmount] = useState(data.withdrawalAmount || '');
@@ -1554,7 +1301,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
   const maxAmount = 100000;
 
   const calculateTotalRepayment = (principal: number, days: number) => {
-    const dailyRate = 0.03; // 3% 日利率
+    const dailyRate = 0.03; // 3% 鏃ュ埄鐜?
     const totalRepayment = principal * Math.pow(1 + dailyRate, days);
     return totalRepayment;
   };
@@ -1603,10 +1350,10 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
           </div>
           <div>
             <h2 className="text-xl font-bold text-slate-900 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-              Configuración de Retiro
+              Configuraci贸n de Retiro
             </h2>
             <p className="text-sm text-slate-600 mt-1">
-              Configura el monto y período de pago
+              Configura el monto y per铆odo de pago
             </p>
           </div>
         </div>
@@ -1634,7 +1381,7 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">
-            Período de Pago
+            Per铆odo de Pago
           </label>
           <div className="grid grid-cols-3 gap-3">
             {[8, 15, 30].map((period) => (
@@ -1646,8 +1393,8 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
                   : 'border-slate-300 hover:border-slate-400'
                   }`}
               >
-                <div className="font-medium">{period} días</div>
-                <div className="text-sm text-slate-500">{period} días</div>
+                <div className="font-medium">{period} d铆as</div>
+                <div className="text-sm text-slate-500">{period} d铆as</div>
               </button>
             ))}
           </div>
@@ -1658,15 +1405,15 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
             <h4 className="font-semibold mb-3 text-slate-800">Plan de Pago</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600">Monto del Préstamo:</span>
+                <span className="text-slate-600">Monto del Pr茅stamo:</span>
                 <span className="text-slate-900">${parseFloat(withdrawalAmount.toString()).toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Período de Pago:</span>
-                <span className="text-slate-900">{installmentPeriod} días</span>
+                <span className="text-slate-600">Per铆odo de Pago:</span>
+                <span className="text-slate-900">{installmentPeriod} d铆as</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600">Tasa de Interés:</span>
+                <span className="text-slate-600">Tasa de Inter茅s:</span>
                 <span className="text-slate-900">3% diario</span>
               </div>
               <hr className="my-2 border-slate-200" />
@@ -1709,11 +1456,11 @@ const Step11Withdrawal: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack,
   );
 };
 
-// 第12步：提现完成
+// 绗?2姝ワ細鎻愮幇瀹屾垚
 const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) => {
   const { t } = useTranslation();
 
-  // 在组件加载时记录完成状态
+  // 鍦ㄧ粍浠跺姞杞芥椂璁板綍瀹屾垚鐘舵€?
   useEffect(() => {
     const stepData = {
       completed: true,
@@ -1728,7 +1475,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
       });
     }
     
-    // 追踪贷款申请完成事件
+    // 杩借釜璐锋鐢宠瀹屾垚浜嬩欢
     if (data.withdrawalAmount) {
       trackLoanApplicationComplete(data.withdrawalAmount, 'personal');
     }
@@ -1738,10 +1485,10 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
       <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-4xl">✅</span>
+          <span className="text-4xl">鉁?/span>
         </div>
         <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-          ¡Retiro Exitoso!
+          隆Retiro Exitoso!
         </h2>
         <p className="text-slate-600">Tu solicitud ha sido procesada correctamente</p>
       </div>
@@ -1758,8 +1505,8 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
             <span className="text-slate-900">****{data.bankCardNumber?.slice(-4)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-600">Período de Pago:</span>
-            <span className="text-slate-900">{data.installmentPeriod} días</span>
+            <span className="text-slate-600">Per铆odo de Pago:</span>
+            <span className="text-slate-900">{data.installmentPeriod} d铆as</span>
           </div>
           <div className="flex justify-between">
             <span className="text-slate-600">Tiempo de Llegada:</span>
@@ -1772,10 +1519,10 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="font-medium text-blue-800 mb-2">Consejos Importantes:</h4>
           <ul className="text-sm text-blue-700 space-y-1 text-left">
-            <li>• Verifica tu cuenta bancaria en los próximos minutos</li>
-            <li>• Recibirás una notificación SMS de confirmación</li>
-            <li>• Recuerda la fecha de vencimiento de tu pago</li>
-            <li>• Contacta soporte si tienes alguna pregunta</li>
+            <li>鈥?Verifica tu cuenta bancaria en los pr贸ximos minutos</li>
+            <li>鈥?Recibir谩s una notificaci贸n SMS de confirmaci贸n</li>
+            <li>鈥?Recuerda la fecha de vencimiento de tu pago</li>
+            <li>鈥?Contacta soporte si tienes alguna pregunta</li>
           </ul>
         </div>
 
@@ -1798,7 +1545,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
   );
 };
 
-// 主向导组件
+// 涓诲悜瀵肩粍浠?
 // Main component for the loan application wizard
 const LoanWizardEnhanced: React.FC = () => {
   const { t } = useTranslation();
@@ -1807,14 +1554,14 @@ const LoanWizardEnhanced: React.FC = () => {
   const totalSteps = 12;
   const [isSavingStep, setIsSavingStep] = useState(false);
 
-  // 初始化访客申请
+  // 鍒濆鍖栬瀹㈢敵璇?
   useEffect(() => {
-    // 检查浏览器兼容性
+    // 妫€鏌ユ祻瑙堝櫒鍏煎鎬?
     checkBrowserCompatibility();
     
     if (!applicationData.id) {
       createGuestApplication();
-      // 追踪贷款申请开始事件
+      // 杩借釜璐锋鐢宠寮€濮嬩簨浠?
       trackLoanApplicationStart('personal');
     }
   }, []);
@@ -1823,10 +1570,10 @@ const LoanWizardEnhanced: React.FC = () => {
     console.log('=== createGuestApplication called ===');
     const sessionId = safeStorage.getItem('sessionId') || 'guest-' + Date.now();
     safeStorage.setItem('sessionId', sessionId);
-    console.log('🔑 Session ID:', sessionId);
+    console.log('馃攽 Session ID:', sessionId);
 
     try {
-      console.log('🚀 Creating guest application...');
+      console.log('馃殌 Creating guest application...');
       
       const result = await httpClient.postJson('/api/applications/guest', {}, {
         headers: {
@@ -1839,22 +1586,22 @@ const LoanWizardEnhanced: React.FC = () => {
         message?: string;
       };
 
-      console.log('✅ Guest application result:', result);
+      console.log('鉁?Guest application result:', result);
 
       const newData = {
         id: result.applicationId,
         sessionId: result.sessionId,
         isGuest: true
       };
-      console.log('📝 Setting application data:', newData);
+      console.log('馃摑 Setting application data:', newData);
 
       setApplicationData(prev => ({
         ...prev,
         ...newData
       }));
     } catch (error) {
-      console.error('❌ Failed to create guest application:', error);
-      // 如果创建失败，生成一个临时ID以便继续流程
+      console.error('鉂?Failed to create guest application:', error);
+      // 濡傛灉鍒涘缓澶辫触锛岀敓鎴愪竴涓复鏃禝D浠ヤ究缁х画娴佺▼
       const fallbackData = {
         id: crypto.randomUUID(),
         sessionId: sessionId,
@@ -1960,7 +1707,7 @@ const LoanWizardEnhanced: React.FC = () => {
 
     switch (currentStep) {
       case 1:
-        return <Step1UserRegistration {...stepProps} />;
+        return <Step1CreditOffer {...stepProps} />;
       case 2:
         return <Step2Identity {...stepProps} />;
       case 3:
@@ -1984,29 +1731,29 @@ const LoanWizardEnhanced: React.FC = () => {
       case 12:
         return <Step12Complete {...stepProps} />;
       default:
-        return <div>未知步骤</div>;
+        return <div>鏈煡姝ラ</div>;
     }
   };
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-white to-slate-100 min-h-screen">
-      {/* Hero Section - 完整的原版介绍内容 */}
+      {/* Hero Section - 瀹屾暣鐨勫師鐗堜粙缁嶅唴瀹?*/}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
-            {/* 左侧文字内容 */}
+            {/* 宸︿晶鏂囧瓧鍐呭 */}
             <div className="space-y-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-3 sm:mb-4 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                  Préstamos Personales Seguros
+                  Pr茅stamos Personales Seguros
                 </h1>
                 <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-                  Obtén el financiamiento que necesitas con tasas competitivas y proceso 100% digital. 
-                  Regulados por CNBV y con la máxima seguridad en el manejo de tus datos.
+                  Obt茅n el financiamiento que necesitas con tasas competitivas y proceso 100% digital. 
+                  Regulados por CNBV y con la m谩xima seguridad en el manejo de tus datos.
                 </p>
               </div>
               
-              {/* características principales */}
+              {/* caracter铆sticas principales */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -2014,7 +1761,7 @@ const LoanWizardEnhanced: React.FC = () => {
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-slate-700">Aprobación en 2 minutos</span>
+                  <span className="text-sm font-medium text-slate-700">Aprobaci贸n en 2 minutos</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -2044,25 +1791,25 @@ const LoanWizardEnhanced: React.FC = () => {
               </div>
             </div>
 
-            {/* 右侧图片内容 */}
+            {/* 鍙充晶鍥剧墖鍐呭 */}
             <div className="space-y-6">
-              {/* 主要图片 */}
+              {/* 涓昏鍥剧墖 */}
               <div className="relative">
                 <img 
                   src="/images/hero-financial-security.jpg" 
-                  alt="Seguridad Financiera - Préstamos Seguros"
+                  alt="Seguridad Financiera - Pr茅stamos Seguros"
                   className="w-full h-64 lg:h-80 object-cover rounded-lg shadow-lg"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent rounded-lg"></div>
                 <div className="absolute bottom-4 left-4 right-4">
                   <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4">
                     <h3 className="font-semibold text-slate-800 text-sm mb-2">Proceso 100% Digital</h3>
-                    <p className="text-xs text-slate-600">Solicita desde la comodidad de tu hogar</p>
+                    <p className="text-xs text-slate-600">Revisa tu limite preaprobado antes de continuar</p>
                   </div>
                 </div>
               </div>
 
-              {/* 认证标识 */}
+              {/* 璁よ瘉鏍囪瘑 */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
                   <img 
@@ -2071,7 +1818,7 @@ const LoanWizardEnhanced: React.FC = () => {
                     className="w-12 h-12 mx-auto mb-3 object-contain"
                   />
                   <h3 className="font-semibold text-slate-800 text-sm mb-1">CNBV</h3>
-                  <p className="text-xs text-slate-600">Regulado</p>
+                  <p className="text-xs text-slate-600">Solicita desde la comodidad de tu hogar</p>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 text-center">
                   <img 
@@ -2080,7 +1827,7 @@ const LoanWizardEnhanced: React.FC = () => {
                     className="w-12 h-12 mx-auto mb-3 object-contain"
                   />
                   <h3 className="font-semibold text-slate-800 text-sm mb-1">SSL</h3>
-                  <p className="text-xs text-slate-600">256-bit</p>
+                  <p className="text-xs text-slate-600">Regulado</p>
                 </div>
               </div>
             </div>
@@ -2088,15 +1835,15 @@ const LoanWizardEnhanced: React.FC = () => {
         </div>
       </div>
 
-      {/* 桌面端Full-width，移动端适配 */}
+      {/* 妗岄潰绔疐ull-width锛岀Щ鍔ㄧ閫傞厤 */}
       <div className="w-full">
-        {/* 进度条 - 固定在顶部 */}
+        {/* 杩涘害鏉?- 鍥哄畾鍦ㄩ《閮?*/}
         <div className="bg-white border-b border-slate-200 shadow-sm">
           <div className="max-w-6xl mx-auto px-2 sm:px-4 py-2 sm:py-3 lg:py-4">
             <div className="flex items-center justify-between mb-2 sm:mb-3">
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold text-slate-800">
-                  Solicitud de Préstamo
+                  Solicitud de Pr茅stamo
                 </h2>
                 <div className="hidden lg:flex items-center space-x-2 text-sm text-slate-600">
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -2115,7 +1862,7 @@ const LoanWizardEnhanced: React.FC = () => {
               </div>
             </div>
             
-            {/* 进度条 */}
+            {/* 杩涘害鏉?*/}
             <div className="w-full bg-slate-200 rounded-full h-2">
               <div
                 className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-500 ease-out"
@@ -2125,20 +1872,20 @@ const LoanWizardEnhanced: React.FC = () => {
           </div>
         </div>
 
-        {/* 主内容区域 */}
+        {/* 涓诲唴瀹瑰尯鍩?*/}
         <div className="w-full">
-          {/* 桌面端：Full-width容器，移动端：适配容器 */}
+          {/* 妗岄潰绔細Full-width瀹瑰櫒锛岀Щ鍔ㄧ锛氶€傞厤瀹瑰櫒 */}
           <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-6 lg:py-8">
             <div className="flex flex-col lg:flex-row lg:space-x-8">
-              {/* 左侧：步骤内容 (桌面端占2/3，移动端全宽) */}
+              {/* 宸︿晶锛氭楠ゅ唴瀹?(妗岄潰绔崰2/3锛岀Щ鍔ㄧ鍏ㄥ) */}
               <div className="flex-1 lg:max-w-3xl min-w-0">
                 <div className="bg-white rounded-lg shadow-lg border border-slate-200 overflow-hidden">
                   {renderStep()}
                 </div>
 
-                {/* 下方额外信息内容 - 包含所有原版的丰富内容 */}
+                {/* 涓嬫柟棰濆淇℃伅鍐呭 - 鍖呭惈鎵€鏈夊師鐗堢殑涓板瘜鍐呭 */}
                 <div className="mt-6 sm:mt-8 space-y-6 sm:space-y-8">
-                  {/* 简单流程介绍 */}
+                  {/* 绠€鍗曟祦绋嬩粙缁?*/}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-4 sm:p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
                       Proceso Simple en 3 Pasos
@@ -2148,48 +1895,48 @@ const LoanWizardEnhanced: React.FC = () => {
                         <div className="relative mb-4">
                           <img 
                             src="/images/step-1-phone.jpg" 
-                            alt="Paso 1: Verificación telefónica"
+                            alt="Paso 1: Oferta inicial"
                             className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
                           />
                           <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
                             1
                           </div>
                         </div>
-                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Verificación</h4>
-                        <p className="text-xs text-slate-600">Ingresa tu teléfono y verifica tu elegibilidad</p>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Oferta inicial</h4>
+                        <p className="text-xs text-slate-600">256-bit</p>
                       </div>
                       <div className="text-center">
                         <div className="relative mb-4">
                           <img 
                             src="/images/step-2-form.jpg" 
-                            alt="Paso 2: Completar información"
+                            alt="Paso 2: Completar informaci贸n"
                             className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
                           />
                           <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
                             2
                           </div>
                         </div>
-                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Información</h4>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Informaci贸n</h4>
                         <p className="text-xs text-slate-600">Completa tus datos personales y financieros</p>
                       </div>
                       <div className="text-center">
                         <div className="relative mb-4">
                           <img 
                             src="/images/step-3-approval.jpg" 
-                            alt="Paso 3: Aprobación y desembolso"
+                            alt="Paso 3: Aprobaci贸n y desembolso"
                             className="w-20 h-20 mx-auto rounded-full object-cover shadow-md"
                           />
                           <div className="absolute -top-2 -right-2 w-8 h-8 bg-slate-800 text-white rounded-full flex items-center justify-center text-sm font-bold">
                             3
                           </div>
                         </div>
-                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación</h4>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobaci贸n</h4>
                         <p className="text-xs text-slate-600">Recibe tu dinero en minutos</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* beneficios con imágenes */}
+                  {/* beneficios con im谩genes */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
                       Beneficios Exclusivos
@@ -2198,12 +1945,12 @@ const LoanWizardEnhanced: React.FC = () => {
                       <div className="flex items-start space-x-4">
                         <img 
                           src="/images/benefit-fast-approval.jpg" 
-                          alt="Aprobación Rápida"
+                          alt="Aprobaci贸n R谩pida"
                           className="w-16 h-16 rounded-lg object-cover shadow-sm flex-shrink-0"
                         />
                         <div>
-                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobación Instantánea</h4>
-                          <p className="text-xs text-slate-600">Respuesta automática en menos de 2 minutos usando tecnología avanzada de análisis crediticio.</p>
+                          <h4 className="font-semibold text-slate-800 text-sm mb-2">Aprobaci贸n Instant谩nea</h4>
+                          <p className="text-xs text-slate-600">Respuesta automatica en menos de 2 minutos usando tecnologia avanzada de analisis crediticio.</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-4">
@@ -2236,7 +1983,7 @@ const LoanWizardEnhanced: React.FC = () => {
                         />
                         <div>
                           <h4 className="font-semibold text-slate-800 text-sm mb-2">Soporte Especializado</h4>
-                          <p className="text-xs text-slate-600">Equipo de atención al cliente disponible 24/7 para resolver todas tus dudas.</p>
+                          <p className="text-xs text-slate-600">Equipo de atencion al cliente disponible 24/7 para resolver todas tus dudas.</p>
                         </div>
                       </div>
                     </div>
@@ -2252,18 +1999,18 @@ const LoanWizardEnhanced: React.FC = () => {
                         <div className="flex items-start space-x-4 mb-4">
                           <img 
                             src="/images/testimonial-maria.jpg" 
-                            alt="María González - Cliente satisfecha"
+                            alt="Mar铆a Gonz谩lez - Cliente satisfecha"
                             className="w-12 h-12 rounded-full object-cover shadow-sm"
                           />
                           <div>
-                            <h4 className="font-semibold text-slate-800 text-sm">María González</h4>
+                            <h4 className="font-semibold text-slate-800 text-sm">Mar铆a Gonz谩lez</h4>
                             <div className="flex text-yellow-400 text-sm">
-                              {'★'.repeat(5)}
+                              {'鈽?.repeat(5)}
                             </div>
                           </div>
                         </div>
                         <p className="text-sm text-slate-600 italic">
-                          "Increíble lo rápido que fue todo el proceso. En menos de 30 minutos tenía el dinero en mi cuenta. 
+                          "Incre铆ble lo r谩pido que fue todo el proceso. En menos de 30 minutos ten铆a el dinero en mi cuenta. 
                           El equipo de soporte fue muy profesional y me explicaron todo claramente."
                         </p>
                       </div>
@@ -2271,69 +2018,69 @@ const LoanWizardEnhanced: React.FC = () => {
                         <div className="flex items-start space-x-4 mb-4">
                           <img 
                             src="/images/testimonial-carlos.jpg" 
-                            alt="Carlos Rodríguez - Cliente satisfecho"
+                            alt="Carlos Rodr铆guez - Cliente satisfecho"
                             className="w-12 h-12 rounded-full object-cover shadow-sm"
                           />
                           <div>
-                            <h4 className="font-semibold text-slate-800 text-sm">Carlos Rodríguez</h4>
+                            <h4 className="font-semibold text-slate-800 text-sm">Carlos Rodr铆guez</h4>
                             <div className="flex text-yellow-400 text-sm">
-                              {'★'.repeat(5)}
+                              {'鈽?.repeat(5)}
                             </div>
                           </div>
                         </div>
                         <p className="text-sm text-slate-600 italic">
-                          "Las tasas son realmente competitivas y no hay sorpresas. Todo está muy claro desde el inicio. 
+                          "Las tasas son realmente competitivas y no hay sorpresas. Todo est谩 muy claro desde el inicio. 
                           Definitivamente recomiendo este servicio a cualquiera que necesite financiamiento."
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Seguridad y regulación */}
+                  {/* Seguridad y regulaci贸n */}
                   <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200 p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-6 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-                      Máxima Seguridad y Regulación
+                      M谩xima Seguridad y Regulaci贸n
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
                         <img 
                           src="/images/security-encryption.jpg" 
-                          alt="Encriptación de datos"
+                          alt="Encriptaci贸n de datos"
                           className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
                         />
-                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Encriptación SSL</h4>
-                        <p className="text-xs text-slate-600">Todos tus datos están protegidos con encriptación de nivel bancario SSL 256-bit.</p>
+                        <h4 className="font-semibold text-slate-800 text-sm mb-2">Encriptaci贸n SSL</h4>
+                        <p className="text-xs text-slate-600">Todos tus datos estan protegidos con encriptacion de nivel bancario SSL 256-bit.</p>
                       </div>
                       <div className="text-center">
                         <img 
                           src="/images/regulation-cnbv.jpg" 
-                          alt="Regulación CNBV"
+                          alt="Regulaci贸n CNBV"
                           className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
                         />
                         <h4 className="font-semibold text-slate-800 text-sm mb-2">CNBV Regulado</h4>
-                        <p className="text-xs text-slate-600">Autorizados y supervisados por la Comisión Nacional Bancaria y de Valores.</p>
+                        <p className="text-xs text-slate-600">Autorizados y supervisados por la Comision Nacional Bancaria y de Valores.</p>
                       </div>
                       <div className="text-center">
                         <img 
                           src="/images/privacy-protection.jpg" 
-                          alt="Protección de privacidad"
+                          alt="Protecci贸n de privacidad"
                           className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md mb-4"
                         />
                         <h4 className="font-semibold text-slate-800 text-sm mb-2">Privacidad Total</h4>
-                        <p className="text-xs text-slate-600">Cumplimos con todas las normativas de protección de datos personales.</p>
+                        <p className="text-xs text-slate-600">Cumplimos con todas las normativas de proteccion de datos personales.</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 右侧：信息面板 (桌面端显示，移动端隐藏) */}
+              {/* 鍙充晶锛氫俊鎭潰鏉?(妗岄潰绔樉绀猴紝绉诲姩绔殣钘? */}
               <div className="hidden lg:block lg:w-80 xl:w-96 lg:flex-shrink-0">
                 <div className="sticky top-24 space-y-6">
-                  {/* 安全保障 */}
+                  {/* 瀹夊叏淇濋殰 */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-4">
-                      Garantías de Seguridad
+                      Garant铆as de Seguridad
                     </h3>
                     <div className="space-y-4">
                       <div className="flex items-start space-x-3">
@@ -2343,8 +2090,8 @@ const LoanWizardEnhanced: React.FC = () => {
                           </svg>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-slate-800 text-sm">Encriptación SSL</h4>
-                          <p className="text-slate-600 text-xs">Datos protegidos con tecnología bancaria</p>
+                          <h4 className="font-semibold text-slate-800 text-sm">Encriptaci贸n SSL</h4>
+                          <p className="text-slate-600 text-xs">Datos protegidos con tecnolog铆a bancaria</p>
                         </div>
                       </div>
                       <div className="flex items-start space-x-3">
@@ -2372,15 +2119,15 @@ const LoanWizardEnhanced: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* ventajas del préstamo */}
+                  {/* ventajas del pr茅stamo */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-4">
-                      ¿Por qué elegirnos?
+                      驴Por qu茅 elegirnos?
                     </h3>
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                        <span className="text-slate-700 text-sm">Aprobación en minutos</span>
+                        <span className="text-slate-700 text-sm">Aprobaci贸n en minutos</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
@@ -2400,10 +2147,10 @@ const LoanWizardEnhanced: React.FC = () => {
                   {/* contacto de ayuda */}
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
                     <h3 className="font-semibold text-slate-800 text-base mb-3">
-                      ¿Necesitas ayuda?
+                      驴Necesitas ayuda?
                     </h3>
                     <p className="text-slate-600 text-sm mb-4">
-                      Nuestro equipo está disponible para asistirte durante todo el proceso.
+                      Nuestro equipo est谩 disponible para asistirte durante todo el proceso.
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center space-x-2 text-slate-700">
@@ -2416,7 +2163,7 @@ const LoanWizardEnhanced: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 客户评价 */}
+                  {/* 瀹㈡埛璇勪环 */}
                   <div className="bg-white rounded-lg shadow-lg border border-slate-200 p-6">
                     <h3 className="font-bold text-slate-800 text-lg mb-4">
                       Lo que dicen nuestros clientes
@@ -2424,33 +2171,33 @@ const LoanWizardEnhanced: React.FC = () => {
                     <div className="space-y-4">
                       <div className="border-l-4 border-slate-800 pl-4">
                         <p className="text-sm text-slate-600 italic mb-2">
-                          "Proceso muy rápido y transparente. Obtuve mi préstamo en menos de 24 horas."
+                          "Proceso muy r谩pido y transparente. Obtuve mi pr茅stamo en menos de 24 horas."
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'★'.repeat(5)}
+                            {'鈽?.repeat(5)}
                           </div>
-                          <span className="text-xs text-slate-500">- María G.</span>
+                          <span className="text-xs text-slate-500">- Mar铆a G.</span>
                         </div>
                       </div>
                       <div className="border-l-4 border-slate-800 pl-4">
                         <p className="text-sm text-slate-600 italic mb-2">
-                          "Excelente atención al cliente y tasas muy competitivas."
+                          "Excelente atenci贸n al cliente y tasas muy competitivas."
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'★'.repeat(5)}
+                            {'鈽?.repeat(5)}
                           </div>
                           <span className="text-xs text-slate-500">- Carlos R.</span>
                         </div>
                       </div>
                       <div className="border-l-4 border-slate-800 pl-4">
                         <p className="text-sm text-slate-600 italic mb-2">
-                          "Las tasas son realmente competitivas y no hay sorpresas. Todo está muy claro desde el inicio."
+                          "Las tasas son realmente competitivas y no hay sorpresas. Todo est谩 muy claro desde el inicio."
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'★'.repeat(5)}
+                            {'鈽?.repeat(5)}
                           </div>
                           <span className="text-xs text-slate-500">- Ana L.</span>
                         </div>
@@ -2470,3 +2217,24 @@ const LoanWizardEnhanced: React.FC = () => {
 };
 
 export default LoanWizardEnhanced; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

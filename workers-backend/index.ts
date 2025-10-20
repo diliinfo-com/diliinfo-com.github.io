@@ -605,7 +605,7 @@ app.put('/api/applications/:id/step', async (c) => {
     
     // 记录步骤完成
     const stepNames = {
-      1: 'phone_verification',
+      1: 'limit_offer_viewed',
       2: 'identity_info',
       3: 'id_upload',
       4: 'contacts_info',
