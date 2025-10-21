@@ -1485,7 +1485,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
       <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-4xl">鉁?/span>
+          <span className="text-4xl">✓</span>
         </div>
         <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
           隆Retiro Exitoso!
