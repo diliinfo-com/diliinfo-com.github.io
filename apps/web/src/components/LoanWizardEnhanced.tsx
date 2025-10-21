@@ -1867,10 +1867,7 @@ const LoanWizardEnhanced: React.FC = () => {
               </div>
               <div className="text-right">
                 <div className="text-xs sm:text-sm font-semibold text-slate-800">
-                  Paso {currentStep} de {totalSteps}
-                </div>
-                <div className="text-xs text-slate-500">
-                  {Math.round((currentStep / totalSteps) * 100)}% completado
+                  Completa tu solicitud en solo 3 minutos
                 </div>
               </div>
             </div>
