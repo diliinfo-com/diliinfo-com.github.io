@@ -2018,7 +2018,7 @@ const LoanWizardEnhanced: React.FC = () => {
                           <div>
                             <h4 className="font-semibold text-slate-800 text-sm">Mar铆a Gonz谩lez</h4>
                             <div className="flex text-yellow-400 text-sm">
-                              {'鈽?.repeat(5)}
+                              {'★'.repeat(5)}
                             </div>
                           </div>
                         </div>
@@ -2037,7 +2037,7 @@ const LoanWizardEnhanced: React.FC = () => {
                           <div>
                             <h4 className="font-semibold text-slate-800 text-sm">Carlos Rodr铆guez</h4>
                             <div className="flex text-yellow-400 text-sm">
-                              {'鈽?.repeat(5)}
+                              {'★'.repeat(5)}
                             </div>
                           </div>
                         </div>
@@ -2188,7 +2188,7 @@ const LoanWizardEnhanced: React.FC = () => {
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'鈽?.repeat(5)}
+                            {'★'.repeat(5)}
                           </div>
                           <span className="text-xs text-slate-500">- Mar铆a G.</span>
                         </div>
@@ -2199,7 +2199,7 @@ const LoanWizardEnhanced: React.FC = () => {
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'鈽?.repeat(5)}
+                            {'★'.repeat(5)}
                           </div>
                           <span className="text-xs text-slate-500">- Carlos R.</span>
                         </div>
@@ -2210,7 +2210,7 @@ const LoanWizardEnhanced: React.FC = () => {
                         </p>
                         <div className="flex items-center space-x-2">
                           <div className="flex text-yellow-400">
-                            {'鈽?.repeat(5)}
+                            {'★'.repeat(5)}
                           </div>
                           <span className="text-xs text-slate-500">- Ana L.</span>
                         </div>
