@@ -382,7 +382,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
             </div>
             {frontUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">鉁?{frontFileName}</div>
+                <div className="text-green-600">✓ {frontFileName}</div>
                 <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : frontUploading ? (
@@ -412,7 +412,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
             </div>
             {backUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">鉁?{backFileName}</div>
+                <div className="text-green-600">✓ {backFileName}</div>
                 <div className="text-xs text-gray-500">Subido exitosamente</div>
               </div>
             ) : backUploading ? (
@@ -689,7 +689,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
 
             {videoUploaded ? (
               <div className="space-y-2">
-                <div className="text-green-600">鉁?{videoFileName}</div>
+                <div className="text-green-600">✓ {videoFileName}</div>
                 <div className="text-xs text-gray-500">Verificación completada</div>
               </div>
             ) : isUploading ? (
@@ -737,10 +737,10 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6">
         <h4 className="font-medium text-yellow-800 mb-2">Consejos para la grabación:</h4>
         <ul className="text-sm text-yellow-700 space-y-1">
-          <li>鈥?Asegúrate de tener buena iluminación</li>
-          <li>鈥?Mantén tu rostro centrado en la cámara</li>
-          <li>鈥?No uses lentes oscuros o sombreros</li>
-          <li>鈥?El video debe durar al menos 3 segundos</li>
+          <li>• Asegúrate de tener buena iluminación</li>
+          <li>• Mantén tu rostro centrado en la cámara</li>
+          <li>• No uses lentes oscuros o sombreros</li>
+          <li>• El video debe durar al menos 3 segundos</li>
         </ul>
       </div>
 
@@ -856,7 +856,7 @@ const Step6CreditAuthorization: React.FC<StepProps> = ({ onNext, onBack, updateA
           </p>
           <div className="text-center py-4">
             {hasRead ? (
-              <div className="text-green-600 font-medium">鉁?Has leído el acuerdo completo</div>
+              <div className="text-green-600 font-medium">✓ Has leído el acuerdo completo</div>
             ) : (
               <div className="space-y-2">
                 <div className="text-gray-500">Desplázate hasta el final para leer el acuerdo completo</div>
@@ -986,9 +986,9 @@ const Step7BankCard: React.FC<StepProps> = ({ data, onUpdate, onNext, onBack, up
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="font-medium text-blue-800 mb-2">Información de Seguridad:</h4>
           <ul className="text-sm text-blue-700 space-y-1">
-            <li>鈥?Tu información bancaria está protegida con encriptación SSL</li>
-            <li>鈥?Solo se utilizará para procesar tu préstamo</li>
-            <li>鈥?Nunca compartimos tus datos con terceros</li>
+            <li>• Tu información bancaria está protegida con encriptación SSL</li>
+            <li>• Solo se utilizará para procesar tu préstamo</li>
+            <li>• Nunca compartimos tus datos con terceros</li>
           </ul>
         </div>
       </div>
@@ -1100,10 +1100,10 @@ const Step8SubmitApplication: React.FC<StepProps> = ({ data, onNext, onBack, upd
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <h4 className="font-medium text-blue-800 mb-2">Información Importante:</h4>
         <ul className="text-sm text-blue-700 space-y-1">
-          <li>鈥?Tu solicitud será procesada en 24-48 horas</li>
-          <li>鈥?Recibirás una notificación por SMS del resultado</li>
-          <li>鈥?Mantén tu teléfono disponible para verificación</li>
-          <li>鈥?Los fondos se depositarán en tu cuenta bancaria</li>
+          <li>• Tu solicitud será procesada en 24-48 horas</li>
+          <li>• Recibirás una notificación por SMS del resultado</li>
+          <li>• Mantén tu teléfono disponible para verificación</li>
+          <li>• Los fondos se depositarán en tu cuenta bancaria</li>
         </ul>
       </div>
 
@@ -1276,10 +1276,10 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="font-medium text-blue-800 mb-2">Condiciones del Préstamo:</h4>
           <div className="text-sm text-blue-700 space-y-1 text-left">
-            <div>鈥?Tasa de interés competitiva</div>
-            <div>鈥?Opciones de pago flexibles</div>
-            <div>鈥?Sin comisiones por adelantado</div>
-            <div>鈥?Pago anticipado sin penalización</div>
+            <div>• Tasa de interés competitiva</div>
+            <div>• Opciones de pago flexibles</div>
+            <div>• Sin comisiones por adelantado</div>
+            <div>• Pago anticipado sin penalización</div>
           </div>
         </div>
 
@@ -1532,10 +1532,10 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h4 className="font-medium text-blue-800 mb-2">Consejos Importantes:</h4>
           <ul className="text-sm text-blue-700 space-y-1 text-left">
-            <li>鈥?Verifica tu cuenta bancaria en los próximos minutos</li>
-            <li>鈥?Recibirás una notificación SMS de confirmación</li>
-            <li>鈥?Recuerda la fecha de vencimiento de tu pago</li>
-            <li>鈥?Contacta soporte si tienes alguna pregunta</li>
+            <li>• Verifica tu cuenta bancaria en los próximos minutos</li>
+            <li>• Recibirás una notificación SMS de confirmación</li>
+            <li>• Recuerda la fecha de vencimiento de tu pago</li>
+            <li>• Contacta soporte si tienes alguna pregunta</li>
           </ul>
         </div>
 
@@ -1599,7 +1599,7 @@ const LoanWizardEnhanced: React.FC = () => {
         message?: string;
       };
 
-      console.log('鉁?Guest application result:', result);
+      console.log('✓ Guest application result:', result);
 
       const newData = {
         id: result.applicationId,
