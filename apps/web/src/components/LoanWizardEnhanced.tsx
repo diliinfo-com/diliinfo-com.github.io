@@ -375,7 +375,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-gray-400">
+            <div className="text-gray-400 flex justify-center">
               <svg
                 className="w-12 h-12"
                 fill="none"
@@ -425,7 +425,7 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
 
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-gray-400">
+            <div className="text-gray-400 flex justify-center">
               <svg
                 className="w-12 h-12"
                 fill="none"
@@ -719,7 +719,7 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
       <div className="text-center">
         <div className="inline-block p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           <div className="space-y-4">
-            <div className="text-slate-800">
+            <div className="text-slate-800 flex justify-center">
               <svg
                 className="w-16 h-16"
                 fill="none"
