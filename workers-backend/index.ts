@@ -821,7 +821,7 @@ app.post('/api/auth/verify-sms', async (c) => {
       // 记录步骤完成
       await c.env.DB.prepare(`
         INSERT INTO application_steps (id, application_id, step_number, step_name, step_data, ip_address)
-        VALUES (?, ?, 1, 'phone_verification', ?, ?)
+        VALUES (?, ?, 1, 'limit_offer_viewed', ?, ?)
       `).bind(crypto.randomUUID(), applicationId, JSON.stringify({ phone, verified: true }), c.req.header('CF-Connecting-IP') || '').run();
     }
     

@@ -45,15 +45,28 @@ interface StepProps {
 // Step 1: Credit offer view
 const Step1CreditOffer: React.FC<StepProps> = ({ onNext, updateApplicationStep, isSavingStep }) => {
   const { t } = useTranslation();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleContinue = async () => {
+    if (isProcessing || isSavingStep) {
+      return;
+    }
+
+    setIsProcessing(true);
     try {
       if (updateApplicationStep) {
-        await updateApplicationStep(1, { limitViewed: true });
+        await updateApplicationStep(1, {
+          limitViewed: true,
+          approvedAmount: 50000,
+          currency: 'MXN'
+        });
       }
       await onNext();
     } catch (error) {
       console.error('Failed to continue to next step:', error);
+      alert(t('errors.networkOffline'));
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -89,12 +102,12 @@ const Step1CreditOffer: React.FC<StepProps> = ({ onNext, updateApplicationStep, 
         <div className="max-w-2xl mx-auto w-full">
           {/* 主标题区域 */}
           <div className="text-center mb-8 lg:mb-12">
-            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">Prestamos con interes bajo!</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 mb-3">¡Préstamos con Interés Bajo!</h1>
             <p className="text-slate-600 text-base lg:text-lg leading-relaxed">
-              Tu evaluacion inicial esta lista. Continua para confirmar tus datos y recibir tu prestamo.
+              Conoce tu límite preaprobado y continúa con tu solicitud en minutos.
             </p>
             <div className="mt-4 text-sm text-slate-500">
-              Su informacion sera protegida con encriptacion de grado bancario
+              Su información será protegida con encriptación de grado bancario
             </div>
           </div>
 
@@ -107,43 +120,43 @@ const Step1CreditOffer: React.FC<StepProps> = ({ onNext, updateApplicationStep, 
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">Felicidades! Tu limite de credito preaprobado es:</h3>
+                  <h3 className="text-xl font-bold text-slate-800 mb-2">¡Felicidades! Tu límite de crédito preaprobado es:</h3>
                   <div className="text-4xl lg:text-5xl font-bold text-emerald-600 mb-2">
                     Hasta $50,000 <span className="text-2xl lg:text-3xl text-slate-600">MXN</span>
                   </div>
                   <p className="text-slate-600">
-                    Completa la solicitud para liberar tu credito en minutos.
+                    Completa la solicitud para liberar tu crédito en minutos.
                   </p>
                 </div>
 
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
-                  <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu prestamo:</h4>
+                  <h4 className="font-semibold text-slate-800 text-lg mb-4">Beneficios de tu préstamo:</h4>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                      <span className="text-slate-700">Tasa de interes baja: 15% OFF</span>
+                      <span className="text-slate-700">Tasa de interés baja: 15% OFF</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                      <span className="text-slate-700">Hasta 50,000 pesos de credito</span>
+                      <span className="text-slate-700">Hasta 100,000 pesos de crédito</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                      <span className="text-slate-700">Sin comision de procesamiento</span>
+                      <span className="text-slate-700">Sin comisión de procesamiento</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-2 h-2 bg-slate-800 rounded-full"></div>
-                      <span className="text-slate-700">Pago anticipado sin penalizacion</span>
+                      <span className="text-slate-700">Pago anticipado sin penalización</span>
                     </div>
                   </div>
                 </div>
 
                 <button
                   onClick={handleContinue}
-                  disabled={isSavingStep}
+                  disabled={isSavingStep || isProcessing}
                   className="w-full py-4 bg-slate-800 text-white font-semibold text-lg rounded-lg hover:bg-slate-700 transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  {isSavingStep ? t('common.loading') : 'Continuar con mi Solicitud'}
+                  {isSavingStep || isProcessing ? t('common.loading') : 'Continuar con mi Solicitud'}
                 </button>
               </div>
             </div>

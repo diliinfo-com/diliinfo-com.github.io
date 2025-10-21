@@ -46,8 +46,8 @@ cd apps/web && npm run dev
 
 ### 3. 访客申请标签页
 应该看到相同的3条记录，带有步骤详情：
-- 张三：完成步骤 3 步，步骤名称包含 phone_verification,identity_info,id_upload
-- 李四：完成步骤 3 步，步骤名称包含 phone_verification,identity_info,bank_card
+- 张三：完成步骤 3 步，步骤名称包含 limit_offer_viewed,identity_info,id_upload
+- 李四：完成步骤 3 步，步骤名称包含 limit_offer_viewed,identity_info,bank_card
 - 王五：完成步骤 0 步（测试数据未添加步骤记录）
 
 ### 4. 查看详情功能
