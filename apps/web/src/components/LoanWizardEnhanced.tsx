@@ -375,7 +375,27 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-4xl text-gray-400">馃搫</div>
+            <div className="text-gray-400">
+              <svg
+                className="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 2.25h6L18.75 6v13.5a2.25 2.25 0 01-2.25 2.25h-9A2.25 2.25 0 015.25 19.5V5.25A3 3 0 018.25 2.25H9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 2.25V6h4.5"
+                />
+              </svg>
+            </div>
             <div>
               <h4 className="font-medium">Frente de la identificación</h4>
               <p className="text-sm text-gray-500">Foto clara del frente de tu ID</p>
@@ -405,7 +425,27 @@ const Step3IdUpload: React.FC<StepProps> = ({ onNext, onBack, updateApplicationS
 
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
           <div className="space-y-4">
-            <div className="text-4xl text-gray-400">馃搫</div>
+            <div className="text-gray-400">
+              <svg
+                className="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 2.25h6L18.75 6v13.5a2.25 2.25 0 01-2.25 2.25h-9A2.25 2.25 0 015.25 19.5V5.25A3 3 0 018.25 2.25H9z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 2.25V6h4.5"
+                />
+              </svg>
+            </div>
             <div>
               <h4 className="font-medium">Reverso de la identificación</h4>
               <p className="text-sm text-gray-500">Foto clara del reverso de tu ID</p>
@@ -679,7 +719,22 @@ const Step5LivenessDetection: React.FC<StepProps> = ({ onNext, onBack, updateApp
       <div className="text-center">
         <div className="inline-block p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
           <div className="space-y-4">
-            <div className="text-6xl">馃摴</div>
+            <div className="text-slate-800">
+              <svg
+                className="w-16 h-16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 8.25v-1.5A2.25 2.25 0 0013.5 4.5h-9A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5h9a2.25 2.25 0 002.25-2.25v-1.5l4.5 3v-12l-4.5 3z"
+                />
+              </svg>
+            </div>
             <div>
               <h4 className="font-medium mb-2">Verificación de Identidad en Vivo</h4>
               <p className="text-sm text-gray-500 mb-4">
@@ -1254,10 +1309,30 @@ const Step10Approved: React.FC<StepProps> = ({ onNext, onBack, updateApplication
     <div className="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto text-center">
       <div className="mb-8">
         <div className="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
-          <span className="text-4xl">馃帀</span>
+          <span className="text-4xl text-green-500">
+            <svg
+              className="w-10 h-10"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 21l16.5-9-16.5-9 3.75 9-3.75 9z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 12l9 9"
+              />
+            </svg>
+          </span>
         </div>
         <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-          隆Felicitaciones!
+          ¡Felicitaciones!
         </h2>
         <p className="text-slate-600">Tu solicitud ha sido aprobada exitosamente</p>
       </div>
@@ -1501,7 +1576,7 @@ const Step12Complete: React.FC<StepProps> = ({ data, updateApplicationStep }) =>
           <span className="text-4xl">✓</span>
         </div>
         <h2 className="text-xl font-bold text-green-600 mb-2 font-['Source_Han_Sans_CN','PingFang_SC','Microsoft_YaHei',sans-serif]">
-          隆Retiro Exitoso!
+          ¡Retiro Exitoso!
         </h2>
         <p className="text-slate-600">Tu solicitud ha sido procesada correctamente</p>
       </div>
@@ -1583,10 +1658,10 @@ const LoanWizardEnhanced: React.FC = () => {
     console.log('=== createGuestApplication called ===');
     const sessionId = safeStorage.getItem('sessionId') || 'guest-' + Date.now();
     safeStorage.setItem('sessionId', sessionId);
-    console.log('馃攽 Session ID:', sessionId);
+    console.log('Session ID:', sessionId);
 
     try {
-      console.log('馃殌 Creating guest application...');
+      console.log('Creating guest application...');
       
       const result = await httpClient.postJson('/api/applications/guest', {}, {
         headers: {
@@ -1606,7 +1681,7 @@ const LoanWizardEnhanced: React.FC = () => {
         sessionId: result.sessionId,
         isGuest: true
       };
-      console.log('馃摑 Setting application data:', newData);
+      console.log('Setting application data:', newData);
 
       setApplicationData(prev => ({
         ...prev,
